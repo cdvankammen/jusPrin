@@ -1,0 +1,60 @@
+diff --git a/3rdparty/carotene/CMakeLists.txt b/3rdparty/carotene/CMakeLists.txt
+index 1234567..abcdefg 100644
+--- a/3rdparty/carotene/CMakeLists.txt
++++ b/3rdparty/carotene/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
++cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
+
+ project(Carotene)
+
+diff --git a/3rdparty/carotene/hal/CMakeLists.txt b/3rdparty/carotene/hal/CMakeLists.txt
+index 1234567..abcdefg 100644
+--- a/3rdparty/carotene/hal/CMakeLists.txt
++++ b/3rdparty/carotene/hal/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
++cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
+
+ include(CheckCCompilerFlag)
+ include(CheckCXXCompilerFlag)
+diff --git a/samples/hal/c_hal/CMakeLists.txt b/samples/hal/c_hal/CMakeLists.txt
+index 1234567..abcdefg 100644
+--- a/samples/hal/c_hal/CMakeLists.txt
++++ b/samples/hal/c_hal/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
++cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
+
+ project(custom_hal)
+
+diff --git a/samples/hal/slow_hal/CMakeLists.txt b/samples/hal/slow_hal/CMakeLists.txt
+index 1234567..abcdefg 100644
+--- a/samples/hal/slow_hal/CMakeLists.txt
++++ b/samples/hal/slow_hal/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
++cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
+
+ project(slow_hal)
+
+diff --git a/samples/openvx/CMakeLists.txt b/samples/openvx/CMakeLists.txt
+index 1234567..abcdefg 100644
+--- a/samples/openvx/CMakeLists.txt
++++ b/samples/openvx/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 2.8.9)
++cmake_minimum_required(VERSION 3.13)
+
+ project(ovx_demo)
+
+diff --git a/modules/python/CMakeLists.txt b/modules/python/CMakeLists.txt
+index 1234567..abcdefg 100644
+--- a/modules/python/CMakeLists.txt
++++ b/modules/python/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 2.8.12)
++cmake_minimum_required(VERSION 3.13)
+
+ # This file is included from a subdirectory
+

@@ -10,6 +10,7 @@ add_subdirectory(dev-utils)
 # Note: semver and hints are now included from deps_src/CMakeLists.txt
 
 add_subdirectory(libslic3r)
+add_subdirectory(libvgcode)  # G-code visualization library (OrcaSlicer merge)
 
 if (SLIC3R_GUI)
     # imgui, imguizmo, and hidapi are now included from deps_src
