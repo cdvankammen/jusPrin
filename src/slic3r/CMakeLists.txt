@@ -402,6 +402,9 @@ set(SLIC3R_GUI_SOURCES
     GUI/ParamsPanel.hpp
     GUI/PartPlate.cpp
     GUI/PartPlate.hpp
+    GUI/PartSkipCommon.hpp
+    GUI/PartSkipDialog.cpp
+    GUI/PartSkipDialog.hpp
     GUI/PhysicalPrinterDialog.cpp
     GUI/PhysicalPrinterDialog.hpp
     GUI/Plater.cpp
@@ -474,6 +477,10 @@ set(SLIC3R_GUI_SOURCES
     GUI/StepMeshDialog.hpp
     GUI/SurfaceDrag.cpp
     GUI/SurfaceDrag.hpp
+    GUI/SkipPartCanvas.cpp
+    GUI/SkipPartCanvas.hpp
+    GUI/SyncAmsInfoDialog.cpp
+    GUI/SyncAmsInfoDialog.hpp
     GUI/Tabbook.cpp
     GUI/Tabbook.hpp
     GUI/TabButton.cpp
@@ -484,6 +491,8 @@ set(SLIC3R_GUI_SOURCES
     GUI/TaskManager.hpp
     GUI/TextLines.cpp
     GUI/TextLines.hpp
+    GUI/ThermalPreconditioningDialog.cpp
+    GUI/ThermalPreconditioningDialog.hpp
     GUI/TickCode.cpp
     GUI/TickCode.hpp
     GUI/UnsavedChangesDialog.cpp
@@ -508,6 +517,8 @@ set(SLIC3R_GUI_SOURCES
     GUI/Widgets/AMSControl.hpp
     GUI/Widgets/AMSItem.cpp
     GUI/Widgets/AMSItem.hpp
+    GUI/Widgets/AnimaController.cpp
+    GUI/Widgets/AnimaController.hpp
     GUI/Widgets/AxisCtrlButton.cpp
     GUI/Widgets/AxisCtrlButton.hpp
     GUI/Widgets/Button.cpp
@@ -524,8 +535,12 @@ set(SLIC3R_GUI_SOURCES
     GUI/Widgets/ErrorMsgStaticText.hpp
     GUI/Widgets/FanControl.cpp
     GUI/Widgets/FanControl.hpp
+    GUI/Widgets/FilamentLoad.cpp
+    GUI/Widgets/FilamentLoad.hpp
     GUI/Widgets/ImageSwitchButton.cpp
     GUI/Widgets/ImageSwitchButton.hpp
+    GUI/Widgets/HyperLink.cpp
+    GUI/Widgets/HyperLink.hpp
     GUI/Widgets/Label.cpp
     GUI/Widgets/LabeledStaticBox.cpp
     GUI/Widgets/LabeledStaticBox.hpp
@@ -560,6 +575,8 @@ set(SLIC3R_GUI_SOURCES
     GUI/Widgets/StateHandler.hpp
     GUI/Widgets/StaticBox.cpp
     GUI/Widgets/StaticBox.hpp
+    GUI/Widgets/StaticGroup.cpp
+    GUI/Widgets/StaticGroup.hpp
     GUI/Widgets/StaticLine.cpp
     GUI/Widgets/StaticLine.hpp
     GUI/Widgets/StepCtrl.cpp
@@ -586,6 +603,12 @@ set(SLIC3R_GUI_SOURCES
     Utils/bambu_networking.hpp
     Utils/Bonjour.cpp
     Utils/Bonjour.hpp
+    Utils/BBLCloudServiceAgent.cpp
+    Utils/BBLCloudServiceAgent.hpp
+    Utils/BBLNetworkPlugin.cpp
+    Utils/BBLNetworkPlugin.hpp
+    Utils/BBLPrinterAgent.cpp
+    Utils/BBLPrinterAgent.hpp
     Utils/CalibUtils.cpp
     Utils/CalibUtils.hpp
     Utils/ColorSpaceConvert.cpp
@@ -608,6 +631,8 @@ set(SLIC3R_GUI_SOURCES
     Utils/FlashAir.hpp
     Utils/Flashforge.cpp
     Utils/Flashforge.hpp
+    Utils/FileTransferUtils.cpp
+    Utils/FileTransferUtils.hpp
     Utils/FontConfigHelp.cpp
     Utils/FontConfigHelp.hpp
     Utils/HexFile.cpp
@@ -616,16 +641,26 @@ set(SLIC3R_GUI_SOURCES
     Utils/Http.hpp
     Utils/InstanceID.cpp
     Utils/InstanceID.hpp
+    Utils/ICloudServiceAgent.hpp
+    Utils/IPrinterAgent.hpp
     Utils/json_diff.cpp
     Utils/json_diff.hpp
     Utils/minilzo_extension.cpp
     Utils/minilzo_extension.hpp
     Utils/MKS.cpp
     Utils/MKS.hpp
+    Utils/MoonrakerPrinterAgent.cpp
+    Utils/MoonrakerPrinterAgent.hpp
     Utils/NetworkAgent.cpp
     Utils/NetworkAgent.hpp
+    Utils/NetworkAgentFactory.cpp
+    Utils/NetworkAgentFactory.hpp
     Utils/Obico.cpp
     Utils/Obico.hpp
+    Utils/OrcaCloudServiceAgent.cpp
+    Utils/OrcaCloudServiceAgent.hpp
+    Utils/OrcaPrinterAgent.cpp
+    Utils/OrcaPrinterAgent.hpp
     Utils/OctoPrint.cpp
     Utils/OctoPrint.hpp
     Utils/PresetUpdater.cpp
@@ -636,6 +671,8 @@ set(SLIC3R_GUI_SOURCES
     Utils/Process.hpp
     Utils/ProfileDescription.hpp
     Utils/Profile.hpp
+    Utils/QidiPrinterAgent.cpp
+    Utils/QidiPrinterAgent.hpp
     Utils/RaycastManager.cpp
     Utils/RaycastManager.hpp
     Utils/Repetier.cpp
@@ -646,6 +683,8 @@ set(SLIC3R_GUI_SOURCES
     Utils/SerialMessageType.hpp
     Utils/SimplyPrint.cpp
     Utils/SimplyPrint.hpp
+    Utils/SnapmakerPrinterAgent.cpp
+    Utils/SnapmakerPrinterAgent.hpp
     Utils/TCPConsole.cpp
     Utils/TCPConsole.hpp
     Utils/UndoRedo.cpp
