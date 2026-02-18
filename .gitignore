@@ -39,3 +39,8 @@ src/OrcaSlicer-doc/
 resources/profiles/user/default
 *.code-workspace
 deps_src/build/
+
+# Claude Code documentation (not for repository)
+analysis.md
+chat.md
+task.md
