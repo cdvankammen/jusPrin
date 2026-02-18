@@ -108,9 +108,62 @@ set(SLIC3R_GUI_SOURCES
     GUI/DeviceCore/DevExtruderSystem.cpp
     GUI/DeviceCore/DevExtruderSystem.h
     GUI/DeviceCore/DevExtruderSystemCtrl.cpp
+    GUI/DeviceCore/DevExtruderSystemCtrl.h
     GUI/DeviceCore/DevFan.cpp
     GUI/DeviceCore/DevFan.h
-    # Note: DeviceCore has ~50 files total - add remaining files as needed during build
+    GUI/DeviceCore/DevFilaAmsSetting.cpp
+    GUI/DeviceCore/DevFilaAmsSetting.h
+    GUI/DeviceCore/DevFilaAmsSettingCtrl.cpp
+    GUI/DeviceCore/DevFilaAmsSettingCtrl.h
+    GUI/DeviceCore/DevFilaBlackList.cpp
+    GUI/DeviceCore/DevFilaBlackList.h
+    GUI/DeviceCore/DevFilaSystem.cpp
+    GUI/DeviceCore/DevFilaSystem.h
+    GUI/DeviceCore/DevFilaSystemCtrl.cpp
+    GUI/DeviceCore/DevFilaSystemCtrl.h
+    GUI/DeviceCore/DevFirmware.cpp
+    GUI/DeviceCore/DevFirmware.h
+    GUI/DeviceCore/DevHMS.cpp
+    GUI/DeviceCore/DevHMS.h
+    GUI/DeviceCore/DevInfo.cpp
+    GUI/DeviceCore/DevInfo.h
+    GUI/DeviceCore/DevLamp.cpp
+    GUI/DeviceCore/DevLamp.h
+    GUI/DeviceCore/DevLampCtrl.cpp
+    GUI/DeviceCore/DevLampCtrl.h
+    GUI/DeviceCore/DevManager.cpp
+    GUI/DeviceCore/DevManager.h
+    GUI/DeviceCore/DevMapping.cpp
+    GUI/DeviceCore/DevMapping.h
+    GUI/DeviceCore/DevNozzleSystem.cpp
+    GUI/DeviceCore/DevNozzleSystem.h
+    GUI/DeviceCore/DevPrintOptions.cpp
+    GUI/DeviceCore/DevPrintOptions.h
+    GUI/DeviceCore/DevPrintTaskInfo.cpp
+    GUI/DeviceCore/DevPrintTaskInfo.h
+    GUI/DeviceCore/DevStorage.cpp
+    GUI/DeviceCore/DevStorage.h
+    GUI/DeviceCore/DevUtil.cpp
+    GUI/DeviceCore/DevUtil.h
+    # Additional GUI files from OrcaSlicer merge
+    GUI/BBLStatusBarPrint.cpp
+    GUI/BBLStatusBarPrint.hpp
+    GUI/BaseTransparentDPIFrame.cpp
+    GUI/BaseTransparentDPIFrame.hpp
+    GUI/DeviceErrorDialog.cpp
+    GUI/DeviceErrorDialog.hpp
+    GUI/EncodedFilament.cpp
+    GUI/EncodedFilament.hpp
+    GUI/FilamentBitmapUtils.cpp
+    GUI/FilamentBitmapUtils.hpp
+    GUI/GuiColor.cpp
+    GUI/GuiColor.hpp
+    GUI/ImageDPIFrame.cpp
+    GUI/ImageDPIFrame.hpp
+    GUI/NetworkPluginDialog.cpp
+    GUI/NetworkPluginDialog.hpp
+    GUI/SafetyOptionsDialog.cpp
+    GUI/SafetyOptionsDialog.hpp
     GUI/DeviceManager.cpp
     GUI/DeviceManager.hpp
     GUI/Downloader.cpp
@@ -133,18 +186,6 @@ set(SLIC3R_GUI_SOURCES
     GUI/Field.hpp
     GUI/FileArchiveDialog.cpp
     GUI/FileArchiveDialog.hpp
-    GUI/FilamentGroup.cpp
-    GUI/FilamentGroup.hpp
-    GUI/FilamentGroupUtils.cpp
-    GUI/FilamentGroupUtils.hpp
-    GUI/FilamentGroupPopup.cpp
-    GUI/FilamentGroupPopup.hpp
-    GUI/FilamentMapDialog.cpp
-    GUI/FilamentMapDialog.hpp
-    GUI/FilamentMapPanel.cpp
-    GUI/FilamentMapPanel.hpp
-    GUI/FilamentPickerDialog.cpp
-    GUI/FilamentPickerDialog.hpp
     GUI/format.hpp
     GUI/GCodeViewer.cpp
     GUI/GCodeViewer.hpp

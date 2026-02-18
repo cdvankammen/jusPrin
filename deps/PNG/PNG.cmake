@@ -24,7 +24,10 @@ if(APPLE AND IS_CROSS_COMPILE)
 else ()
 set(_patch_step "")
     if (APPLE)
-        set(_patch_step PATCH_COMMAND ${PATCH_CMD} ${CMAKE_CURRENT_LIST_DIR}/PNG.patch ${CMAKE_CURRENT_LIST_DIR}/0002-clang19-macos.patch)
+        set(_patch_step PATCH_COMMAND
+            sed -i.bak "s/cmake_minimum_required(VERSION 3.0.2)/cmake_minimum_required(VERSION 3.13)/g" CMakeLists.txt &&
+            sed -i.bak "s/cmake_policy(VERSION 3.0.2)/cmake_policy(VERSION 3.13)/g" CMakeLists.txt &&
+            ${PATCH_CMD} ${CMAKE_CURRENT_LIST_DIR}/PNG.patch ${CMAKE_CURRENT_LIST_DIR}/0002-clang19-macos.patch)
     endif ()
     orcaslicer_add_cmake_project(PNG 
         # GIT_REPOSITORY https://github.com/glennrp/libpng.git 

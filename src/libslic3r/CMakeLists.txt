@@ -573,6 +573,7 @@ set(OCCT_LIBS
 )
 
 find_package(libnoise REQUIRED)
+find_package(draco REQUIRED)
 target_link_libraries(libslic3r
     PUBLIC
         admesh
@@ -587,6 +588,7 @@ target_link_libraries(libslic3r
         boost_libs
         cereal::cereal
         clipper
+        draco::draco
         eigen
         glu-libtess
         JPEG::JPEG
