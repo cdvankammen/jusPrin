@@ -76,6 +76,8 @@ set(SLIC3R_GUI_SOURCES
     GUI/CameraPopup.hpp
     GUI/CameraUtils.cpp
     GUI/CameraUtils.hpp
+    GUI/CapsuleButton.cpp
+    GUI/CapsuleButton.hpp
     GUI/CloneDialog.cpp
     GUI/CloneDialog.hpp
     GUI/ConfigManipulation.cpp
@@ -91,6 +93,24 @@ set(SLIC3R_GUI_SOURCES
     GUI/DailyTips.hpp
     GUI/DesktopIntegrationDialog.cpp
     GUI/DesktopIntegrationDialog.hpp
+    # DeviceCore module files (OrcaSlicer merge - modular printer system)
+    GUI/DeviceCore/DevBed.cpp
+    GUI/DeviceCore/DevBed.h
+    GUI/DeviceCore/DevConfig.cpp
+    GUI/DeviceCore/DevConfig.h
+    GUI/DeviceCore/DevConfigUtil.cpp
+    GUI/DeviceCore/DevConfigUtil.h
+    GUI/DeviceCore/DevCtrl.cpp
+    GUI/DeviceCore/DevCtrl.h
+    GUI/DeviceCore/DevDefs.h
+    GUI/DeviceCore/DevExtensionTool.cpp
+    GUI/DeviceCore/DevExtensionTool.h
+    GUI/DeviceCore/DevExtruderSystem.cpp
+    GUI/DeviceCore/DevExtruderSystem.h
+    GUI/DeviceCore/DevExtruderSystemCtrl.cpp
+    GUI/DeviceCore/DevFan.cpp
+    GUI/DeviceCore/DevFan.h
+    # Note: DeviceCore has ~50 files total - add remaining files as needed during build
     GUI/DeviceManager.cpp
     GUI/DeviceManager.hpp
     GUI/Downloader.cpp
@@ -101,6 +121,8 @@ set(SLIC3R_GUI_SOURCES
     GUI/DownloadProgressDialog.hpp
     GUI/DragCanvas.cpp
     GUI/DragCanvas.hpp
+    GUI/DragDropPanel.cpp
+    GUI/DragDropPanel.hpp
     GUI/EditGCodeDialog.cpp
     GUI/EditGCodeDialog.hpp
     GUI/ExtraRenderers.cpp
@@ -111,6 +133,18 @@ set(SLIC3R_GUI_SOURCES
     GUI/Field.hpp
     GUI/FileArchiveDialog.cpp
     GUI/FileArchiveDialog.hpp
+    GUI/FilamentGroup.cpp
+    GUI/FilamentGroup.hpp
+    GUI/FilamentGroupUtils.cpp
+    GUI/FilamentGroupUtils.hpp
+    GUI/FilamentGroupPopup.cpp
+    GUI/FilamentGroupPopup.hpp
+    GUI/FilamentMapDialog.cpp
+    GUI/FilamentMapDialog.hpp
+    GUI/FilamentMapPanel.cpp
+    GUI/FilamentMapPanel.hpp
+    GUI/FilamentPickerDialog.cpp
+    GUI/FilamentPickerDialog.hpp
     GUI/format.hpp
     GUI/GCodeViewer.cpp
     GUI/GCodeViewer.hpp
@@ -339,6 +373,8 @@ set(SLIC3R_GUI_SOURCES
     GUI/PresetComboBoxes.hpp
     GUI/PresetHints.cpp
     GUI/PresetHints.hpp
+    GUI/PrePrintChecker.cpp
+    GUI/PrePrintChecker.hpp
     GUI/PrinterCloudAuthDialog.cpp
     GUI/PrinterCloudAuthDialog.hpp
     GUI/Printer/PrinterFileSystem.cpp

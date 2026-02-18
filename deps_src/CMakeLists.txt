@@ -16,6 +16,7 @@ add_subdirectory(stb_dxt)     # Header-only STB DXT compression library
 add_subdirectory(Shiny)
 add_subdirectory(admesh)
 add_subdirectory(clipper)
+add_subdirectory(clipper2)     # Modern polygon clipping library (OrcaSlicer merge)
 add_subdirectory(expat)
 add_subdirectory(glu-libtess)
 add_subdirectory(hidapi)
@@ -25,6 +26,7 @@ add_subdirectory(imguizmo)
 add_subdirectory(libigl)
 add_subdirectory(libnest2d)
 add_subdirectory(mcut)
+add_subdirectory(md4c)         # Markdown parser (OrcaSlicer merge)
 add_subdirectory(miniz)
 add_subdirectory(minilzo)
 add_subdirectory(qhull)
@@ -33,3 +35,6 @@ add_subdirectory(semver)      # Semver static library
 
 # Eigen header-only library
 add_subdirectory(eigen)
+
+# Additional header-only libraries from OrcaSlicer merge
+add_subdirectory(earcut)       # Polygon triangulation
