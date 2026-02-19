@@ -171,8 +171,8 @@ echo ""
 if [ "$DRY_RUN" = true ]; then
     log "DRY RUN: Files that would be synced:"
     rsync --dry-run -av "$RSYNC_EXCLUDES" . "$TARGET_DIR" | grep -E "^[^d]" | head -50
-    if [ $FILE_COUNT -gt 50 ]; then
-        log "... and $((FILE_COUNT - 50)) more files"
+    if [ "$FILE_COUNT" -gt 50 ]; then
+        log "... and $(("$FILE_COUNT" - 50)) more files"
     fi
     echo ""
     log_warning "DRY RUN COMPLETE - No changes made"
