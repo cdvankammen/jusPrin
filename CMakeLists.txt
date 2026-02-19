@@ -106,15 +106,6 @@ option(SLIC3R_WX_STABLE         "Build against wxWidgets stable (3.0) as oppsed 
 option(SLIC3R_PROFILE 			"Compile OrcaSlicer with an invasive Shiny profiler" 0)
 option(SLIC3R_PCH               "Use precompiled headers" 1)
 
-# Detect Wayland session at configure time (useful to enable Wayland-specific workarounds)
-if(DEFINED ENV{WAYLAND_DISPLAY} OR "$ENV{XDG_SESSION_TYPE}" STREQUAL "wayland")
-    set(SLIC3R_WAYLAND_INITIAL 1)
-else()
-    set(SLIC3R_WAYLAND_INITIAL 0)
-endif()
-
-option(SLIC3R_WAYLAND "Enable Wayland runtime tweaks (detected from environment)" ${SLIC3R_WAYLAND_INITIAL})
-
 option(SLIC3R_MSVC_COMPILE_PARALLEL "Compile on Visual Studio in parallel" 1)
 option(SLIC3R_MSVC_PDB          "Generate PDB files on MSVC in Release mode" 1)
 option(SLIC3R_PERL_XS           "Compile XS Perl module and enable Perl unit and integration tests" 0)
@@ -208,11 +199,6 @@ endif ()
 if(SLIC3R_DESKTOP_INTEGRATION)
     add_definitions(-DSLIC3R_DESKTOP_INTEGRATION)
 endif ()
-
-if (SLIC3R_WAYLAND)
-    add_definitions(-DSLIC3R_WAYLAND)
-    message(STATUS "SLIC3R_WAYLAND: enabled (Wayland-specific tweaks will be compiled)")
-endif()
 
 if (MSVC AND CMAKE_CXX_COMPILER_ID STREQUAL Clang)
     set(IS_CLANG_CL TRUE)
