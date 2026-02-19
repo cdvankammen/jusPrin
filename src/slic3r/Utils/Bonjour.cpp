@@ -1114,6 +1114,11 @@ Bonjour::Bonjour(Bonjour &&other) : p(std::move(other.p)) {}
 Bonjour::~Bonjour()
 {
 	if (p && p->io_thread.joinable()) {
+		// TODO(thread-safety): detach() in destructor is needed to avoid std::terminate,
+		// and is mostly safe because lookup()/resolve() use a shared_ptr<Bonjour> pattern
+		// (the thread lambda captures `self`) so the object stays alive while the thread runs.
+		// However, if the caller drops its Ptr early, destruction races with thread cleanup.
+		// A safer approach: add an atomic stop flag, call io_service::stop() here, and join.
 		p->io_thread.detach();
 	}
 }

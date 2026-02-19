@@ -104,7 +104,11 @@ MoonrakerPrinterAgent::~MoonrakerPrinterAgent()
         ++connect_generation;
     }
     if (connect_thread.joinable()) {
-        connect_thread.join();
+        try {
+            connect_thread.join();
+        } catch (...) {
+            // join should not throw, but swallow any exceptions in destructor
+        }
     }
     stop_status_stream();
 }
@@ -150,9 +154,12 @@ int MoonrakerPrinterAgent::connect_printer(std::string dev_id, std::string dev_i
         gen = ++connect_generation;
         base_url = device_info.base_url;
         api_key  = device_info.api_key;
-        if (connect_thread.joinable()) {
-            connect_thread.detach();
-        }
+    }
+
+    // Join old thread outside the lock — the generation bump causes it to
+    // detect staleness via is_stale() and exit quickly.
+    if (connect_thread.joinable()) {
+        try { connect_thread.join(); } catch (...) {}
     }
 
     // Stop existing status stream and clear state
@@ -180,9 +187,12 @@ int MoonrakerPrinterAgent::disconnect_printer()
         std::lock_guard<std::recursive_mutex> lock(connect_mutex);
         device_info = MoonrakerDeviceInfo{};
         ++connect_generation;  // Invalidate any in-flight connection
-        if (connect_thread.joinable()) {
-            connect_thread.detach();
-        }
+    }
+
+    // Join thread outside the lock — the generation bump causes it to
+    // detect staleness via is_stale() and exit quickly.
+    if (connect_thread.joinable()) {
+        try { connect_thread.join(); } catch (...) {}
     }
 
     stop_status_stream();

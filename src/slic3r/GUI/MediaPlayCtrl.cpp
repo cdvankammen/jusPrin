@@ -785,6 +785,8 @@ bool MediaPlayCtrl::start_stream_service(bool *need_install)
                                              boost::process::std_out > intermediate, boost::process::limit_handles);
         boost::process::child process_ffmpeg(file_ffmpeg, configss, boost::process::std_in < intermediate, boost::process::limit_handles);
 #endif
+        // Safe: these are boost::process::child detaches (external subprocesses),
+        // not std::thread detaches. No shared state risk — the processes run independently.
         process_source.detach();
         process_ffmpeg.detach();
     } catch (std::exception &e) {

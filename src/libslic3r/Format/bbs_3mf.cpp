@@ -631,6 +631,28 @@ static std::string sanitize_archive_path(const std::string& path) {
     return result;
 }
 
+// Verify that a resolved path stays within the intended base directory.
+// Returns true if 'full_path' is a child of 'base_dir', false otherwise.
+static bool is_path_within_directory(const std::string& full_path, const std::string& base_dir) {
+    namespace fs = boost::filesystem;
+    boost::system::error_code ec;
+
+    // Normalize both paths (resolve ".", "..", and redundant separators)
+    // Use weakly_canonical so the child path need not exist yet.
+    fs::path canonical_base = fs::weakly_canonical(fs::path(base_dir), ec);
+    if (ec) return false;
+    fs::path canonical_full = fs::weakly_canonical(fs::path(full_path), ec);
+    if (ec) return false;
+
+    std::string base_str = canonical_base.string() + "/";
+    std::string full_str = canonical_full.string();
+
+    // The full path must start with the base directory prefix
+    if (full_str.size() < base_str.size())
+        return false;
+    return full_str.compare(0, base_str.size(), base_str) == 0;
+}
+
 namespace Slic3r {
 
 void PlateData::parse_filament_info(GCodeProcessorResult *result)
@@ -1500,8 +1522,11 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
         mz_zip_archive_file_stat stat;
         for (mz_uint i = 0; i < num_entries; ++i) {
             if (mz_zip_reader_file_stat(&archive, i, &stat)) {
-                std::string name(stat.m_filename);
-                std::replace(name.begin(), name.end(), '\\', '/');
+                std::string name = sanitize_archive_path(std::string(stat.m_filename));
+                if (name.empty()) {
+                    BOOST_LOG_TRIVIAL(warning) << "Skipping archive member with invalid path: " << stat.m_filename;
+                    continue;
+                }
 
                 BOOST_LOG_TRIVIAL(info) << __FUNCTION__ << ":" << __LINE__ << boost::format("extract %1%th file %2%, total=%3%\n")%(i+1)%name%num_entries;
 
@@ -1812,15 +1837,13 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
                         return false;
                 }
 
-                std::string name(stat.m_filename);
-                std::replace(name.begin(), name.end(), '\\', '/');
-
-                BOOST_LOG_TRIVIAL(info) << __FUNCTION__ << ":" << __LINE__ << boost::format("extract %1%th file %2%, total=%3%")%(i+1)%name%num_entries;
-
-                if (name.find("/../") != std::string::npos) {
-                    BOOST_LOG_TRIVIAL(warning) << __FUNCTION__ << boost::format(", find file path including /../, not valid, skip it\n");
+                std::string name = sanitize_archive_path(std::string(stat.m_filename));
+                if (name.empty()) {
+                    BOOST_LOG_TRIVIAL(warning) << "Skipping archive member with invalid path: " << stat.m_filename;
                     continue;
                 }
+
+                BOOST_LOG_TRIVIAL(info) << __FUNCTION__ << ":" << __LINE__ << boost::format("extract %1%th file %2%, total=%3%")%(i+1)%name%num_entries;
 
                 if (boost::algorithm::iequals(name, BBS_LAYER_HEIGHTS_PROFILE_FILE)) {
                     // extract slic3r layer heights profile file
@@ -2728,6 +2751,13 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
                     boost::filesystem::create_directories(parent_full_path);
             }
             dest_file = dir.string() + std::string("/") + dest_file;
+
+            // SECURITY: verify the final path stays within the intended extraction directory
+            if (!is_path_within_directory(dest_file, dir.string())) {
+                BOOST_LOG_TRIVIAL(warning) << "Skipping archive member that resolves outside extraction directory: " << stat.m_filename;
+                return;
+            }
+
             std::string dest_zip_file = encode_path(dest_file.c_str());
             mz_bool res = mz_zip_reader_extract_to_file(&archive, stat.m_file_index, dest_zip_file.c_str(), 0);
             BOOST_LOG_TRIVIAL(info) << __FUNCTION__ << boost::format(", extract  %1% from 3mf %2%, ret %3%\n") % dest_file % stat.m_filename % res;
@@ -2751,6 +2781,13 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
             // BBS: use backup path
             //aux directory from model
             boost::filesystem::path dest_path = boost::filesystem::path(m_backup_path + "/" + src_file);
+
+            // SECURITY: verify the final path stays within the intended backup directory
+            if (!is_path_within_directory(dest_path.string(), m_backup_path)) {
+                BOOST_LOG_TRIVIAL(warning) << "Skipping archive member that resolves outside backup directory: " << stat.m_filename;
+                return;
+            }
+
             std::string dest_zip_file = encode_path(dest_path.string().c_str());
             mz_bool res = mz_zip_reader_extract_to_file(&archive, stat.m_file_index, dest_zip_file.c_str(), 0);
             BOOST_LOG_TRIVIAL(info) << __FUNCTION__ << boost::format(", extract  %1% from 3mf %2%, ret %3%\n") % dest_path % stat.m_filename % res;

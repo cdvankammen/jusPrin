@@ -532,6 +532,10 @@ Http::~Http()
 {
     assert(! p || ! p->putFile);
 	if (p && p->io_thread.joinable()) {
+		// TODO(thread-safety): detach() here is needed to avoid std::terminate. The
+		// perform() method uses a shared_ptr<Http> pattern (thread lambda captures `self`)
+		// so the object stays alive while the thread runs, making this mostly safe.
+		// A safer approach: set p->cancel, call curl_easy_cleanup to unblock, then join.
 		p->io_thread.detach();
 	}
 }
