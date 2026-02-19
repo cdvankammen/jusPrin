@@ -210,6 +210,16 @@ if (MINGW)
     add_compile_options(-Wa,-mbig-obj)
 endif ()
 
+# CRITICAL FIX: Find Threads BEFORE applying security hardening flags
+# The security flags (-fPIE, -fstack-protector-strong, etc.) can interfere with
+# CMake's thread detection test compilation on macOS. By finding Threads first,
+# we ensure detection happens in a clean environment.
+# This fixes "Could NOT find Threads" error on macOS when Boost tries to find Threads.
+if (NOT MSVC AND NOT WIN32)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    find_package(Threads REQUIRED)
+endif()
+
 if (NOT MSVC)
     # ARMs (Raspberry PI) use an unsigned char by default. Let's make it consistent for OrcaSlicer on all platforms.
     add_compile_options(-fsigned-char)
