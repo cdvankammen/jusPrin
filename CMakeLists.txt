@@ -267,8 +267,13 @@ if (NOT MSVC)
         add_compile_options(-fPIE)
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pie")
 
-        # Full RELRO (Read-Only Relocation) - prevents GOT overwrite attacks
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,relro,-z,now")
+        # CRITICAL: RELRO flags are Linux-specific (GNU ld)
+        # macOS uses ld64 which doesn't support -z options
+        # Applying these to macOS causes silent failures or link errors
+        if(NOT APPLE)
+            # Full RELRO (Read-Only Relocation) - prevents GOT overwrite attacks
+            set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,relro,-z,now")
+        endif()
 
         # Stack clash protection (GCC 8+, Clang 11+)
         include(CheckCXXCompilerFlag)
@@ -461,8 +466,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     endif()
 
     # Boost on Raspberry-Pi does not link to pthreads.
-    set(THREADS_PREFER_PTHREAD_FLAG ON)
-    find_package(Threads REQUIRED)
+    # NOTE: Threads already found earlier (line ~250) for all non-Windows platforms
+    # This duplicate find_package is kept for documentation but is a no-op (CMake caches results)
 
     find_package(DBus REQUIRED)
     include_directories(SYSTEM ${DBUS_INCLUDE_DIRS})
