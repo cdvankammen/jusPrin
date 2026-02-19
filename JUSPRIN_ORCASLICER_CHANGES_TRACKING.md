@@ -765,9 +765,83 @@ _(To be filled out after completion)_
 
 ---
 
+## Automated Code Quality Pass — `updates` Branch
+**Date:** 2026-02  
+**Branch:** `updates` (commit `fd1112a71`)  
+**PR:** #9 — Phase 2 + Phase 3: Security, thread-safety, smart-ptrs, CI workflows, OpenSSL3 config
+
+### ✅ COMPLETED
+
+#### Thread Safety (all `std::thread::detach()` eliminated)
+| File | Change | Status |
+|------|--------|--------|
+| `src/slic3r/Utils/Bonjour.cpp` | Added `io_service_ptr` to `priv`; dtor calls `stop()+join()` | ✅ Done |
+| `src/slic3r/Utils/Http.cpp` | Dtor sets `cancel=true` then `join()` | ✅ Done |
+| `src/slic3r/Utils/PrintHost.cpp` | `stop_bg_thread()` uses `join()` | ✅ Done |
+| `src/slic3r/GUI/GUI_App.cpp` | Always joins sync thread (no conditional detach) | ✅ Done |
+| `src/slic3r/GUI/PrinterFileSystem.cpp` | shutdown+join (prior phase) | ✅ Done |
+| `src/slic3r/Utils/MoonrakerPrinterAgent.cpp` | generation cancel+join (prior phase) | ✅ Done |
+| `src/slic3r/GUI/MediaPlayCtrl.cpp` | NOT changed — these are `boost::process::child::detach()` (OS subprocesses), safe | ✅ Intentional |
+
+#### Memory Safety
+| File | Change | Status |
+|------|--------|--------|
+| `src/libslic3r/Preset.hpp` | `loading_substitutions` raw ptr → `std::unique_ptr<ConfigSubstitutions>` | ✅ Done |
+| `src/libslic3r/Preset.cpp` | `.reset()` replaces `delete ptr; ptr=nullptr;` | ✅ Done |
+| `src/libslic3r/Format/bbs_3mf.cpp` | `new ConfigSubstitutions()` → `std::make_unique` | ✅ Done |
+
+#### Security / Dependencies
+| File | Change | Status |
+|------|--------|--------|
+| `deps/OpenSSL/OpenSSL.cmake` | Replaced placeholder with proper cmake install step | ✅ Done |
+| `deps/OpenSSL/write-openssl3-config.cmake` | NEW: writes `OpenSSL3Config.cmake` with imported targets at install time | ✅ Done |
+
+#### CI / Static Analysis Infrastructure
+| File | Change | Status |
+|------|--------|--------|
+| `.clang-tidy` | NEW: bugprone, modernize-use-nullptr/override/emplace, performance-*, readability-redundant-* | ✅ Done |
+| `.github/workflows/asan.yml` | NEW: ASAN CI (ubuntu-24.04) | ✅ Done (PAT needs `workflow` scope to push) |
+| `.github/workflows/tsan.yml` | NEW: TSAN CI (ubuntu-24.04) | ✅ Done (PAT needs `workflow` scope to push) |
+
+---
+
+### 🔴 BLOCKED — Requires Dep Build First
+
+#### CMake Configure
+The main project cannot be configured until all C++ dependencies are compiled. Run:
+```bash
+cd "/Users/stillbulldog35/Documents/hass agent/jusPrin"
+./build_release_macos.sh -d      # builds all deps → deps/build/destdir/  (~2-4 hours)
+# Then configure:
+cmake -S . -B build/arm64 -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+  -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+  -DCMAKE_PREFIX_PATH="$(pwd)/deps/build/destdir/usr/local"
+```
+- `deps/build/destdir/usr/local/` is currently **EMPTY** (ExternalProject prefixes exist but haven't been compiled)
+
+#### clang-tidy Analysis
+Blocked on `compile_commands.json` from the configure step above. Without it, clang-tidy cannot resolve Boost/wxWidgets/ImGui headers. Command once available:
+```bash
+export PATH="/opt/homebrew/opt/llvm/bin:$PATH"   # clang-tidy 21.1.5 installed here
+clang-tidy -p build/arm64 src/slic3r/Utils/Bonjour.cpp src/slic3r/Utils/Http.cpp \
+  src/slic3r/Utils/PrintHost.cpp src/slic3r/GUI/GUI_App.cpp src/libslic3r/Preset.cpp \
+  2>&1 | tee build/clang-tidy-report.txt
+```
+
+---
+
+### Coordination Notes (Multi-Bot)
+- **Other bot merged** `phase2-fixes` → `updates` (commit `fd1112a71`)
+- **This bot applied** additional thread-safety, smart-ptr, and OpenSSL3 fixes (commit `4f86351b3`)
+- **Both commits are now in `updates`** — `git log --oneline origin/updates` shows both
+- **PR #9** body updated to reflect all completed work
+- **No new branches or PRs** are to be created — all work on `updates`
+
+---
+
 **END OF CHANGES TRACKING DOCUMENT**
 
 **Note:** This document should be updated continuously throughout the merge process. Use it to track progress, document decisions, and record testing results.
 
-**Last Updated:** February 18, 2026 (Initial creation)
-**Next Update:** TBD (after Phase 1 begins)
+**Last Updated:** 2026-02 (Automated code quality pass — Phase 2+3 complete, CMake/clang-tidy blocked)
+**Next Update:** After `./build_release_macos.sh -d` completes and CMake configure succeeds
