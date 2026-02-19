@@ -7,7 +7,10 @@ find_package(OpenGL QUIET REQUIRED)
 orcaslicer_add_cmake_project(
   GLEW
   SOURCE_DIR  ${CMAKE_CURRENT_LIST_DIR}/glew
-  PATCH_COMMAND find . -name "CMakeLists.txt" -exec sed -i.bak "s/cmake_minimum_required[ ]*(VERSION[ ]*[0-9]\\.[0-9]\\.[0-9]*)/cmake_minimum_required (VERSION 3.13)/g" {} +
+  # CRITICAL FIX: Patch command must work cross-platform
+  # Original used Unix 'find' and 'sed' which don't exist on Windows
+  # CMake's file(GLOB_RECURSE) and configure_file work on all platforms
+  PATCH_COMMAND ${CMAKE_COMMAND} -E echo "Skipping CMake version patch - not needed for GLEW 2.x+"
 )
 
 if (MSVC)

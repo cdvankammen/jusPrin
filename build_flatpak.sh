@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# OrcaSlicer Flatpak Build Script
-# This script builds and packages OrcaSlicer as a Flatpak package locally
+# JusPrin Flatpak Build Script
+# This script builds and packages JusPrin as a Flatpak package locally
 # Based on the GitHub Actions workflow in .github/workflows/build_all.yml
 
 set -e
@@ -27,7 +27,7 @@ CACHE_DIR=".flatpak-builder"
 show_help() {
     echo "Usage: $0 [OPTIONS]"
     echo ""
-    echo "Build OrcaSlicer as a Flatpak package"
+    echo "Build JusPrin as a Flatpak package"
     echo ""
     echo "Options:"
     echo "  -a, --arch ARCH        Target architecture (x86_64, aarch64) [default: $ARCH]"
@@ -107,8 +107,8 @@ if ! [[ "$JOBS" =~ ^[1-9][0-9]*$ ]]; then
     exit 1
 fi
 
-echo -e "${BLUE}OrcaSlicer Flatpak Build Script${NC}"
-echo -e "${BLUE}================================${NC}"
+echo -e "${BLUE}JusPrin Flatpak Build Script${NC}"
+echo -e "${BLUE}============================${NC}"
 echo -e "Architecture: ${GREEN}$ARCH${NC}"
 echo -e "Build directory: ${GREEN}$BUILD_DIR${NC}"
 echo -e "Cache directory: ${GREEN}$CACHE_DIR${NC}"
@@ -242,6 +242,7 @@ mkdir -p "$BUILD_DIR"
 rm -rf "$BUILD_DIR/build-dir"
 
 # Check if flatpak manifest exists
+# TODO: Rename manifest file to match JusPrin when a new Flatpak app ID is registered
 if [[ ! -f "./scripts/flatpak/io.github.softfever.OrcaSlicer.yml" ]]; then
     echo -e "${RED}Error: Flatpak manifest not found at scripts/flatpak/io.github.softfever.OrcaSlicer.yml${NC}"
     exit 1
@@ -295,6 +296,7 @@ if [[ "$ENABLE_CCACHE" == true ]]; then
     echo -e "${GREEN}Using ccache for compiler caching${NC}"
 fi
 
+# TODO: Update manifest filename when JusPrin Flatpak manifest is created
 if ! flatpak-builder \
     "${BUILDER_ARGS[@]}" \
     "$BUILD_DIR/build-dir" \
@@ -305,6 +307,7 @@ if ! flatpak-builder \
 fi
 
 # Create bundle
+# TODO: Update Flatpak app ID when a new one is registered for JusPrin
 echo -e "${YELLOW}Creating Flatpak bundle...${NC}"
 if ! flatpak build-bundle \
     "$BUILD_DIR/repo" \
@@ -327,7 +330,7 @@ echo ""
 echo -e "${BLUE}To install the Flatpak:${NC}"
 echo -e "flatpak install --user $BUNDLE_NAME"
 echo ""
-echo -e "${BLUE}To run OrcaSlicer:${NC}"
+echo -e "${BLUE}To run JusPrin:${NC}"
 echo -e "flatpak run io.github.softfever.OrcaSlicer"
 echo ""
 echo -e "${BLUE}To uninstall:${NC}"

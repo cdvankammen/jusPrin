@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(OrcaSlicer-native)
+project(JusPrin-native)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -10,7 +10,7 @@ add_subdirectory(dev-utils)
 # Note: semver and hints are now included from deps_src/CMakeLists.txt
 
 add_subdirectory(libslic3r)
-add_subdirectory(libvgcode)  # G-code visualization library (OrcaSlicer merge)
+add_subdirectory(libvgcode)  # G-code visualization library (JusPrin/OrcaSlicer merge)
 
 if (SLIC3R_GUI)
     # imgui, imguizmo, and hidapi are now included from deps_src
@@ -129,7 +129,7 @@ endif ()
 target_link_libraries(JusPrin libslic3r cereal::cereal)
 # Explicit dependency to ensure libslic3r is built before JusPrin
 add_dependencies(JusPrin libslic3r)
-# target_include_directories(OrcaSlicer PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/slic3r)
+# target_include_directories(JusPrin PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/slic3r)
 if (APPLE)
 #    add_compile_options(-stdlib=libc++)
 #    add_definitions(-DBOOST_THREAD_DONT_USE_CHRONO -DBOOST_NO_CXX11_RVALUE_REFERENCES -DBOOST_THREAD_USES_MOVE)
@@ -162,7 +162,7 @@ target_link_libraries(JusPrin libslic3r_gui)
     endif ()
     #if (WIN32)
     #    find_library(PSAPI_LIB NAMES Psapi)
-    #    target_link_libraries(OrcaSlicer ${PSAPI_LIB})
+    #    target_link_libraries(JusPrin ${PSAPI_LIB})
     #endif ()
 endif ()
 
