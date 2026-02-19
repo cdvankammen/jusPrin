@@ -2,6 +2,8 @@
 set(OpenGL_GL_PREFERENCE "LEGACY") # to prevent a nasty warning by cmake
 find_package(OpenGL QUIET REQUIRED)
 
+# Force cache invalidation: 2026-02-19 - Rebuild deps to include GLEW libraries
+
 orcaslicer_add_cmake_project(
   GLEW
   SOURCE_DIR  ${CMAKE_CURRENT_LIST_DIR}/glew
