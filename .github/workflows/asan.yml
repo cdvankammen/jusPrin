@@ -1,0 +1,39 @@
+name: ASAN Build & Test
+on:
+  push:
+    branches: [main, phase2-fixes]
+  pull_request:
+    branches: [main]
+
+jobs:
+  asan:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build pkg-config \
+            libgtk-3-dev libdbus-1-dev libglew-dev libglu1-mesa-dev \
+            libssl-dev libcurl4-openssl-dev libudev-dev libwayland-dev \
+            libxkbcommon-dev libtbb-dev
+
+      - name: Configure (ASAN)
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" \
+            -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" \
+            -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address" \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+      - name: Build
+        run: cmake --build build --parallel $(nproc)
+
+      - name: Test
+        run: cd build && ctest --output-on-failure --timeout 300
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=0:print_stats=1

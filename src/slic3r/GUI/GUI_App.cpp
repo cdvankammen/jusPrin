@@ -6071,15 +6071,7 @@ void GUI_App::stop_sync_user_preset()
 
     m_user_sync_token.reset();
     if (m_sync_update_thread.joinable()) {
-        if (is_closing())
-            m_sync_update_thread.join();
-        else
-            // TODO(thread-safety): detach() when not closing (e.g. user logout) leaves a
-            // thread that captures `this`. GUI_App lives for the app lifetime so this is
-            // practically safe, but formally the thread could outlive the object. The thread
-            // does check the weak_ptr token and cancelFn, so it should exit promptly.
-            // Consider always joining with a bounded wait instead of detaching.
-            m_sync_update_thread.detach();
+        m_sync_update_thread.join();
     }
 }
 

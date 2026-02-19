@@ -178,12 +178,7 @@ void PrintHostJobQueue::priv::stop_bg_thread()
     if (bg_thread.joinable()) {
         bg_exit = true;
         channel_jobs.push(PrintHostJob()); // Push an empty job to wake up bg_thread in case it's sleeping
-        // TODO(thread-safety): detach() here relies on the shared_ptr<priv> captured by the
-        // thread lambda to keep `priv` alive after PrintHostJobQueue is destroyed. Member
-        // data access is safe, but the detached thread may call wxQueueEvent on queue_dialog
-        // after the dialog has been destroyed — a potential use-after-free. Consider joining
-        // with a short timeout, or guarding queue_dialog with a weak reference.
-        bg_thread.detach();
+        bg_thread.join();
     }
 }
 

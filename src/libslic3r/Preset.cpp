@@ -1,7 +1,6 @@
 // MEMORY-SAFETY AUDIT (free/delete mismatch) — verified clean 2025-02.
-// Previous fix: free(preset->loading_substitutions) changed to delete (allocated via new).
-// No remaining free/delete mismatches. Raw pointer `loading_substitutions` is paired with
-// `new`/`delete`; `vendor` is a non-owning observer pointer — no deallocation needed here.
+// `loading_substitutions` converted to std::unique_ptr — no manual delete needed.
+// `vendor` is a non-owning observer pointer — no deallocation needed here.
 // Audited: get_preset_differed_for_save returns caller-owned `new Preset()` — no mismatch.
 
 #include <cassert>
@@ -1550,8 +1549,7 @@ void PresetCollection::load_project_embedded_presets(std::vector<Preset*>& proje
             DynamicPrintConfig config = preset->config;
             if (preset->loading_substitutions && ! preset->loading_substitutions->empty()) {
                 substitutions.push_back({ preset->name, m_type, PresetConfigSubstitutions::Source::ProjectFile, preset->name, std::move(*(preset->loading_substitutions))});
-                delete preset->loading_substitutions;  // Fixed: was free() but object allocated with new
-                preset->loading_substitutions = nullptr;
+                preset->loading_substitutions.reset();
             }
             //BBS: use inherit config as the base
             Preset* inherit_preset = nullptr;

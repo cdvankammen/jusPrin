@@ -59,11 +59,13 @@ if(DEP_OPENSSL_USE_3)
         INSTALL_COMMAND ${_install_cmd}
     )
 
-    # Provide a small cmake helper dir so downstream finders can locate openssl3
+    # Write a cmake package config so downstream can use find_package(OpenSSL3 CONFIG)
+    set(_ossl3_config "${_openssl3_install_dir}/lib/cmake/OpenSSL3/OpenSSL3Config.cmake")
     ExternalProject_Add_Step(dep_OpenSSL3 install_cmake_files
         DEPENDEES install
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${_openssl3_install_dir}/cmake"
-        COMMAND ${CMAKE_COMMAND} -E echo "# placeholder cmake config for OpenSSL3" > "${_openssl3_install_dir}/cmake/openssl3-config.cmake"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${_openssl3_install_dir}/lib/cmake/OpenSSL3"
+        COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=${_openssl3_install_dir} -DCONFIG_FILE=${_ossl3_config}
+            -P "${CMAKE_CURRENT_LIST_DIR}/write-openssl3-config.cmake"
         WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
     )
 

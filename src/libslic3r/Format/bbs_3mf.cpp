@@ -2705,8 +2705,7 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
                 preset->loading_substitutions.emplace_back(std::move(config_substitutions[i]));
             }*/
             if (!config_substitutions.empty()) {
-                preset->loading_substitutions = new ConfigSubstitutions();
-                *(preset->loading_substitutions) = std::move(config_substitutions);
+                preset->loading_substitutions = std::make_unique<ConfigSubstitutions>(std::move(config_substitutions));
             }
 
             project_presets.push_back(preset);
