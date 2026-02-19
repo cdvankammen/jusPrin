@@ -541,9 +541,10 @@ set(OpenCASCADE_DIR "${CMAKE_PREFIX_PATH}/lib/cmake/occt")
 find_package(OpenCASCADE REQUIRED)
 target_include_directories(libslic3r SYSTEM PUBLIC ${OpenCASCADE_INCLUDE_DIR})
 
-# JPEG is provided by OpenCV's bundled libjpeg-turbo, so we don't need to find it separately
-# This prevents duplicate symbol errors during linking
-# find_package(JPEG REQUIRED)
+# CRITICAL: libslic3r code (Thumbnails.cpp) directly uses JPEG functions
+# OpenCV bundles libjpeg-turbo for its own use, but libslic3r needs system JPEG
+# The wxWidgets conflict is handled at executable link stage (see src/slic3r/CMakeLists.txt)
+find_package(JPEG REQUIRED)
 
 set(OCCT_LIBS
     TKXDESTEP
@@ -594,7 +595,7 @@ target_link_libraries(libslic3r
         # draco::draco  # Temporarily disabled - DRC file format support
         eigen
         glu-libtess
-        # JPEG::JPEG  # Not needed - OpenCV provides libjpeg-turbo
+        JPEG::JPEG
         libslic3r_cgal
         mcut
         noise::noise
