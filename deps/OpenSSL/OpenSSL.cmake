@@ -51,9 +51,7 @@ if(DEP_OPENSSL_USE_3)
         URL "https://github.com/openssl/openssl/releases/download/openssl-3.3.2/openssl-3.3.2.tar.gz"
         URL_HASH SHA256=2e8a40b01979afe8be0bbfb3de5dc1c6709fedb46d6c89c10da114ab5fc3d281
         DOWNLOAD_DIR ${DEP_DOWNLOAD_DIR}/OpenSSL
-        CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env \
-            MACOSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET} \
-            ${CMAKE_CURRENT_LIST_DIR}/openssl-3-configure.sh "--prefix=${_openssl3_install_dir}" no-shared no-tests
+        CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env MACOSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET} ${CMAKE_CURRENT_LIST_DIR}/openssl-3-configure.sh "--prefix=${_openssl3_install_dir}" no-shared no-tests
         BUILD_IN_SOURCE ON
         BUILD_COMMAND ${_make_cmd}
         INSTALL_COMMAND ${_install_cmd}
