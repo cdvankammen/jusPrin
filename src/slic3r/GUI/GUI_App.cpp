@@ -1109,8 +1109,9 @@ void GUI_App::shutdown()
 
     // destroy login dialog
     if (login_dlg != nullptr) {
+        // login_dlg is a wxWidgets dialog; prefer Destroy() to let wx manage its lifetime
         BOOST_LOG_TRIVIAL(info) << __FUNCTION__<< boost::format(": destroy login dialog");
-        delete login_dlg;
+        login_dlg->Destroy();
         login_dlg = nullptr;
     }
 
@@ -2227,16 +2228,22 @@ GUI_App::~GUI_App()
     if (app_config != nullptr) {
         BOOST_LOG_TRIVIAL(info) << __FUNCTION__<< boost::format(": destroy app_config");
         delete app_config;
+        // Null after delete — defensive guard against any re-entrant or post-destructor access.
+        app_config = nullptr;
     }
 
     if (preset_bundle != nullptr) {
         BOOST_LOG_TRIVIAL(info) << __FUNCTION__<< boost::format(": destroy preset_bundle");
         delete preset_bundle;
+        // Null after delete — defensive guard.
+        preset_bundle = nullptr;
     }
 
     if (preset_updater != nullptr) {
         BOOST_LOG_TRIVIAL(info) << __FUNCTION__<< boost::format(": destroy preset updater");
         delete preset_updater;
+        // Null after delete — defensive guard.
+        preset_updater = nullptr;
     }
 
     StaticBambuLib::release();
@@ -4185,10 +4192,13 @@ void GUI_App::ShowUserLogin(bool show)
             if (!login_dlg)
                 login_dlg = new ZUserLogin();
             else {
-                delete login_dlg;
+                // Prefer Destroy() for wxWidgets objects instead of delete to avoid double-free
+                login_dlg->Destroy();
                 login_dlg = new ZUserLogin();
             }
             login_dlg->ShowModal();
+            // Ensure dialog is destroyed after modal exit
+            if (login_dlg) { login_dlg->Destroy(); login_dlg = nullptr; }
         } catch (std::exception &) {
             ;
         }
@@ -7361,8 +7371,10 @@ void GUI_App::popup_ping_bind_dialog()
 void GUI_App::remove_ping_bind_dialog()
 {
     if (m_ping_code_binding_dialog != nullptr) {
+        // Use Destroy() for wxWidgets objects and null the pointer.
+        // Avoid calling delete on wx-owned objects (double-free) and fix an earlier bug
+        // which deleted the wrong dialog (m_mall_publish_dialog) here.
         m_ping_code_binding_dialog->Destroy();
-        delete m_mall_publish_dialog;
         m_ping_code_binding_dialog = nullptr;
     }
 }
@@ -7371,8 +7383,9 @@ void GUI_App::remove_ping_bind_dialog()
 void GUI_App::remove_mall_system_dialog()
 {
     if (m_mall_publish_dialog != nullptr) {
+        // Destroy the wx dialog and clear the pointer; do not delete() after Destroy().
         m_mall_publish_dialog->Destroy();
-        delete m_mall_publish_dialog;
+        m_mall_publish_dialog = nullptr;
     }
 }
 

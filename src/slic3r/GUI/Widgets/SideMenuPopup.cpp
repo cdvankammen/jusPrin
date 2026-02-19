@@ -44,27 +44,17 @@ bool SidePopup::Show( bool show )
 void SidePopup::Popup(wxWindow* focus)
 {
     Create();
-    auto drect = wxDisplay(GetParent()).GetGeometry();
-    int screenwidth = drect.x + drect.width;
-    //int screenwidth = wxSystemSettings::GetMetric(wxSYS_SCREEN_X,NULL);
 
-    int max_width = 0;
-
-    for (auto btn : btn_list)
-    {
-        max_width = std::max(btn->GetMinSize().x, max_width);
-    }
     if (focus) {
         wxPoint pos = focus->ClientToScreen(wxPoint(0, -6));
 
 #ifdef __APPLE__
          pos.x = pos.x - FromDIP(20);
 #endif // __APPLE__
-       
-        if (pos.x + max_width > screenwidth)
-            Position({pos.x - (pos.x + max_width - screenwidth),pos.y}, {0, focus->GetSize().y + 12});
-        else
-            Position(pos, {0, focus->GetSize().y + 12});
+
+        // Use PositionSafe to clamp the popup to the display work area on all platforms.
+        wxPoint safePos = PositionSafe(pos, GetSize());
+        SetPosition(safePos);
     }
     Slic3r::GUI::wxGetApp().set_side_menu_popup_status(true);
     PopupWindow::Popup();

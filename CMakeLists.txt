@@ -105,6 +105,16 @@ option(SLIC3R_FHS               "Assume OrcaSlicer is to be installed in a FHS d
 option(SLIC3R_WX_STABLE         "Build against wxWidgets stable (3.0) as oppsed to dev (3.1) on Linux" 0)
 option(SLIC3R_PROFILE 			"Compile OrcaSlicer with an invasive Shiny profiler" 0)
 option(SLIC3R_PCH               "Use precompiled headers" 1)
+
+# Detect Wayland session at configure time (useful to enable Wayland-specific workarounds)
+if(DEFINED ENV{WAYLAND_DISPLAY} OR "$ENV{XDG_SESSION_TYPE}" STREQUAL "wayland")
+    set(SLIC3R_WAYLAND_INITIAL 1)
+else()
+    set(SLIC3R_WAYLAND_INITIAL 0)
+endif()
+
+option(SLIC3R_WAYLAND "Enable Wayland runtime tweaks (detected from environment)" ${SLIC3R_WAYLAND_INITIAL})
+
 option(SLIC3R_MSVC_COMPILE_PARALLEL "Compile on Visual Studio in parallel" 1)
 option(SLIC3R_MSVC_PDB          "Generate PDB files on MSVC in Release mode" 1)
 option(SLIC3R_PERL_XS           "Compile XS Perl module and enable Perl unit and integration tests" 0)
@@ -115,6 +125,35 @@ CMAKE_DEPENDENT_OPTION(SLIC3R_DESKTOP_INTEGRATION "Allow perfoming desktop integ
 set(OPENVDB_FIND_MODULE_PATH "" CACHE PATH "Path to OpenVDB installation's find modules.")
 
 set(SLIC3R_GTK "2" CACHE STRING "GTK version to use with wxWidgets on Linux")
+
+# --- Wayland detection (Linux only) ---
+# Enable SLIC3R_WAYLAND when building on Linux if:
+#   (a) The WAYLAND_DISPLAY environment variable is set at configure time, OR
+#   (b) pkg-config can locate the wayland-client library.
+if (UNIX AND NOT APPLE)
+    set(_SLIC3R_WAYLAND_DEFAULT OFF)
+    if (DEFINED ENV{WAYLAND_DISPLAY})
+        set(_SLIC3R_WAYLAND_DEFAULT ON)
+        message(STATUS "WAYLAND_DISPLAY env var detected at configure time — enabling SLIC3R_WAYLAND")
+    else()
+        find_package(PkgConfig QUIET)
+        if (PKG_CONFIG_FOUND)
+            pkg_check_modules(WAYLAND_CLIENT QUIET wayland-client)
+            if (WAYLAND_CLIENT_FOUND)
+                set(_SLIC3R_WAYLAND_DEFAULT ON)
+                message(STATUS "wayland-client found via pkg-config — enabling SLIC3R_WAYLAND")
+            endif()
+        endif()
+    endif()
+    option(SLIC3R_WAYLAND "Enable Wayland-specific popup and window manager fixes" ${_SLIC3R_WAYLAND_DEFAULT})
+    if (SLIC3R_WAYLAND)
+        add_definitions(-DSLIC3R_WAYLAND)
+        message(STATUS "SLIC3R_WAYLAND: ON")
+    else()
+        message(STATUS "SLIC3R_WAYLAND: OFF")
+    endif()
+endif()
+# --- end Wayland detection ---
 
 set(IS_CROSS_COMPILE FALSE)
 
@@ -169,6 +208,11 @@ endif ()
 if(SLIC3R_DESKTOP_INTEGRATION)
     add_definitions(-DSLIC3R_DESKTOP_INTEGRATION)
 endif ()
+
+if (SLIC3R_WAYLAND)
+    add_definitions(-DSLIC3R_WAYLAND)
+    message(STATUS "SLIC3R_WAYLAND: enabled (Wayland-specific tweaks will be compiled)")
+endif()
 
 if (MSVC AND CMAKE_CXX_COMPILER_ID STREQUAL Clang)
     set(IS_CLANG_CL TRUE)
