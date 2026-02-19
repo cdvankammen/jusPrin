@@ -110,7 +110,13 @@ PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_BUILD_DIR="$PROJECT_DIR/build/$ARCH"
 DEPS_DIR="$PROJECT_DIR/deps"
 DEPS_BUILD_DIR="$DEPS_DIR/build/$ARCH"
-DEPS="$DEPS_BUILD_DIR/OrcaSlicer_deps"
+if [ -d "$DEPS_BUILD_DIR/JusPrin_dep" ]; then
+    DEPS="$DEPS_BUILD_DIR/JusPrin_dep"
+elif [ -d "$DEPS_BUILD_DIR/OrcaSlicer_dep" ]; then
+    DEPS="$DEPS_BUILD_DIR/OrcaSlicer_dep"
+else
+    DEPS="$DEPS_BUILD_DIR/JusPrin_dep"
+fi
 
 # For Multi-config generators like Ninja and Xcode
 export BUILD_DIR_CONFIG_SUBDIR="/$BUILD_CONFIG"
@@ -123,7 +129,7 @@ function build_deps() {
 
             PROJECT_BUILD_DIR="$PROJECT_DIR/build/$_ARCH"
             DEPS_BUILD_DIR="$DEPS_DIR/build/$_ARCH"
-            DEPS="$DEPS_BUILD_DIR/OrcaSlicer_dep"
+            DEPS="$DEPS_BUILD_DIR/JusPrin_dep"
 
             echo "Building deps..."
             (
@@ -150,7 +156,7 @@ function pack_deps() {
     (
         set -x
         cd "$DEPS_DIR"
-        tar -zcvf "OrcaSlicer_dep_mac_${ARCH}_$(date +"%Y%m%d").tar.gz" "build"
+        tar -zcvf "JusPrin_dep_mac_${ARCH}_$(date +"%Y%m%d").tar.gz" "build"
     )
 }
 
@@ -162,7 +168,13 @@ function build_slicer() {
 
             PROJECT_BUILD_DIR="$PROJECT_DIR/build/$_ARCH"
             DEPS_BUILD_DIR="$DEPS_DIR/build/$_ARCH"
-            DEPS="$DEPS_BUILD_DIR/OrcaSlicer_dep"
+            if [ -d "$DEPS_BUILD_DIR/JusPrin_dep" ]; then
+                DEPS="$DEPS_BUILD_DIR/JusPrin_dep"
+            elif [ -d "$DEPS_BUILD_DIR/OrcaSlicer_dep" ]; then
+                DEPS="$DEPS_BUILD_DIR/OrcaSlicer_dep"
+            else
+                DEPS="$DEPS_BUILD_DIR/JusPrin_dep"
+            fi
 
             echo "Building slicer for $_ARCH..."
             (
@@ -228,7 +240,7 @@ function build_slicer() {
         #     ver=${ver}_dev
         # fi
 
-        # zip -FSr OrcaSlicer${ver}_Mac_${_ARCH}.zip OrcaSlicer.app
+        # zip -FSr JusPrin${ver}_Mac_${_ARCH}.zip JusPrin.app
 
     fi
     done

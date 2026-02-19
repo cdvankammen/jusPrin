@@ -1,3 +1,10 @@
+## Option to select libcurl 8.x vs 7.x. Turn ON to build curl 8.x (experimental).
+option(DEP_CURL_USE_8 "Use libcurl 8.x instead of 7.x" OFF)
+
+# Placeholder to point libcurl at an OpenSSL3 build (set when coordinating OpenSSL upgrade).
+# Example usage: -DDEP_OPENSSL3_ROOT:PATH=/path/to/openssl3/install
+set(DEP_OPENSSL3_ROOT "" CACHE PATH "Root install dir for OpenSSL 3.x (placeholder)")
+
 set(_curl_platform_flags 
   -DENABLE_IPV6:BOOL=ON
   -DENABLE_VERSIONED_SYMBOLS:BOOL=ON
@@ -56,13 +63,29 @@ else()
   set(_curl_static ON)
 endif()
 
+# Select URL/HASH based on DEP_CURL_USE_8
+# NOTE: When enabling DEP_CURL_USE_8 you must also coordinate setting DEP_OPENSSL3_ROOT
+# to the OpenSSL 3.x installation dir (or update the OpenSSL dep to build 3.x). See UPGRADE_DEPS.md
+if (DEP_CURL_USE_8)
+  set(_curl_url  "https://curl.se/download/curl-8.11.1.tar.gz")
+  set(_curl_hash "SHA256=a889ac9dbba3644271bd9d1302b5c22a088893719b72be3487bc3d401e5c4e80")
+else ()
+  set(_curl_url  "https://github.com/curl/curl/archive/refs/tags/curl-7_75_0.zip")
+  set(_curl_hash "SHA256=a63ae025bb0a14f119e73250f2c923f4bf89aa93b8d4fafa4a9f5353a96a765a")
+endif ()
+
+# If DEP_OPENSSL3_ROOT is set, pass it so curl links against OpenSSL 3.x.
+set(_curl_openssl3_args "")
+if (DEP_OPENSSL3_ROOT)
+  set(_curl_openssl3_args -DOPENSSL_ROOT_DIR=${DEP_OPENSSL3_ROOT})
+endif ()
+
 orcaslicer_add_cmake_project(CURL
   # GIT_REPOSITORY      https://github.com/curl/curl.git
-  # GIT_TAG             curl-7_75_0
-  URL                 https://github.com/curl/curl/archive/refs/tags/curl-7_75_0.zip
-  URL_HASH            SHA256=a63ae025bb0a14f119e73250f2c923f4bf89aa93b8d4fafa4a9f5353a96a765a
+  URL                 ${_curl_url}
+  URL_HASH            ${_curl_hash}
   DEPENDS             ${ZLIB_PKG}
-  # PATCH_COMMAND       ${GIT_EXECUTABLE} checkout -f -- . && git clean -df && 
+  # PATCH_COMMAND       ${GIT_EXECUTABLE} checkout -f -- . && git clean -df &&
   #                     ${GIT_EXECUTABLE} apply --whitespace=fix ${CMAKE_CURRENT_LIST_DIR}/curl-mods.patch
   CMAKE_ARGS
     -DBUILD_TESTING:BOOL=OFF
@@ -70,6 +93,7 @@ orcaslicer_add_cmake_project(CURL
     -DCMAKE_POSITION_INDEPENDENT_CODE=ON
     -DCURL_STATICLIB=${_curl_static}
     ${_curl_platform_flags}
+    ${_curl_openssl3_args}
 )
 
 if(NOT OPENSSL_FOUND)

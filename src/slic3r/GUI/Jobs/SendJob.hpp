@@ -3,7 +3,8 @@
 
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
-#include "slic3r/GUI/DeviceCore/DevStorage.h" 
+#include "slic3r/GUI/DeviceCore/DevStorage.h"
+#include "slic3r/GUI/HttpServer.hpp" // for secure_clear_string
 #include "Job.hpp"
 #include "PrintJob.hpp"
 
@@ -33,6 +34,10 @@ class SendJob : public Job
 public:
     void prepare();
     SendJob(std::string dev_id = "");
+    // SECURITY: zero-fill credential strings on destruction
+    ~SendJob() {
+        secure_clear_string(m_access_code);
+    }
 
     std::string m_project_name;
     std::string m_dev_ip;

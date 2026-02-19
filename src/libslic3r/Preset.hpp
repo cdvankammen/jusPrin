@@ -2,6 +2,7 @@
 #define slic3r_Preset_hpp_
 
 #include <deque>
+#include <memory>
 #include <set>
 #include <string>
 #include <unordered_map>
@@ -227,7 +228,7 @@ public:
 
     //BBS: add type for project-embedded
     bool                is_project_embedded = false;
-    ConfigSubstitutions *loading_substitutions{nullptr};
+    std::unique_ptr<ConfigSubstitutions> loading_substitutions;
     bool                is_user() const { return ! this->is_default && ! this->is_system && ! this->is_project_embedded; }
     //bool                is_user() const { return ! this->is_default && ! this->is_system; }
 

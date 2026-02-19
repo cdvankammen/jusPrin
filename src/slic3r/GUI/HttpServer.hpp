@@ -18,6 +18,35 @@
 #define LOCALHOST_PORT      13618
 #define LOCALHOST_URL       "http://localhost:"
 
+// SECURITY: maximum request body size (1 MB) to reject oversized payloads
+static constexpr size_t MAX_REQUEST_BODY_SIZE = 1 * 1024 * 1024;
+
+// SECURITY: zero-fill a std::string before deallocation to prevent credential leaks
+inline void secure_clear_string(std::string& s) {
+    volatile char* p = const_cast<volatile char*>(s.data());
+    for (size_t i = 0; i < s.size(); ++i)
+        p[i] = 0;
+    s.clear();
+}
+
+// SECURITY: mask sensitive query-param values in a URL for safe logging
+inline std::string mask_sensitive_url_params(const std::string& raw_url) {
+    std::string safe = raw_url;
+    for (const char* key : {"access_token", "refresh_token", "code"}) {
+        std::string needle = std::string(key) + "=";
+        size_t pos = safe.find(needle);
+        if (pos != std::string::npos) {
+            size_t val_start = pos + needle.size();
+            size_t val_end   = safe.find('&', val_start);
+            if (val_end == std::string::npos) val_end = safe.size();
+            size_t visible = std::min<size_t>(4, val_end - val_start);
+            if (val_end - val_start > visible)
+                safe.replace(val_start + visible, val_end - val_start - visible, "***");
+        }
+    }
+    return safe;
+}
+
 namespace Slic3r { namespace GUI {
 
 class session;
@@ -66,7 +95,8 @@ public:
         ssRequestLine >> url;
         ssRequestLine >> version;
 
-        std::cout << "request for resource: " << url << std::endl;
+        // SECURITY: mask tokens/codes in URL before logging
+        std::cout << "request for resource: " << mask_sensitive_url_params(url) << std::endl;
     }
 };
 

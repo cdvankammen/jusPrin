@@ -532,7 +532,8 @@ Http::~Http()
 {
     assert(! p || ! p->putFile);
 	if (p && p->io_thread.joinable()) {
-		p->io_thread.detach();
+		p->cancel = true;
+		p->io_thread.join();
 	}
 }
 

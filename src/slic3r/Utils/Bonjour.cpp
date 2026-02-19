@@ -843,6 +843,7 @@ struct Bonjour::priv
 
 	std::vector<char> buffer;
 	std::thread io_thread;
+	std::shared_ptr<boost::asio::io_service> io_service_ptr;
 	Bonjour::ReplyFn replyfn;
 	Bonjour::CompleteFn completefn;
 	Bonjour::ResolveFn resolvefn;
@@ -868,6 +869,7 @@ void Bonjour::priv::lookup_perform()
 	service_dn = (boost::format("_%1%._%2%.local") % service % protocol).str();
 
 	std::shared_ptr< boost::asio::io_service > io_service(new boost::asio::io_service);
+	io_service_ptr = io_service;
 
 	std::vector<LookupSocket*> sockets;
 
@@ -963,6 +965,7 @@ void Bonjour::priv::resolve_perform()
 	};
 
 	std::shared_ptr< boost::asio::io_service > io_service(new boost::asio::io_service);
+	io_service_ptr = io_service;
 	std::vector<ResolveSocket*> sockets;
 
 	// resolve interfaces - from PR#6646
@@ -1114,7 +1117,10 @@ Bonjour::Bonjour(Bonjour &&other) : p(std::move(other.p)) {}
 Bonjour::~Bonjour()
 {
 	if (p && p->io_thread.joinable()) {
-		p->io_thread.detach();
+		if (p->io_service_ptr) {
+			p->io_service_ptr->stop();
+		}
+		p->io_thread.join();
 	}
 }
 
