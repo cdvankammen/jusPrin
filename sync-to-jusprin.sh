@@ -107,12 +107,10 @@ log "Getting repository status..."
 cd "$SOURCE_DIR"
 SOURCE_BRANCH=$(git branch --show-current)
 SOURCE_COMMIT=$(git rev-parse --short HEAD)
-SOURCE_REMOTE=$(git remote get-url origin)
 
 cd "$TARGET_DIR"
 TARGET_BRANCH=$(git branch --show-current)
 TARGET_COMMIT=$(git rev-parse --short HEAD)
-TARGET_REMOTE=$(git remote get-url origin)
 
 log "Source: $SOURCE_BRANCH @ $SOURCE_COMMIT"
 log "Target: $TARGET_BRANCH @ $TARGET_COMMIT"
@@ -166,13 +164,13 @@ done
 
 # Count files to sync
 cd "$SOURCE_DIR"
-FILE_COUNT=$(rsync --dry-run -av $RSYNC_EXCLUDES . "$TARGET_DIR" | grep -E "^[^d]" | wc -l | tr -d ' ')
+FILE_COUNT=$(rsync --dry-run -av "$RSYNC_EXCLUDES" . "$TARGET_DIR" | grep -c -E "^[^d]")
 log "Files to sync: $FILE_COUNT"
 echo ""
 
 if [ "$DRY_RUN" = true ]; then
     log "DRY RUN: Files that would be synced:"
-    rsync --dry-run -av $RSYNC_EXCLUDES . "$TARGET_DIR" | grep -E "^[^d]" | head -50
+    rsync --dry-run -av "$RSYNC_EXCLUDES" . "$TARGET_DIR" | grep -E "^[^d]" | head -50
     if [ $FILE_COUNT -gt 50 ]; then
         log "... and $((FILE_COUNT - 50)) more files"
     fi
@@ -185,7 +183,7 @@ fi
 log "Starting sync..."
 echo ""
 
-if rsync -av --delete $RSYNC_EXCLUDES "$SOURCE_DIR/" "$TARGET_DIR/" | tee -a "$SYNC_LOG"; then
+if rsync -av --delete "$RSYNC_EXCLUDES" "$SOURCE_DIR/" "$TARGET_DIR/" | tee -a "$SYNC_LOG"; then
     log_success "Sync completed successfully"
 else
     log_error "Sync failed"
