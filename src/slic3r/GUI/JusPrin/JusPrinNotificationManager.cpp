@@ -8,7 +8,7 @@ namespace GUI {
 void JusPrinNotificationManager::render_notifications(GLCanvas3D& canvas, float overlay_width, float bottom_margin, float right_margin)
 {
     // Check for SlicingProgressNotification instances and print their percentage
-    for (const auto& notification : get_pop_notifications()) {
+    for (const auto& notification : m_pop_notifications) {
         const auto* slicing_progress = dynamic_cast<const NotificationManager::SlicingProgressNotification*>(notification.get());
         if (!slicing_progress) continue;
         float percentage = slicing_progress->get_percentage();

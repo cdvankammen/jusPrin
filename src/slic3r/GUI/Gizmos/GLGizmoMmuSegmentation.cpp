@@ -59,7 +59,7 @@ bool GLGizmoMmuSegmentation::on_is_activable() const
 }
 
 //BBS: use the global one in 3DScene.cpp
-/*static std::vector<ColorRGBA> get_extruders_colors()
+/*static std::vector<ColorRGBA> wxGetApp().plater()->get_extruders_colors()
 {
     unsigned char                     rgb_color[3] = {};
     std::vector<std::string>          colors       = Slic3r::GUI::wxGetApp().plater()->get_extruder_colors_from_plater_config();
@@ -89,7 +89,7 @@ static std::vector<int> get_extruder_id_for_volumes(const ModelObject &model_obj
 
 void GLGizmoMmuSegmentation::init_extruders_data()
 {
-    m_extruders_colors      = get_extruders_colors();
+    m_extruders_colors      = wxGetApp().plater()->get_extruders_colors();
     m_selected_extruder_idx = 0;
 
     // keep remap table consistent with current extruder count
@@ -196,7 +196,7 @@ void GLGizmoMmuSegmentation::data_changed(bool is_serializing)
         if (prev_extruders_count != wxGetApp().filaments_cnt())
             this->init_model_triangle_selectors();
     }
-    else if (get_extruders_colors() != m_extruders_colors) {
+    else if (wxGetApp().plater()->get_extruders_colors() != m_extruders_colors) {
         this->init_extruders_data();
         this->update_triangle_selectors_colors();
     }
@@ -833,7 +833,7 @@ void GLGizmoMmuSegmentation::update_from_model_object(bool first_update)
     // Extruder colors need to be reloaded before calling init_model_triangle_selectors to render painted triangles
     // using colors from loaded 3MF and not from printer profile in Slicer.
     if (int prev_extruders_count = int(m_extruders_colors.size());
-        prev_extruders_count != wxGetApp().filaments_cnt() || get_extruders_colors() != m_extruders_colors)
+        prev_extruders_count != wxGetApp().filaments_cnt() || wxGetApp().plater()->get_extruders_colors() != m_extruders_colors)
         this->init_extruders_data();
 
     this->init_model_triangle_selectors();

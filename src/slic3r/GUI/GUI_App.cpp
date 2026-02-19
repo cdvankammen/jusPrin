@@ -119,9 +119,6 @@
 #include "ModelMall.hpp"
 #include "HintNotification.hpp"
 
-// JusPrin
-#include "JusPrin/JusPrinLoginDialog.hpp"
-
 #include "slic3r/Utils/NetworkAgentFactory.hpp"
 #include "slic3r/Utils/BBLNetworkPlugin.hpp"
 #include "slic3r/Utils/bambu_networking.hpp"
@@ -8015,14 +8012,6 @@ bool is_support_filament(int extruder_id, bool strict_check)
     if (support_option == nullptr) return false;
     return support_option->get_at(0);
 };
-
-void GUI_App::show_jusprin_login() {
-    CallAfter([this] {
-        Slic3r::GUI::JusPrinLoginDialog login_dlg;
-        login_dlg.run();
-        update_oauth_access_token();
-    });
-}
 
 } // GUI
 } //Slic3r

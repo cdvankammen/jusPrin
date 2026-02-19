@@ -156,6 +156,14 @@ set(SLIC3R_GUI_SOURCES
     GUI/EncodedFilament.hpp
     GUI/FilamentBitmapUtils.cpp
     GUI/FilamentBitmapUtils.hpp
+    GUI/FilamentGroupPopup.cpp
+    GUI/FilamentGroupPopup.hpp
+    GUI/FilamentMapDialog.cpp
+    GUI/FilamentMapDialog.hpp
+    GUI/FilamentMapPanel.cpp
+    GUI/FilamentMapPanel.hpp
+    GUI/FilamentPickerDialog.cpp
+    GUI/FilamentPickerDialog.hpp
     GUI/GuiColor.cpp
     GUI/GuiColor.hpp
     GUI/ImageDPIFrame.cpp
@@ -189,6 +197,8 @@ set(SLIC3R_GUI_SOURCES
     GUI/format.hpp
     GUI/GCodeViewer.cpp
     GUI/GCodeViewer.hpp
+    GUI/LibVGCode/LibVGCodeWrapper.cpp
+    GUI/LibVGCode/LibVGCodeWrapper.hpp
     GUI/Gizmos/GizmoObjectManipulation.cpp
     GUI/Gizmos/GizmoObjectManipulation.hpp
     GUI/Gizmos/GLGizmoAssembly.cpp
@@ -778,7 +788,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SLIC3R_GUI_SOURCES})
 encoding_check(libslic3r_gui)
 
 find_package(libnoise REQUIRED)
-target_link_libraries(libslic3r_gui libslic3r cereal::cereal imgui imguizmo minilzo GLEW::GLEW OpenGL::GL hidapi ${wxWidgets_LIBRARIES} glfw libcurl OpenSSL::SSL OpenSSL::Crypto noise::noise)
+target_link_libraries(libslic3r_gui libslic3r cereal::cereal imgui imguizmo minilzo libvgcode md4c-html GLEW::GLEW OpenGL::GL hidapi ${wxWidgets_LIBRARIES} glfw libcurl OpenSSL::SSL OpenSSL::Crypto noise::noise)
 
 if (MSVC)
     target_link_libraries(libslic3r_gui Setupapi.lib)

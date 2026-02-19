@@ -115,8 +115,7 @@
 #include "../Utils/Process.hpp"
 #include "RemovableDriveManager.hpp"
 #include "InstanceCheck.hpp"
-#include "JusPrin/JusPrinNotificationManager.hpp"
-#include "JusPrin/JusPrinView3D.hpp"
+#include "NotificationManager.hpp"
 #include "PresetComboBoxes.hpp"
 #include "MsgDialog.hpp"
 #include "ProjectDirtyStateManager.hpp"
@@ -163,6 +162,8 @@
 #include "StepMeshDialog.hpp"
 #include "FilamentMapDialog.hpp"
 #include "CloneDialog.hpp"
+#include "JusPrin/JusPrinView3D.hpp"
+#include "JusPrin/JusPrinNotificationManager.hpp"
 
 #include "DeviceCore/DevFilaSystem.h"
 #include "DeviceCore/DevManager.h"
@@ -4267,7 +4268,7 @@ struct Plater::priv
     Preview *preview;
     AssembleView* assemble_view { nullptr };
     bool first_enter_assemble{ true };
-    std::unique_ptr<JusPrinNotificationManager> notification_manager;
+    std::unique_ptr<NotificationManager> notification_manager;
 
     ProjectDirtyStateManager dirty_state;
 
@@ -4815,7 +4816,7 @@ Plater::priv::priv(Plater *q, MainFrame *main_frame)
         "best_object_pos",  "master_extruder_id"
         }))
     , sidebar(new Sidebar(q))
-    , notification_manager(std::make_unique<JusPrinNotificationManager>(q))
+    , notification_manager(std::make_unique<NotificationManager>(q))
     , m_worker{q, std::make_unique<NotificationProgressIndicator>(notification_manager.get()), "ui_worker"}
     , m_sla_import_dlg{new SLAImportDialog{q}}
     , m_job_prepare_state(Job::JobPrepareState::PREPARE_STATE_DEFAULT)
@@ -4879,7 +4880,7 @@ Plater::priv::priv(Plater *q, MainFrame *main_frame)
     main_frame->m_tabpanel->Bind(wxEVT_NOTEBOOK_PAGE_CHANGING, &priv::on_tab_selection_changing, this);
 
     auto* panel_3d = new wxPanel(q);
-    view3D = new JusPrinView3D(panel_3d, bed, &model, config, &background_process);
+    view3D = new View3D(panel_3d, bed, &model, config, &background_process);
     //BBS: use partplater's gcode
     preview = new Preview(panel_3d, bed, &model, config, &background_process, partplate_list.get_current_slice_result(), [this]() { schedule_background_process(); });
 
@@ -16567,6 +16568,14 @@ GLCanvas3D* Plater::get_current_canvas3D(bool exclude_preview)
     return p->get_current_canvas3D(exclude_preview);
 }
 
+JusPrinChatPanel* Plater::jusprinChatPanel() const
+{
+    if (auto jusprin_view = dynamic_cast<GUI::JusPrinView3D*>(p->view3D)) {
+        return jusprin_view->jusprinChatPanel();
+    }
+    return nullptr;
+}
+
 void Plater::arrange()
 {
     auto &w = get_ui_job_worker();
@@ -17938,14 +17947,6 @@ DailyTipsWindow* Plater::get_dailytips() const
 const NotificationManager * Plater::get_notification_manager() const
 {
     return p->notification_manager.get();
-}
-
-GUI::JusPrinChatPanel* Plater::jusprinChatPanel() const
-{
-    if (auto jusprin_view = dynamic_cast<GUI::JusPrinView3D*>(p->view3D)) {
-        return jusprin_view->jusprinChatPanel();
-    }
-    return nullptr;
 }
 
 void Plater::init_notification_manager()

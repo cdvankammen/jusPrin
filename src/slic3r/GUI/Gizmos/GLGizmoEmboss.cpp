@@ -1848,7 +1848,7 @@ void GLGizmoEmboss::draw_model_type()
     ModelVolumeType type = m_volume->type();
 
     //TRN EmbossOperation
-    ImGuiWrapper::push_radio_style();
+    ImGuiWrapper::push_radio_style(m_parent.get_scale());
     if (ImGui::RadioButton(_u8L("Join").c_str(), type == part))
         new_type = part;
     else if (ImGui::IsItemHovered())

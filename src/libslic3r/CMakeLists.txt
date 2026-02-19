@@ -191,8 +191,8 @@ set(lisbslic3r_sources
     Format/AMF.hpp
     Format/bbs_3mf.cpp
     Format/bbs_3mf.hpp
-    # Format/DRC.cpp  # Temporarily disabled - requires Draco
-    # Format/DRC.hpp  # Temporarily disabled - requires Draco
+    Format/DRC.cpp
+    Format/DRC.hpp
     format.hpp
     Format/OBJ.cpp
     Format/OBJ.hpp
@@ -588,6 +588,7 @@ target_link_libraries(libslic3r
         boost_libs
         cereal::cereal
         clipper
+        Clipper2
         # draco::draco  # Temporarily disabled - DRC file format support
         eigen
         glu-libtess

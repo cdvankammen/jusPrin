@@ -31,10 +31,8 @@ TriangleMesh TriangleMeshDeal::smooth_triangle_mesh(const TriangleMesh &mesh, bo
 
             //igl::upsample(Eigen::MatrixXd(V), Eigen::MatrixXi(F), V, F);
             ok = true;
-            if (!igl::loop(Eigen::MatrixXd(V), Eigen::MatrixXi(F), V, F)) {
-                ok = false;
-                return TriangleMesh();
-            }
+            igl::loop(Eigen::MatrixXd(V), Eigen::MatrixXi(F), V, F);
+            // Note: igl::loop returns void in current libigl version, cannot check return value
             //igl::false_barycentric_subdivision(Eigen::MatrixXd(V), Eigen::MatrixXi(F), V, F);
             indexed_triangle_set its;
             int         vertex_count = V.rows();

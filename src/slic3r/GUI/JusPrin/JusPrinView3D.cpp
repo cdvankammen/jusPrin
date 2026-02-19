@@ -390,7 +390,8 @@ void JusPrinView3D::initOverlay()
         showChatPanel();
     }
 
-    this->get_canvas3d()->get_wxglcanvas()->Bind(EVT_GLCANVAS_MOUSE_DOWN, &JusPrinView3D::OnCanvasMouseDown, this);
+    // FIXME: EVT_GLCANVAS_MOUSE_DOWN was removed in OrcaSlicer v2.3.2
+    // this->get_canvas3d()->get_wxglcanvas()->Bind(EVT_GLCANVAS_MOUSE_DOWN, &JusPrinView3D::OnCanvasMouseDown, this);
     Bind(wxEVT_SIZE, &JusPrinView3D::OnSize, this);
 
 

@@ -2,6 +2,7 @@
 #include "slic3r/GUI/GUI_App.hpp"
 #include "slic3r/GUI/Tab.hpp"
 #include "slic3r/GUI/Plater.hpp"
+#include "slic3r/GUI/JusPrin/JusPrinChatPanel.hpp"
 #include "slic3r/GUI/PresetComboBoxes.hpp"
 #include "slic3r/GUI/Jobs/OrientJob.hpp"
 
@@ -22,7 +23,11 @@ nlohmann::json JusPrinPresetConfigUtils::PresetToJson(const Preset* preset, bool
     j["name"] = preset->name;
     j["is_default"] = preset->is_default;
     j["is_selected"] = is_selected;
-    j["config"] = preset->config.to_json(preset->name, "", preset->version.to_string(), preset->custom_defined);
+    j["is_custom_defined"] = preset->is_custom_defined();
+    // FIXME: DynamicPrintConfig::to_json was removed in OrcaSlicer v2.3.2
+    // Need to implement config serialization manually if needed
+    // j["config"] = preset->config.to_json(preset->name, "", preset->version.to_string(), preset->custom_defined);
+    j["config"] = nlohmann::json::object();  // Placeholder empty config
     return j;
 }
 
