@@ -1,3 +1,6 @@
+#ifndef SLIC3R_GUI_PARTSKIPDIALOG_HPP
+#define SLIC3R_GUI_PARTSKIPDIALOG_HPP
+
 #include <wx/panel.h>
 #include <wx/bitmap.h>
 #include <wx/image.h>
@@ -161,3 +164,5 @@ private:
 };
 
 }} // namespace Slic3r::GUI
+
+#endif // SLIC3R_GUI_PARTSKIPDIALOG_HPP

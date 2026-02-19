@@ -1,0 +1,277 @@
+{
+  "audit": {
+    "agent": "Subagent-Spec-7",
+    "scope": "Serialization & File Formats",
+    "date": "2026-02-19",
+    "files_reviewed": [
+      "src/libslic3r/Format/bbs_3mf.cpp",
+      "src/libslic3r/Format/STL.cpp",
+      "src/libslic3r/Format/OBJ.cpp",
+      "src/libslic3r/Format/AMF.cpp",
+      "src/libslic3r/Format/STEP.cpp",
+      "src/libslic3r/Format/ZipperArchiveImport.cpp",
+      "src/libslic3r/Format/objparser.cpp"
+    ]
+  },
+  "findings": [
+    {
+      "id": "FMT-001",
+      "severity": "HIGH",
+      "category": "path_traversal",
+      "title": "Path traversal in _extract_auxiliary_file_from_archive — incomplete sanitization",
+      "file": "src/libslic3r/Format/bbs_3mf.cpp",
+      "lines": "2632-2668",
+      "description": "_extract_auxiliary_file_from_archive extracts an archived filename into a temp directory. While the main loop at line 1772 checks for '/../' in the filename, this function accepts the filename directly from the zip entry (stat.m_filename or Unicode extra field) and only strips the 'Auxiliaries/' prefix. A crafted filename like 'Auxiliaries/..\\..\\etc\\passwd' (backslash-based traversal) or 'Auxiliaries/sub/../../escape' would survive the '/../' check (which only looks for the exact literal string '/../' after replacing backslashes). The function creates intermediate directories via boost::filesystem::create_directories without canonicalization, potentially writing files outside the intended temp directory.",
+      "evidence": "dest_file = dest_file.substr(found + AUXILIARY_STR_LEN); ... dest_file = dir.string() + std::string('/') + dest_file; ... mz_zip_reader_extract_to_file(&archive, stat.m_file_index, dest_zip_file.c_str(), 0);",
+      "recommendation": "After stripping the Auxiliaries/ prefix, canonicalize dest_file: reject or sanitize any path component that is '..' or starts with '/'. Use boost::filesystem::weakly_canonical or equivalent to resolve the final path and verify it remains under the target temp directory."
+    },
+    {
+      "id": "FMT-002",
+      "severity": "HIGH",
+      "category": "path_traversal",
+      "title": "Path traversal in _extract_file_from_archive — no sanitization at all",
+      "file": "src/libslic3r/Format/bbs_3mf.cpp",
+      "lines": "2670-2685",
+      "description": "_extract_file_from_archive directly concatenates m_backup_path with src_file (decoded from stat.m_filename) to form the extraction destination. There is NO path traversal check in this function. Although the main loop at line 1772 checks for '/../', this function is also callable from other code paths (restore mode at line 2297) which may not have that check. A malicious zip entry name like 'Metadata/../../../etc/crontab' could escape the backup directory.",
+      "evidence": "std::string src_file = decode_path(stat.m_filename); boost::filesystem::path dest_path = boost::filesystem::path(m_backup_path + '/' + src_file); mz_bool res = mz_zip_reader_extract_to_file(&archive, stat.m_file_index, dest_zip_file.c_str(), 0);",
+      "recommendation": "Validate that the resolved dest_path is a child of m_backup_path after canonicalization. Reject any entry whose decoded path contains '..' components."
+    },
+    {
+      "id": "FMT-003",
+      "severity": "HIGH",
+      "category": "integer_overflow",
+      "title": "Integer overflow on XML_GetBuffer size cast from mz_uint64 to int",
+      "file": "src/libslic3r/Format/bbs_3mf.cpp",
+      "lines": "2347-2359",
+      "description": "stat.m_uncomp_size is mz_uint64 (64-bit). It is cast to (int) when passed to XML_GetBuffer and XML_ParseBuffer. If the uncompressed size exceeds INT_MAX (~2GB), the cast wraps to a negative value. XML_GetBuffer with a negative size may allocate 0 bytes or invoke undefined behavior, while the subsequent mz_zip_reader_extract_file_to_mem writes (size_t)stat.m_uncomp_size bytes into the undersized buffer — a massive heap overflow.",
+      "evidence": "void* parser_buffer = XML_GetBuffer(m_xml_parser, (int)stat.m_uncomp_size); mz_bool res = mz_zip_reader_extract_file_to_mem(&archive, stat.m_filename, parser_buffer, (size_t)stat.m_uncomp_size, 0);",
+      "recommendation": "Guard: if (stat.m_uncomp_size > (mz_uint64)INT_MAX) { add_error('File too large'); return false; } before the cast."
+    },
+    {
+      "id": "FMT-004",
+      "severity": "MEDIUM",
+      "category": "unchecked_allocation",
+      "title": "Unchecked allocation from untrusted m_uncomp_size in multiple extraction functions",
+      "file": "src/libslic3r/Format/bbs_3mf.cpp",
+      "lines": "1369,1374,1531,2439,2498,2693,2755,2813,2884,2966,3050,3078",
+      "description": "Many functions allocate std::string or std::vector sized from stat.m_uncomp_size (data.resize(stat.m_uncomp_size), std::string buffer((size_t)stat.m_uncomp_size, 0), etc.) without sanity-checking the value. A crafted 3MF file declaring a multi-gigabyte uncompressed size for a small compressed payload could cause std::bad_alloc to be thrown. While most callers catch std::exception, some do not (e.g. get_thumbnail at line 1369-1375, _extract_embossed_svg_shape_file at line 3050), and the resulting exception can propagate unhandled or crash the application.",
+      "evidence": "data.resize(stat.m_uncomp_size); return mz_zip_reader_extract_to_mem(...);",
+      "recommendation": "Impose a maximum uncompressed size limit (e.g. 256MB for XML, 1GB for thumbnails) and reject entries exceeding it. Also verify stat.m_uncomp_size matches the actual extracted size."
+    },
+    {
+      "id": "FMT-005",
+      "severity": "MEDIUM",
+      "category": "unchecked_allocation",
+      "title": "Unchecked allocation from untrusted m_uncomp_size in ZipperArchiveImport",
+      "file": "src/libslic3r/Format/ZipperArchiveImport.cpp",
+      "lines": "21-28,36-44",
+      "description": "read_ini and read_entry allocate buffers sized from entry.m_uncomp_size without upper-bound checks. A malicious archive entry claiming huge uncompressed size would cause std::bad_alloc. The exception propagates to read_zipper_archive which does not catch it (the Arch destructor closes the zip, but the caller may not expect this failure mode).",
+      "evidence": "std::string buf(size_t(entry.m_uncomp_size), '\\0'); ... std::vector<uint8_t> buf(entry.m_uncomp_size);",
+      "recommendation": "Add maximum size checks before allocation."
+    },
+    {
+      "id": "FMT-006",
+      "severity": "MEDIUM",
+      "category": "integer_overflow",
+      "title": "uint16_t overflow in ZipUnicodePathExtraField::encode",
+      "file": "src/libslic3r/Format/bbs_3mf.cpp",
+      "lines": "77",
+      "description": "boost::uint16_t len = 5 + u8path.length(). If u8path exceeds 65530 bytes, the addition wraps around uint16_t, producing an incorrect (too small) length field. When another tool reads this extra field, it would read out of bounds or parse garbage data.",
+      "evidence": "boost::uint16_t len = 5 + u8path.length();",
+      "recommendation": "Check u8path.length() <= 65530 before computing len. Alternatively, use a wider type and validate the range."
+    },
+    {
+      "id": "FMT-007",
+      "severity": "MEDIUM",
+      "category": "missing_error_handling",
+      "title": "Triangle vertex indices not validated against vertex count in 3MF import",
+      "file": "src/libslic3r/Format/bbs_3mf.cpp",
+      "lines": "5289-5310",
+      "description": "_handle_object_start_triangle appends raw parsed integer indices (v1, v2, v3) to geometry.triangles without validating they fall within [0, geometry.vertices.size()). Although validation occurs later in _generate_volumes_new (line 4762-4768), between parsing and validation the indices are used to size and index into arrays (custom_supports, seam, etc.), and a malicious file with extremely large index values could cause issues if assumptions are made about index ranges elsewhere.",
+      "evidence": "current_object->geometry.triangles.emplace_back(bbs_get_attribute_value_int(attributes, num_attributes, V1_ATTR), ...);",
+      "recommendation": "Validate triangle indices immediately at parse time or ensure all downstream code handles out-of-range indices safely."
+    },
+    {
+      "id": "FMT-008",
+      "severity": "MEDIUM",
+      "category": "integer_overflow",
+      "title": "Potential integer overflow in OBJ face index handling with negative indices",
+      "file": "src/libslic3r/Format/objparser.cpp",
+      "lines": "243-254",
+      "description": "When OBJ face indices are negative (relative indexing), the code does: vertex.coordIdx += (int) data.coordinates.size() / OBJ_VERTEX_LENGTH. The cast to int can overflow if data.coordinates.size() exceeds INT_MAX. With OBJ_VERTEX_LENGTH=7, this requires ~15 billion floats (~56GB), which is unlikely in practice but theoretically possible on 64-bit systems. More practically, no validation ensures the resulting index is non-negative after the addition.",
+      "evidence": "if (vertex.coordIdx < 0) vertex.coordIdx += (int) data.coordinates.size() / OBJ_VERTEX_LENGTH;",
+      "recommendation": "Add a bounds check: after computing the resolved index, verify 0 <= vertex.coordIdx < data.coordinates.size() / OBJ_VERTEX_LENGTH."
+    },
+    {
+      "id": "FMT-009",
+      "severity": "MEDIUM",
+      "category": "missing_error_handling",
+      "title": "AMF triangle indices loaded from XML without range validation at parse time",
+      "file": "src/libslic3r/Format/AMF.cpp",
+      "lines": "554-556",
+      "description": "In AMFParserContext::endElement for NODE_TYPE_TRIANGLE, face vertex indices are directly parsed from user-supplied XML text via atoi() and emplaced into m_volume_facets. While validation occurs later in NODE_TYPE_VOLUME (line ~570-580 checks tri_id range), the use of atoi() is itself unsafe — it does not detect malformed input or overflow (returns 0 on failure, INT_MIN/INT_MAX on overflow), and there is no error signaling for non-numeric content.",
+      "evidence": "m_volume_facets.emplace_back(atoi(m_value[0].c_str()), atoi(m_value[1].c_str()), atoi(m_value[2].c_str()));",
+      "recommendation": "Replace atoi with a function that validates the input and range-checks the result (e.g. std::strtol with error checking). Report malformed input immediately."
+    },
+    {
+      "id": "FMT-010",
+      "severity": "MEDIUM",
+      "category": "missing_error_handling",
+      "title": "AMF vertex coordinates parsed with atof — no NaN/Inf/overflow detection",
+      "file": "src/libslic3r/Format/AMF.cpp",
+      "lines": "547-549",
+      "description": "Vertex coordinates are parsed via float(atof(m_value[X].c_str())) without checking for NaN, infinity, or malformed input. A crafted AMF file containing 'nan', 'inf', or extremely large values would produce invalid geometry that could cause downstream crashes in slicing algorithms.",
+      "evidence": "m_object_vertices.emplace_back(float(atof(m_value[0].c_str())), float(atof(m_value[1].c_str())), float(atof(m_value[2].c_str())));",
+      "recommendation": "Validate parsed values with std::isfinite() and reject non-finite coordinates."
+    },
+    {
+      "id": "FMT-011",
+      "severity": "MEDIUM",
+      "category": "missing_error_handling",
+      "title": "STL loading delegates entirely to ReadSTLFile — no size sanity checks",
+      "file": "src/libslic3r/Format/STL.cpp",
+      "lines": "17-43",
+      "description": "load_stl calls mesh.ReadSTLFile(path, ...) and checks for failure/empty mesh, but does not impose any limits on file size or triangle count before the read. A malformed binary STL header claiming billions of triangles could cause excessive memory allocation inside ReadSTLFile. The vulnerability depends on the implementation of TriangleMesh::ReadSTLFile (in admesh), but no defensive checks are applied at this layer.",
+      "evidence": "if (!mesh.ReadSTLFile(path, true, stlFn, custom_header_length)) { return false; }",
+      "recommendation": "Check file size before loading. For binary STL, validate the declared triangle count against the actual file size (header=80+4 bytes, each triangle=50 bytes)."
+    },
+    {
+      "id": "FMT-012",
+      "severity": "MEDIUM",
+      "category": "missing_error_handling",
+      "title": "store_stl returns true even on write failure",
+      "file": "src/libslic3r/Format/STL.cpp",
+      "lines": "45-52",
+      "description": "store_stl always returns true regardless of whether the write_binary or write_ascii call succeeded. The code contains a comment acknowledging this: '//FIXME returning false even if write failed.' This could lead to silent data loss.",
+      "evidence": "mesh->write_binary(path); //FIXME returning false even if write failed. return true;",
+      "recommendation": "Propagate the return value from write_binary/write_ascii, or check the file after writing."
+    },
+    {
+      "id": "FMT-013",
+      "severity": "LOW",
+      "category": "missing_error_handling",
+      "title": "store_obj returns true even on write failure",
+      "file": "src/libslic3r/Format/OBJ.cpp",
+      "lines": "232-236",
+      "description": "Identical to the STL issue: store_obj always returns true. The comment '//FIXME returning false even if write failed.' is present.",
+      "evidence": "mesh->WriteOBJFile(path); return true;",
+      "recommendation": "Check WriteOBJFile return value and propagate failures."
+    },
+    {
+      "id": "FMT-014",
+      "severity": "MEDIUM",
+      "category": "out_of_bounds_read",
+      "title": "OBJ texture coordinate access without bounds check",
+      "file": "src/libslic3r/Format/OBJ.cpp",
+      "lines": "155-159",
+      "description": "In the set_face_color lambda, texture coordinates are accessed as data.textureCoordinates[uvs[N] * 2] and [uvs[N] * 2 + 1]. The uvs values come from vertex.textureCoordIdx which is parsed from the OBJ file and decremented. No bounds checking ensures uvs[N] * 2 + 1 < data.textureCoordinates.size(). A crafted OBJ with out-of-range texture indices would cause an out-of-bounds read.",
+      "evidence": "Vec2f uv0(data.textureCoordinates[uvs[0] * 2], data.textureCoordinates[uvs[0] * 2 + 1]);",
+      "recommendation": "Validate texture coordinate indices before use: ensure 0 <= uvs[N] and uvs[N] * 2 + 1 < data.textureCoordinates.size()."
+    },
+    {
+      "id": "FMT-015",
+      "severity": "MEDIUM",
+      "category": "out_of_bounds_read",
+      "title": "STEP isGBK out-of-bounds read on last byte",
+      "file": "src/libslic3r/Format/STEP.cpp",
+      "lines": "140-155",
+      "description": "In StepPreProcessor::isGBK, when str[i] >= 0x81 the code reads str[i + 1] without checking that i + 1 < str.length(). If the string ends with a byte in the 0x81-0xFE range, the read of str[i + 1] accesses memory past the end of the string. std::string does guarantee str[str.size()] == '\\0', so this reads a '\\0', but the check 'str[i + 1] >= 0x40' would fail and return false — not a crash in practice due to SSO/NUL-termination, but it's technically UB for const std::string passed by value.",
+      "evidence": "if (str[i] >= 0x81 && str[i] <= 0xfe && str[i + 1] >= 0x40 && str[i + 1] <= 0xfe && str[i + 1] != 0xf7)",
+      "recommendation": "Add check: if (i + 1 >= str.length()) return false; before accessing str[i + 1]."
+    },
+    {
+      "id": "FMT-016",
+      "severity": "LOW",
+      "category": "missing_error_handling",
+      "title": "STEP exception catching by value instead of const reference",
+      "file": "src/libslic3r/Format/STEP.cpp",
+      "lines": "705",
+      "description": "catch(Exception e) catches by value, slicing the exception and losing information. Should be catch(const std::exception& e).",
+      "evidence": "} catch(Exception e) { return 0; }",
+      "recommendation": "Change to: catch (const std::exception& e)"
+    },
+    {
+      "id": "FMT-017",
+      "severity": "LOW",
+      "category": "missing_error_handling",
+      "title": "SLA support/drain holes parsing: OOB array access on malformed data",
+      "file": "src/libslic3r/Format/bbs_3mf.cpp",
+      "lines": "2941-2960",
+      "description": "When parsing SLA support points, the loop iterates i+=3 (or i+=5 for version 1) but does not check that i+2 (or i+4) is within bounds of object_data_points. If the data is truncated (e.g. count not divisible by 3 or 5), accessing object_data_points[i+1] or [i+2] etc. would be out of bounds.",
+      "evidence": "for (unsigned int i=0; i<object_data_points.size(); i+=3) sla_support_points.emplace_back(float(std::atof(object_data_points[i+0].c_str())), float(std::atof(object_data_points[i+1].c_str())), float(std::atof(object_data_points[i+2].c_str())), ...);",
+      "recommendation": "Check i + 2 < object_data_points.size() (or i + 4 / i + 7 for respective versions) in the loop condition."
+    },
+    {
+      "id": "FMT-018",
+      "severity": "MEDIUM",
+      "category": "path_traversal",
+      "title": "OBJ mtllib path injection — attacker-controlled material file path",
+      "file": "src/libslic3r/Format/OBJ.cpp",
+      "lines": "39-65",
+      "description": "The mtllib directive in OBJ files specifies a material library filename. The code resolves it relative to the OBJ file's directory: dir + '/' + mtl_name. However, if the OBJ file contains a mtllib value like '../../sensitive_file.mtl' or an absolute path like '/etc/passwd', the code will attempt to open and parse that file. While it only parses .mtl format (not arbitrary data), this could be used to probe filesystem structure (timing side channel) or cause errors.",
+      "evidence": "auto mtl_file = dir + '/' + mtl_name; ... if (boost::filesystem::exists(mtl_name_is_path ? mtl_abs_path : mtl_path)) { if (!ObjParser::mtlparse(_mtl_path, mtl_data)) ...",
+      "recommendation": "Sanitize mtl_name: reject absolute paths and entries containing '..'. Verify resolved path stays within the parent directory of the OBJ file."
+    },
+    {
+      "id": "FMT-019",
+      "severity": "LOW",
+      "category": "missing_error_handling",
+      "title": "AMF XML parser does not limit entity expansion (billion laughs mitigated, external entities disabled)",
+      "file": "src/libslic3r/Format/AMF.cpp",
+      "lines": "914-919",
+      "description": "The AMF parser creates an XML_Parser and sets element/character handlers but does not call XML_SetEntityDeclHandler(nullptr) to block internal entity declarations (note: the 3MF parser does this correctly). While expat has some default protections, explicitly disabling entity declarations would prevent billion-laughs-style DoS attacks.",
+      "evidence": "XML_SetUserData(parser, (void*)&ctx); XML_SetElementHandler(parser, AMFParserContext::startElement, AMFParserContext::endElement); XML_SetCharacterDataHandler(parser, AMFParserContext::characters);",
+      "recommendation": "Add XML_SetEntityDeclHandler(parser, nullptr) and XML_SetExternalEntityRefHandler(parser, nullptr) to the AMF file parser, matching the 3MF parser's pattern."
+    },
+    {
+      "id": "FMT-020",
+      "severity": "HIGH",
+      "category": "integer_overflow",
+      "title": "Callback-based XML parsing casts mz_uint64 file offset and buffer size to int",
+      "file": "src/libslic3r/Format/bbs_3mf.cpp",
+      "lines": "2402-2415",
+      "description": "In _extract_model_from_archive, the callback for mz_zip_reader_extract_to_callback passes (int)n to XML_Parse where n is size_t. If a single extraction chunk exceeds INT_MAX (possible for very large compressed entries), the cast silently truncates, causing XML_Parse to process only a fraction of the data or exhibit undefined behavior.",
+      "evidence": "if (!XML_Parse(data->parser, (const char*)pBuf, (int)n, ...) || data->importer.parse_error())",
+      "recommendation": "Process chunks in a loop, limiting each XML_Parse call to at most INT_MAX bytes."
+    },
+    {
+      "id": "FMT-021",
+      "severity": "LOW",
+      "category": "missing_error_handling",
+      "title": "AMF extract_model_from_archive uses sprintf without bounds check",
+      "file": "src/libslic3r/Format/AMF.cpp",
+      "lines": "946-948",
+      "description": "Uses ::sprintf into a 1024-byte error_buf. While overflow is unlikely with typical filenames, stat.m_filename can be up to MZ_ZIP_MAX_ARCHIVE_FILENAME_SIZE (512) bytes, plus other format string content, making overflow theoretically possible for very long filenames combined with long error messages.",
+      "evidence": "::sprintf(error_buf, 'Parsing file %s error at line %d: {%s}', data->stat.m_filename, (int) XML_GetCurrentLineNumber(data->parser), data->ctx.error_message());",
+      "recommendation": "Use snprintf(error_buf, sizeof(error_buf), ...) instead of sprintf."
+    }
+  ],
+  "summary": {
+    "total_findings": 21,
+    "by_severity": {
+      "HIGH": 4,
+      "MEDIUM": 12,
+      "LOW": 5
+    },
+    "by_category": {
+      "path_traversal": 3,
+      "integer_overflow": 4,
+      "unchecked_allocation": 2,
+      "missing_error_handling": 8,
+      "out_of_bounds_read": 2,
+      "missing_input_validation": 2
+    },
+    "most_critical": [
+      "FMT-001: Path traversal in auxiliary file extraction (incomplete sanitization)",
+      "FMT-002: Path traversal in general file extraction (no sanitization)",
+      "FMT-003: Integer overflow on XML_GetBuffer size (mz_uint64 → int cast)",
+      "FMT-020: Integer overflow in callback-based XML parsing (size_t → int cast)"
+    ],
+    "notes": [
+      "The main archive loop at line 1772 does check for '/../' substring and skips those entries, which provides partial mitigation for FMT-001/FMT-002. However: (a) it only checks the literal '/../' after backslash→slash normalization, missing edge cases, (b) _extract_file_from_archive may be invoked from restore paths that bypass this check.",
+      "The 3MF XML parser correctly disables entity declarations (XML_SetEntityDeclHandler(nullptr)) and external entities. The AMF parser does not.",
+      "STEP.cpp delegates STEP file parsing to OpenCascade (OCCT) which has its own security properties. No archive extraction or untrusted buffer allocation issues were found in the STEP loader itself, though the isGBK OOB read (FMT-015) is notable.",
+      "All std::string/std::vector allocations from m_uncomp_size rely on std::bad_alloc being thrown and caught. The catch coverage is inconsistent — some callers catch, others don't."
+    ]
+  }
+}

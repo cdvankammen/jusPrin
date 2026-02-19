@@ -496,7 +496,7 @@ set(CGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE ON CACHE BOOL "" FORCE)
 cmake_policy(PUSH)
 cmake_policy(SET CMP0011 NEW)
 find_package(CGAL REQUIRED)
-find_package(OpenCV REQUIRED core)
+find_package(OpenCV REQUIRED)
 cmake_policy(POP)
 
 add_library(libslic3r_cgal STATIC 
@@ -541,7 +541,9 @@ set(OpenCASCADE_DIR "${CMAKE_PREFIX_PATH}/lib/cmake/occt")
 find_package(OpenCASCADE REQUIRED)
 target_include_directories(libslic3r SYSTEM PUBLIC ${OpenCASCADE_INCLUDE_DIR})
 
-find_package(JPEG REQUIRED)
+# JPEG is provided by OpenCV's bundled libjpeg-turbo, so we don't need to find it separately
+# This prevents duplicate symbol errors during linking
+# find_package(JPEG REQUIRED)
 
 set(OCCT_LIBS
     TKXDESTEP
@@ -592,7 +594,7 @@ target_link_libraries(libslic3r
         # draco::draco  # Temporarily disabled - DRC file format support
         eigen
         glu-libtess
-        JPEG::JPEG
+        # JPEG::JPEG  # Not needed - OpenCV provides libjpeg-turbo
         libslic3r_cgal
         mcut
         noise::noise

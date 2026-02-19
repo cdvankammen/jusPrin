@@ -17,6 +17,7 @@
 #include <limits>
 #include <stdexcept>
 #include <iomanip>
+#include <sstream>
 
 #include <boost/assign.hpp>
 #include <boost/bimap.hpp>
@@ -586,6 +587,48 @@ bool bbs_is_valid_object_type(const std::string& type)
     }
 
     return false;
+}
+
+// Sanitize archive member paths to prevent path traversal attacks
+// Removes ".." components and ensures the path is relative
+static std::string sanitize_archive_path(const std::string& path) {
+    // Replace backslashes with forward slashes for consistency
+    std::string sanitized = path;
+    std::replace(sanitized.begin(), sanitized.end(), '\\', '/');
+
+    // Remove leading slashes (absolute paths)
+    while (!sanitized.empty() && sanitized[0] == '/') {
+        sanitized = sanitized.substr(1);
+    }
+
+    // Split path into components and filter out ".." and "."
+    std::vector<std::string> components;
+    std::istringstream iss(sanitized);
+    std::string component;
+
+    while (std::getline(iss, component, '/')) {
+        if (component.empty() || component == ".") {
+            // Skip empty components and "."
+            continue;
+        } else if (component == "..") {
+            // Remove parent directory if possible (prevents traversal)
+            if (!components.empty()) {
+                components.pop_back();
+            }
+            // If components is empty, we silently drop the ".." (prevents traversal above root)
+        } else {
+            components.push_back(component);
+        }
+    }
+
+    // Reconstruct the path
+    std::string result;
+    for (size_t i = 0; i < components.size(); ++i) {
+        if (i > 0) result += "/";
+        result += components[i];
+    }
+
+    return result;
 }
 
 namespace Slic3r {
@@ -2344,7 +2387,14 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
         XML_SetEntityDeclHandler(m_xml_parser, nullptr);
         XML_SetExternalEntityRefHandler(m_xml_parser, nullptr);
 
-        void* parser_buffer = XML_GetBuffer(m_xml_parser, (int)stat.m_uncomp_size);
+        // SECURITY: Check for integer overflow before casting to int
+        if (stat.m_uncomp_size > static_cast<mz_uint64>(std::numeric_limits<int>::max())) {
+            add_error("File too large for XML parser (exceeds 2GB limit)");
+            return false;
+        }
+        int buffer_size = static_cast<int>(stat.m_uncomp_size);
+
+        void* parser_buffer = XML_GetBuffer(m_xml_parser, buffer_size);
         if (parser_buffer == nullptr) {
             add_error("Unable to create buffer");
             return false;
@@ -2356,7 +2406,7 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
             return false;
         }
 
-        if (!XML_ParseBuffer(m_xml_parser, (int)stat.m_uncomp_size, 1)) {
+        if (!XML_ParseBuffer(m_xml_parser, buffer_size, 1)) {
             char error_buf[1024];
             ::snprintf(error_buf, 1024, "Error (%s) while parsing xml file at line %d", XML_ErrorString(XML_GetErrorCode(m_xml_parser)), (int)XML_GetCurrentLineNumber(m_xml_parser));
             add_error(error_buf);
@@ -2649,6 +2699,13 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
             else
                 return;
 
+            // SECURITY: Sanitize path to prevent directory traversal attacks
+            dest_file = sanitize_archive_path(dest_file);
+            if (dest_file.empty()) {
+                BOOST_LOG_TRIVIAL(warning) << "Skipping archive member with invalid path: " << stat.m_filename;
+                return;
+            }
+
             if (dest_file.find('/') != std::string::npos) {
                 boost::filesystem::path src_path = boost::filesystem::path(dest_file);
                 boost::filesystem::path parent_path = src_path.parent_path();
@@ -2672,6 +2729,12 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
     {
         if (stat.m_uncomp_size > 0) {
             std::string src_file = decode_path(stat.m_filename);
+            // SECURITY: Sanitize path to prevent directory traversal attacks
+            src_file = sanitize_archive_path(src_file);
+            if (src_file.empty()) {
+                BOOST_LOG_TRIVIAL(warning) << "Skipping archive member with invalid path: " << stat.m_filename;
+                return;
+            }
             // BBS: use backup path
             //aux directory from model
             boost::filesystem::path dest_path = boost::filesystem::path(m_backup_path + "/" + src_file);

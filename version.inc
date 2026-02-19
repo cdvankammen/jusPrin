@@ -4,6 +4,10 @@
 set(SLIC3R_APP_NAME "JusPrin")
 set(SLIC3R_APP_KEY "JusPrin")
 
+if(NOT DEFINED SLIC3R_BUILD_ID)
+    set(SLIC3R_BUILD_ID "" CACHE STRING "Build identifier")
+endif()
+
 if(NOT DEFINED BBL_RELEASE_TO_PUBLIC)
 set(BBL_RELEASE_TO_PUBLIC "1")
 endif()

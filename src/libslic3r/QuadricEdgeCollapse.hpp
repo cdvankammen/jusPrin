@@ -1,3 +1,6 @@
+#ifndef SLIC3R_QUADRIC_EDGE_COLLAPSE_HPP
+#define SLIC3R_QUADRIC_EDGE_COLLAPSE_HPP
+
 // paper: https://people.eecs.berkeley.edu/~jrs/meshpapers/GarlandHeckbert2.pdf
 // sum up: https://users.csc.calpoly.edu/~zwood/teaching/csc570/final06/jseeba/
 // inspiration: https://github.com/sp4cerat/Fast-Quadric-Mesh-Simplification
@@ -26,3 +29,5 @@ void its_quadric_edge_collapse(
     std::function<void(int)>  statusfn        = nullptr);
 
 } // namespace Slic3r
+
+#endif // SLIC3R_QUADRIC_EDGE_COLLAPSE_HPP

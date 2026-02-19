@@ -1,3 +1,6 @@
+#ifndef SLIC3R_GUI_WIDGETS_TEXTCTRL_H
+#define SLIC3R_GUI_WIDGETS_TEXTCTRL_H
+
 #ifdef __WXMSW__
 class TextCtrl : public wxTextCtrl
 {
@@ -8,3 +11,5 @@ public:
 #else
 typedef wxTextCtrl TextCtrl;
 #endif
+
+#endif // SLIC3R_GUI_WIDGETS_TEXTCTRL_H

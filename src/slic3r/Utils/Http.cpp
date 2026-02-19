@@ -190,8 +190,18 @@ Http::priv::priv(const std::string &url)
 	::curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_MAX_TLSv1_2);
 #endif
 	::curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-	::curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-	::curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+
+	// Enable SSL verification by default for security
+	// Set environment variable JUSPRIN_DISABLE_SSL_VERIFY=1 to disable if needed (not recommended)
+	const char* disable_ssl_verify = std::getenv("JUSPRIN_DISABLE_SSL_VERIFY");
+	if (disable_ssl_verify && std::string(disable_ssl_verify) == "1") {
+		BOOST_LOG_TRIVIAL(warning) << "SSL verification disabled via JUSPRIN_DISABLE_SSL_VERIFY environment variable";
+		::curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+		::curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+	} else {
+		::curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
+		::curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);  // 2 means strict host verification
+	}
 
 	// https://everything.curl.dev/http/post/expect100.html
 	// remove the Expect: header, it will add a second delay to each request,

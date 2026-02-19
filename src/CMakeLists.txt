@@ -127,6 +127,8 @@ if (NOT WIN32 AND NOT APPLE)
 endif ()
 
 target_link_libraries(JusPrin libslic3r cereal::cereal)
+# Explicit dependency to ensure libslic3r is built before JusPrin
+add_dependencies(JusPrin libslic3r)
 # target_include_directories(OrcaSlicer PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/slic3r)
 if (APPLE)
 #    add_compile_options(-stdlib=libc++)
@@ -145,6 +147,8 @@ endif ()
 if (SLIC3R_GUI)
 #    target_link_libraries(JusPrin ws2_32 uxtheme setupapi libslic3r_gui ${wxWidgets_LIBRARIES})
 target_link_libraries(JusPrin libslic3r_gui)
+    # Explicit dependency to ensure libslic3r_gui is built before JusPrin
+    add_dependencies(JusPrin libslic3r_gui)
     if (MSVC)
         # Generate debug symbols even in release mode.
         target_link_options(JusPrin PUBLIC "$<$<CONFIG:RELEASE>:/DEBUG>")

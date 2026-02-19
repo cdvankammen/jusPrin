@@ -24,10 +24,18 @@ nlohmann::json JusPrinPresetConfigUtils::PresetToJson(const Preset* preset, bool
     j["is_default"] = preset->is_default;
     j["is_selected"] = is_selected;
     j["is_custom_defined"] = preset->is_custom_defined();
-    // FIXME: DynamicPrintConfig::to_json was removed in OrcaSlicer v2.3.2
-    // Need to implement config serialization manually if needed
-    // j["config"] = preset->config.to_json(preset->name, "", preset->version.to_string(), preset->custom_defined);
-    j["config"] = nlohmann::json::object();  // Placeholder empty config
+
+    // Manually serialize config since DynamicPrintConfig::to_json was removed
+    nlohmann::json config_json = nlohmann::json::object();
+    auto keys = preset->config.keys();
+    for (const auto& key : keys) {
+        const ConfigOption* opt = preset->config.option(key);
+        if (opt) {
+            config_json[key] = opt->serialize();
+        }
+    }
+    j["config"] = config_json;
+
     return j;
 }
 
