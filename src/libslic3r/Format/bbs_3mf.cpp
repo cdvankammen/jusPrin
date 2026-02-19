@@ -2454,10 +2454,23 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
         {
             mz_file_write_func callback = [](void* pOpaque, mz_uint64 file_ofs, const void* pBuf, size_t n)->size_t {
                 CallbackData* data = (CallbackData*)pOpaque;
-                if (!XML_Parse(data->parser, (const char*)pBuf, (int)n, (file_ofs + n == data->stat.m_uncomp_size) ? 1 : 0) || data->importer.parse_error()) {
-                    char error_buf[1024];
-                    ::snprintf(error_buf, 1024, "Error (%s) while parsing '%s' at line %d", data->importer.parse_error_message(), data->stat.m_filename, (int)XML_GetCurrentLineNumber(data->parser));
-                    throw Slic3r::FileIOError(error_buf);
+                // SECURITY: Parse in INT_MAX-sized chunks to prevent integer overflow
+                // when casting size_t to int for XML_Parse()
+                const char* buf_ptr = (const char*)pBuf;
+                size_t remaining = n;
+                const bool is_final = (file_ofs + n == data->stat.m_uncomp_size);
+                while (remaining > 0) {
+                    int chunk = (remaining > static_cast<size_t>(std::numeric_limits<int>::max()))
+                                    ? std::numeric_limits<int>::max()
+                                    : static_cast<int>(remaining);
+                    bool final_chunk = is_final && (static_cast<size_t>(chunk) == remaining);
+                    if (!XML_Parse(data->parser, buf_ptr, chunk, final_chunk ? 1 : 0) || data->importer.parse_error()) {
+                        char error_buf[1024];
+                        ::snprintf(error_buf, 1024, "Error (%s) while parsing '%s' at line %d", data->importer.parse_error_message(), data->stat.m_filename, (int)XML_GetCurrentLineNumber(data->parser));
+                        throw Slic3r::FileIOError(error_buf);
+                    }
+                    buf_ptr += chunk;
+                    remaining -= static_cast<size_t>(chunk);
                 }
                 return n;
             };
@@ -5583,10 +5596,23 @@ void PlateData::parse_filament_info(GCodeProcessorResult *result)
         {
             mz_file_write_func callback = [](void* pOpaque, mz_uint64 file_ofs, const void* pBuf, size_t n)->size_t {
                 CallbackData* data = (CallbackData*)pOpaque;
-                if (!XML_Parse(data->parser, (const char*)pBuf, (int)n, (file_ofs + n == data->stat.m_uncomp_size) ? 1 : 0) || data->importer.object_parse_error()) {
-                    char error_buf[1024];
-                    ::snprintf(error_buf, 1024, "Error (%s) while parsing '%s' at line %d", data->importer.object_parse_error_message(), data->stat.m_filename, (int)XML_GetCurrentLineNumber(data->parser));
-                    throw Slic3r::FileIOError(error_buf);
+                // SECURITY: Parse in INT_MAX-sized chunks to prevent integer overflow
+                // when casting size_t to int for XML_Parse()
+                const char* buf_ptr = (const char*)pBuf;
+                size_t remaining = n;
+                const bool is_final = (file_ofs + n == data->stat.m_uncomp_size);
+                while (remaining > 0) {
+                    int chunk = (remaining > static_cast<size_t>(std::numeric_limits<int>::max()))
+                                    ? std::numeric_limits<int>::max()
+                                    : static_cast<int>(remaining);
+                    bool final_chunk = is_final && (static_cast<size_t>(chunk) == remaining);
+                    if (!XML_Parse(data->parser, buf_ptr, chunk, final_chunk ? 1 : 0) || data->importer.object_parse_error()) {
+                        char error_buf[1024];
+                        ::snprintf(error_buf, 1024, "Error (%s) while parsing '%s' at line %d", data->importer.object_parse_error_message(), data->stat.m_filename, (int)XML_GetCurrentLineNumber(data->parser));
+                        throw Slic3r::FileIOError(error_buf);
+                    }
+                    buf_ptr += chunk;
+                    remaining -= static_cast<size_t>(chunk);
                 }
                 return n;
             };

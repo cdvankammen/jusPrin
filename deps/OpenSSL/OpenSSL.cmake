@@ -53,7 +53,7 @@ if(DEP_OPENSSL_USE_3)
         DOWNLOAD_DIR ${DEP_DOWNLOAD_DIR}/OpenSSL
         CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env \
             MACOSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET} \
-            ${CMAKE_CURRENT_SOURCE_DIR}/openssl-3-configure.sh "--prefix=${_openssl3_install_dir}" no-shared no-tests
+            ${CMAKE_CURRENT_LIST_DIR}/openssl-3-configure.sh "--prefix=${_openssl3_install_dir}" no-shared no-tests
         BUILD_IN_SOURCE ON
         BUILD_COMMAND ${_make_cmd}
         INSTALL_COMMAND ${_install_cmd}
@@ -104,7 +104,3 @@ endif()
 # The build support here only provides the library and an install location.
 # Any code that depends on OpenSSL's 1.1 APIs may require source changes.
 # See UPGRADE_DEPS.md for details and TODOs.
-
-    COMMAND ${CMAKE_COMMAND} -E copy_directory openssl "${DESTDIR}${CMAKE_INSTALL_LIBDIR}/cmake/openssl"
-    WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
-)

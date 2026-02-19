@@ -77,7 +77,8 @@ void session::read_next_line()
 
             if (line.length() == 0) {
                 if (headers.content_length() == 0) {
-                    std::cout << "Request received: " << headers.method << " " << headers.get_url();
+                    // SECURITY: mask tokens/codes in URL before logging
+                    std::cout << "Request received: " << headers.method << " " << mask_sensitive_url_params(headers.get_url());
                     if (headers.method == "OPTIONS") {
                         // Ignore http OPTIONS
                         server.stop(self);
@@ -95,6 +96,13 @@ void session::read_next_line()
                         server.stop(self);
                     });
                 } else {
+                    // SECURITY: reject oversized request bodies
+                    if (headers.content_length() > static_cast<int>(MAX_REQUEST_BODY_SIZE)) {
+                        BOOST_LOG_TRIVIAL(warning) << "HttpServer: rejected request with body size "
+                                                   << headers.content_length() << " exceeding limit " << MAX_REQUEST_BODY_SIZE;
+                        server.stop(self);
+                        return;
+                    }
                     read_body();
                 }
             } else {
@@ -225,6 +233,12 @@ std::shared_ptr<HttpServer::Response> HttpServer::bbl_auth_handle_request(const 
         std::string   expires_in_str         = url_get_param(url, "expires_in");
         std::string   refresh_expires_in_str = url_get_param(url, "refresh_expires_in");
         NetworkAgent* agent                  = wxGetApp().getAgent();
+
+        // SECURITY: ensure tokens are cleared before leaving this scope
+        struct TokenGuard {
+            std::string &at, &rt;
+            ~TokenGuard() { secure_clear_string(at); secure_clear_string(rt); }
+        } token_guard{access_token, refresh_token};
 
         unsigned int http_code;
         std::string  http_body;

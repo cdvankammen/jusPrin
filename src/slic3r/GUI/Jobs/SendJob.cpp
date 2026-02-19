@@ -386,6 +386,9 @@ void SendJob::on_check_ip_address_success(std::function<void()> func)
 
 void SendJob::finalize(bool canceled, std::exception_ptr &eptr)
 {
+    // SECURITY: zero-fill credential after job completes regardless of outcome
+    secure_clear_string(m_access_code);
+
     try {
         if (eptr)
             std::rethrow_exception(eptr);

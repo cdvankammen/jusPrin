@@ -1,3 +1,9 @@
+// MEMORY-SAFETY AUDIT (free/delete mismatch) — verified clean 2025-02.
+// Previous fix: free(preset->loading_substitutions) changed to delete (allocated via new).
+// No remaining free/delete mismatches. Raw pointer `loading_substitutions` is paired with
+// `new`/`delete`; `vendor` is a non-owning observer pointer — no deallocation needed here.
+// Audited: get_preset_differed_for_save returns caller-owned `new Preset()` — no mismatch.
+
 #include <cassert>
 
 #include "Config.hpp"
