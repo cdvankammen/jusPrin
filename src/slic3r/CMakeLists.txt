@@ -788,7 +788,22 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SLIC3R_GUI_SOURCES})
 encoding_check(libslic3r_gui)
 
 find_package(libnoise REQUIRED)
-target_link_libraries(libslic3r_gui libslic3r cereal::cereal imgui imguizmo minilzo libvgcode md4c-html GLEW::GLEW OpenGL::GL hidapi ${wxWidgets_LIBRARIES} glfw libcurl OpenSSL::SSL OpenSSL::Crypto noise::noise)
+
+# CRITICAL FIX: Filter out libjpeg.a and libpng.a from wxWidgets_LIBRARIES
+# These libraries conflict with OpenCV's bundled libjpeg-turbo and libpng
+# causing "multiple definition" linker errors on Linux
+set(wxWidgets_LIBRARIES_FILTERED "")
+foreach(lib ${wxWidgets_LIBRARIES})
+    string(REGEX MATCH "libjpeg\\.(a|so)" _is_jpeg "${lib}")
+    string(REGEX MATCH "libpng[0-9]*\\.(a|so)" _is_png "${lib}")
+    if(NOT _is_jpeg AND NOT _is_png)
+        list(APPEND wxWidgets_LIBRARIES_FILTERED "${lib}")
+    else()
+        message(STATUS "Filtering conflicting library from wxWidgets: ${lib}")
+    endif()
+endforeach()
+
+target_link_libraries(libslic3r_gui libslic3r cereal::cereal imgui imguizmo minilzo libvgcode md4c-html GLEW::GLEW OpenGL::GL hidapi ${wxWidgets_LIBRARIES_FILTERED} glfw libcurl OpenSSL::SSL OpenSSL::Crypto noise::noise)
 # Explicit dependencies to ensure proper build order and prevent parallel build race conditions
 add_dependencies(libslic3r_gui libslic3r libvgcode)
 

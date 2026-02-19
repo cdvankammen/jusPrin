@@ -726,10 +726,32 @@ find_package(OpenGL REQUIRED)
 
 set(GLEW_ROOT "${CMAKE_PREFIX_PATH}")
 message("GLEW_ROOT: ${GLEW_ROOT}")
+
 # Find glew or use bundled version
 if (SLIC3R_STATIC AND NOT SLIC3R_STATIC_EXCLUDE_GLEW)
     set(GLEW_USE_STATIC_LIBS ON)
     set(GLEW_VERBOSE ON)
+endif()
+
+# CRITICAL FIX: Add explicit paths for GLEW on Windows to help FindGLEW locate the library
+# The dependency cache may have GLEW in non-standard locations
+if (WIN32 AND CMAKE_PREFIX_PATH)
+    # Add explicit hints for GLEW location
+    set(GLEW_INCLUDE_DIR "${CMAKE_PREFIX_PATH}/include" CACHE PATH "GLEW include directory hint" FORCE)
+    list(APPEND CMAKE_PREFIX_PATH
+        "${CMAKE_PREFIX_PATH}"
+        "${CMAKE_PREFIX_PATH}/include"
+        "${CMAKE_PREFIX_PATH}/lib"
+    )
+    message(STATUS "Windows: Added GLEW search hints - Include: ${CMAKE_PREFIX_PATH}/include, Lib: ${CMAKE_PREFIX_PATH}/lib")
+
+    # Check if GLEW files actually exist
+    if(EXISTS "${CMAKE_PREFIX_PATH}/include/GL/glew.h")
+        message(STATUS "Found GLEW header: ${CMAKE_PREFIX_PATH}/include/GL/glew.h")
+    else()
+        message(WARNING "GLEW header not found at expected location: ${CMAKE_PREFIX_PATH}/include/GL/glew.h")
+        message(WARNING "This may indicate the dependencies cache is incomplete. Try rebuilding dependencies.")
+    endif()
 endif()
 
 find_package(GLEW REQUIRED)
