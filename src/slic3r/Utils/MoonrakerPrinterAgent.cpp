@@ -150,8 +150,15 @@ int MoonrakerPrinterAgent::connect_printer(std::string dev_id, std::string dev_i
         gen = ++connect_generation;
         base_url = device_info.base_url;
         api_key  = device_info.api_key;
-        if (connect_thread.joinable()) {
-            connect_thread.detach();
+        // If a previous connect thread is running, move it out and join it without holding the mutex
+        {
+            std::thread prev;
+            // move out the thread while holding the lock
+            if (connect_thread.joinable()) {
+                prev = std::move(connect_thread);
+            }
+            // join outside the lock
+            if (prev.joinable()) prev.join();
         }
     }
 
@@ -180,8 +187,13 @@ int MoonrakerPrinterAgent::disconnect_printer()
         std::lock_guard<std::recursive_mutex> lock(connect_mutex);
         device_info = MoonrakerDeviceInfo{};
         ++connect_generation;  // Invalidate any in-flight connection
-        if (connect_thread.joinable()) {
-            connect_thread.detach();
+        // If a previous connect thread is running, move it out and join it without holding the mutex
+        {
+            std::thread prev;
+            if (connect_thread.joinable()) {
+                prev = std::move(connect_thread);
+            }
+            if (prev.joinable()) prev.join();
         }
     }
 

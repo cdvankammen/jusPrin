@@ -395,9 +395,12 @@ static std::vector<std::pair<TreeSupportSettings, std::vector<size_t>>> group_me
     const bool min_xy_dist = config.xy_distance > config.xy_min_distance;
 
     LineInformations result;
+    // Reserve expected capacity to avoid repeated reallocations
+    result.reserve(polylines.size());
     // Also checks if the position is valid, if it is NOT, it deletes that point
     for (const Polyline &line : polylines) {
         LineInformation res_line;
+        res_line.reserve(line.size());
         for (Point p : line) {
             if (! contains(volumes.getAvoidance(config.getRadius(0), layer_idx, TreeModelVolumes::AvoidanceType::FastSafe, false, min_xy_dist), p))
                 res_line.emplace_back(p, LineStatus::TO_BP_SAFE);
@@ -482,6 +485,9 @@ template<typename EvaluatePointFn>
 
     LineInformations keep;
     LineInformations set_free;
+    // Reserve approximate capacity to reduce reallocations
+    keep.reserve(lines.size());
+    set_free.reserve(lines.size());
     for (const std::vector<std::pair<Point, LineStatus>> &line : lines) {
         bool            current_keep = true;
         LineInformation resulting_line;
@@ -561,6 +567,7 @@ static std::optional<std::pair<Point, size_t>> polyline_sample_next_point_at_dis
 [[nodiscard]] static Polylines ensure_maximum_distance_polyline(const Polylines &input, double distance, size_t min_points)
 {
     Polylines result;
+    result.reserve(input.size());
     for (Polyline part : input) {
         if (part.empty())
             continue;
@@ -586,12 +593,14 @@ static std::optional<std::pair<Point, size_t>> polyline_sample_next_point_at_dis
                 // The first point of the line will always be supported, so rotate the order of points in this polyline that one of the two corresponding points that are furthest from each other is in the beginning.
                 // The other will be manually added (optimal_end_index)
                 coord_t max_dist2_between_vertecies = 0;
+                // Only compare each pair once; inner loop starts at idx+1 to avoid duplicate comparisons.
                 for (size_t idx = 0; idx < part.size() - 1; ++ idx) {
-                    for (size_t inner_idx = 0; inner_idx < part.size() - 1; inner_idx++) {
-                        if ((part[idx] - part[inner_idx]).cast<double>().squaredNorm() > max_dist2_between_vertecies) {
+                    for (size_t inner_idx = idx + 1; inner_idx < part.size() - 1; ++inner_idx) {
+                        double d2 = (part[idx] - part[inner_idx]).cast<double>().squaredNorm();
+                        if (d2 > max_dist2_between_vertecies) {
                             optimal_start_index = idx;
                             optimal_end_index = inner_idx;
-                            max_dist2_between_vertecies = (part[idx] - part[inner_idx]).cast<double>().squaredNorm();
+                            max_dist2_between_vertecies = d2;
                         }
                     }
                 }

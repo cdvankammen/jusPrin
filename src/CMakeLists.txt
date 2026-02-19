@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(OrcaSlicer-native)
+project(JusPrin-native)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -80,26 +80,26 @@ if (SLIC3R_GUI)
     add_subdirectory(slic3r)
 endif()
 
-if(ORCA_TOOLS)
-    # OrcaSlicer_profile_validator
+    if(ORCA_TOOLS)
+    # JusPrin_profile_validator
     if(APPLE)
-        add_executable(OrcaSlicer_profile_validator MACOSX_BUNDLE dev-utils/OrcaSlicer_profile_validator.cpp)
-        set_target_properties(OrcaSlicer_profile_validator PROPERTIES
+        add_executable(JusPrin_profile_validator MACOSX_BUNDLE dev-utils/OrcaSlicer_profile_validator.cpp)
+        set_target_properties(JusPrin_profile_validator PROPERTIES
             MACOSX_BUNDLE TRUE
-            MACOSX_BUNDLE_BUNDLE_NAME "OrcaSlicer Profile Validator"
+            MACOSX_BUNDLE_BUNDLE_NAME "JusPrin Profile Validator"
             MACOSX_BUNDLE_BUNDLE_VERSION "${SLIC3R_VERSION}"
             MACOSX_BUNDLE_SHORT_VERSION_STRING "${SLIC3R_VERSION}"
-            MACOSX_BUNDLE_IDENTIFIER "com.softfever.orcaslicer.profile-validator"
-            MACOSX_BUNDLE_COPYRIGHT "© 2024 SoftFever"
-            MACOSX_BUNDLE_GUI_IDENTIFIER "com.softfever.orcaslicer.profile-validator"
+            MACOSX_BUNDLE_IDENTIFIER "com.obico.jusprin.profile-validator"
+            MACOSX_BUNDLE_COPYRIGHT "© 2024 Obico"
+            MACOSX_BUNDLE_GUI_IDENTIFIER "com.obico.jusprin.profile-validator"
         )
     else()
-        add_executable(OrcaSlicer_profile_validator dev-utils/OrcaSlicer_profile_validator.cpp)
+        add_executable(JusPrin_profile_validator dev-utils/OrcaSlicer_profile_validator.cpp)
     endif()
-    target_link_libraries(OrcaSlicer_profile_validator libslic3r boost_headeronly libcurl OpenSSL::SSL OpenSSL::Crypto)
-    target_compile_definitions(OrcaSlicer_profile_validator PRIVATE -DBOOST_ALL_NO_LIB -DBOOST_USE_WINAPI_VERSION=0x602 -DBOOST_SYSTEM_USE_UTF8)
+    target_link_libraries(JusPrin_profile_validator libslic3r boost_headeronly libcurl OpenSSL::SSL OpenSSL::Crypto)
+    target_compile_definitions(JusPrin_profile_validator PRIVATE -DBOOST_ALL_NO_LIB -DBOOST_USE_WINAPI_VERSION=0x602 -DBOOST_SYSTEM_USE_UTF8)
     if(WIN32)
-        target_link_libraries(OrcaSlicer_profile_validator bcrypt.lib)
+        target_link_libraries(JusPrin_profile_validator bcrypt.lib)
     endif()
 endif()
 

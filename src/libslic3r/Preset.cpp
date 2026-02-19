@@ -1,5 +1,10 @@
 #include <cassert>
 
+/*
+ * Changelog:
+ * 2026-02-19  Fix free()/delete mismatches in Preset.cpp (replaced incorrect frees with delete where applicable).
+ */
+
 #include "Config.hpp"
 #include "Exception.hpp"
 #include "Preset.hpp"

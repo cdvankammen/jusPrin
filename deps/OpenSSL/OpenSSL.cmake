@@ -1,3 +1,31 @@
+include(ProcessorCount)
+ProcessorCount(NPROC)
+
+# Allow selecting OpenSSL major version from the top-level CMake command line
+if(NOT DEFINED OPENSSL_MAJOR)
+    # default to 3 for new builds; legacy builds may set -DOPENSSL_MAJOR=1
+    set(OPENSSL_MAJOR 3)
+endif()
+
+if(DEFINED OPENSSL_ARCH)
+    set(_cross_arch ${OPENSSL_ARCH})
+else()
+    if(WIN32)
+        set(_cross_arch "VC-WIN64A")
+    elseif(APPLE)
+        set(_cross_arch "darwin64-arm64-cc")
+    	endif()
+endif()
+if(OPENSSL_MAJOR STREQUAL "3")
+    set(_openssl_url "https://github.com/openssl/openssl/archive/refs/tags/openssl-3.1.2.tar.gz")
+    # NOTE: you can supply a URL_HASH here for reproducible builds. Example (commented):
+    # set(_openssl_url_hash "URL_HASH SHA256=8c776993154652d0bb393f506d850b811517c8bd8d24b1008aef57fbe55d3f31")
+else()
+    set(_openssl_url "https://github.com/openssl/openssl/archive/OpenSSL_1_1_1w.tar.gz")
+    set(_openssl_url_hash "URL_HASH SHA256=2130E8C2FB3B79D1086186F78E59E8BC8D1A6AEDF17AB3907F4CB9AE20918C41")
+endif()
+
+ExternalProject_Add(dep_OpenSSL
 
 include(ProcessorCount)
 ProcessorCount(NPROC)
@@ -40,10 +68,9 @@ endif()
 
 ExternalProject_Add(dep_OpenSSL
     #EXCLUDE_FROM_ALL ON
-    URL "https://github.com/openssl/openssl/archive/OpenSSL_1_1_1w.tar.gz"
-    URL_HASH SHA256=2130E8C2FB3B79D1086186F78E59E8BC8D1A6AEDF17AB3907F4CB9AE20918C41
-    # URL "https://github.com/openssl/openssl/archive/refs/tags/openssl-3.1.2.tar.gz"
-    # URL_HASH SHA256=8c776993154652d0bb393f506d850b811517c8bd8d24b1008aef57fbe55d3f31
+    URL "${_openssl_url}"
+    ${_openssl_url_hash}
+        if (CMAKE_CROSSCOMPILING)
     DOWNLOAD_DIR ${DEP_DOWNLOAD_DIR}/OpenSSL
 	CONFIGURE_COMMAND ${_conf_cmd} ${_cross_arch}
         "--openssldir=${DESTDIR}"

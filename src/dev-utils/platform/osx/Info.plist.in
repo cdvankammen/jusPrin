@@ -5,15 +5,15 @@
   <key>CFBundleExecutable</key>
   <string>@SLIC3R_APP_KEY@</string>
   <key>CFBundleGetInfoString</key>
-  <string>@SLIC3R_APP_NAME@ Copyright(C) 2021-2023 Lunkuo All Rights Reserved</string>
+  <string>@SLIC3R_APP_NAME@ Copyright(C) 2021-2026 Obico All Rights Reserved</string>
   <key>CFBundleIconFile</key>
-  <string>images/OrcaSlicer.icns</string>
+  <string>images/JusPrin.icns</string>
   <key>CFBundleName</key>
   <string>@SLIC3R_APP_KEY@</string>
   <key>CFBundleShortVersionString</key>
   <string>@SLIC3R_APP_NAME@ @SLIC3R_BUILD_ID@</string>
   <key>CFBundleIdentifier</key>
-  <string>com.softfever3d.orca-slic3r/</string>
+  <string>com.obico.jusprin</string>
   <key>CFBundleInfoDictionaryVersion</key>
   <string>6.0</string>
   <key>CFBundlePackageType</key>
@@ -28,11 +28,11 @@
   <array>
     <dict>
       <key>CFBundleURLName</key>
-      <string>orcasliceropen url</string>
+      <string>jusprinopen url</string>
       <key>CFBundleURLSchemes</key>
       <array>
-        <string>orcasliceropen</string>
-        <string>orcaslicer</string>
+        <string>jusprinopen</string>
+        <string>jusprin</string>
       </array>
     </dict>
   </array>

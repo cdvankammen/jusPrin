@@ -111,7 +111,20 @@ PrinterFileSystem::PrinterFileSystem()
 
 PrinterFileSystem::~PrinterFileSystem()
 {
-    m_recv_thread.detach();
+    // Signal the receive thread to stop and join it to avoid detached threads
+    {
+        boost::unique_lock<boost::mutex> l(m_mutex);
+        m_session.owner = nullptr;
+        m_stopped = true;
+        m_cond.notify_all();
+    }
+    if (m_recv_thread.joinable()) {
+        try {
+            m_recv_thread.join();
+        } catch (...) {
+            // join should not throw, but swallow any exceptions in destructor
+        }
+    }
 }
 
 void PrinterFileSystem::SetFileType(FileType type, std::string const &storage)

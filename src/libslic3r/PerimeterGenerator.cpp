@@ -708,6 +708,8 @@ Polylines reconnect_polylines(const Polylines &polylines, double limit_distance)
     }
 
     Polylines result;
+    // Reserve result to number of connected entries to avoid reallocations when moving out elements.
+    result.reserve(connected.size());
     for (auto &ext : connected) {
         result.push_back(std::move(ext.second));
     }
@@ -721,6 +723,8 @@ ExtrusionPaths sort_extra_perimeters(const ExtrusionPaths& extra_perims, int ind
 
     std::vector<std::unordered_set<size_t>> dependencies(extra_perims.size());
     for (size_t path_idx = 0; path_idx < extra_perims.size(); path_idx++) {
+        // Reserve an expected amount to reduce rehashing during insertions.
+        dependencies[path_idx].reserve(path_idx);
         for (size_t prev_path_idx = 0; prev_path_idx < path_idx; prev_path_idx++) {
             if (paths_touch(extra_perims[path_idx], extra_perims[prev_path_idx], extrusion_spacing * 1.5f)) {
                        dependencies[path_idx].insert(prev_path_idx);        
@@ -1188,6 +1192,7 @@ void PerimeterGenerator::process_classic()
     double surface_simplify_resolution = (print_config->enable_arc_fitting && !this->has_fuzzy_skin) ? 0.2 * m_scaled_resolution : m_scaled_resolution;
     //BBS: reorder the surface to reduce the travel time
     ExPolygons surface_exp;
+    surface_exp.reserve(all_surfaces.size());
     for (const Surface &surface : all_surfaces)
         surface_exp.push_back(surface.expolygon);
     std::vector<size_t> surface_order = chain_expolygons(surface_exp);
