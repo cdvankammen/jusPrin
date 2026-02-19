@@ -542,11 +542,11 @@ find_package(OpenCASCADE REQUIRED)
 target_include_directories(libslic3r SYSTEM PUBLIC ${OpenCASCADE_INCLUDE_DIR})
 
 # JPEG handling:
-# - Thumbnails.cpp uses #include <jpeglib.h> for JPEG encoding
-# - OpenCV bundles libjpeg-turbo statically (liblibjpeg-turbo.a)
-# - We do NOT link JPEG::JPEG to avoid "multiple definition" errors with OpenCV's libjpeg-turbo
-# - Instead, we rely on OpenCV's embedded libjpeg-turbo which is already linked
-# find_package(JPEG REQUIRED)  # DISABLED - causes conflict with OpenCV's libjpeg-turbo
+# - Thumbnails.cpp uses #include <jpeglib.h> for JPEG encoding (jpeg_mem_dest, etc.)
+# - OpenCV bundles libjpeg-turbo statically, but symbols may not be exported
+# - We need to link JPEG library explicitly for the linker to resolve symbols
+# - Use deps-built JPEG to avoid conflicts with system libraries
+find_package(JPEG REQUIRED)
 
 set(OCCT_LIBS
     TKXDESTEP
@@ -597,7 +597,7 @@ target_link_libraries(libslic3r
         # draco::draco  # Temporarily disabled - DRC file format support
         eigen
         glu-libtess
-        # JPEG::JPEG  # REMOVED - conflicts with OpenCV's embedded libjpeg-turbo
+        JPEG::JPEG
         libslic3r_cgal
         mcut
         noise::noise
