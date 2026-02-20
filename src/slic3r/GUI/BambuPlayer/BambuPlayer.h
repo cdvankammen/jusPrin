@@ -5,6 +5,9 @@
 //  Created by cmguo on 2021/12/6.
 //
 
+#ifndef SLIC3R_GUI_BAMBUPLAYER_H
+#define SLIC3R_GUI_BAMBUPLAYER_H
+
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVSampleBufferDisplayLayer.h>
 #import <Cocoa/Cocoa.h>
@@ -28,3 +31,5 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // SLIC3R_GUI_BAMBUPLAYER_H

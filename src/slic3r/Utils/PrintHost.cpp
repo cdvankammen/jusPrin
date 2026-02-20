@@ -178,7 +178,7 @@ void PrintHostJobQueue::priv::stop_bg_thread()
     if (bg_thread.joinable()) {
         bg_exit = true;
         channel_jobs.push(PrintHostJob()); // Push an empty job to wake up bg_thread in case it's sleeping
-        bg_thread.detach();                // Let the background thread go, it should exit on its own
+        bg_thread.join();
     }
 }
 

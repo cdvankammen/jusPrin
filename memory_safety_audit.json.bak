@@ -1,0 +1,333 @@
+{
+  "audit": "Memory Safety Scan — JusPrin/src",
+  "scanner": "Subagent-Spec-2",
+  "timestamp": "2026-02-19",
+  "summary": {
+    "critical": 3,
+    "high": 7,
+    "medium": 8,
+    "low": 5,
+    "informational": 3,
+    "total_findings": 26
+  },
+  "findings": [
+    {
+      "id": "MS-001",
+      "severity": "critical",
+      "category": "delete_vs_free_mismatch",
+      "title": "free() called on new-allocated ConfigSubstitutions object",
+      "file": "src/libslic3r/Preset.cpp",
+      "line": 1547,
+      "evidence": "free(preset->loading_substitutions);",
+      "context": "loading_substitutions is allocated with 'new ConfigSubstitutions()' at src/libslic3r/Format/bbs_3mf.cpp:2622, but freed with free() instead of delete. This skips the destructor of ConfigSubstitutions (a std::vector<ConfigSubstitution>), corrupting heap metadata and leaking vector contents.",
+      "fix": "Replace free(preset->loading_substitutions) with delete preset->loading_substitutions"
+    },
+    {
+      "id": "MS-002",
+      "severity": "critical",
+      "category": "memory_leak",
+      "title": "unique_ptr::release() discards FanMover pointer causing leak",
+      "file": "src/libslic3r/GCode.cpp",
+      "line": 2411,
+      "evidence": "m_fan_mover.release();",
+      "context": "m_fan_mover is std::unique_ptr<FanMover> (GCode.hpp:624). Calling .release() without capturing the returned pointer leaks the FanMover object. This runs every time GCode::do_export() is called, so every slice leaks one FanMover.",
+      "fix": "Replace m_fan_mover.release() with m_fan_mover.reset()"
+    },
+    {
+      "id": "MS-003",
+      "severity": "critical",
+      "category": "memory_leak",
+      "title": "Vec3f* objects in section_vertices_map never deleted",
+      "file": "src/libslic3r/TriangleMeshSlicer.cpp",
+      "line": 2361,
+      "evidence": "section_vertices_map[facet(i)] = new Vec3f(vertices[i].x(), vertices[i].y(), vertices[i].z());",
+      "context": "A std::map<int, Vec3f*> is populated with new Vec3f allocations in a loop. At line 2557, the map is cleared via swap: std::map<int, Vec3f*>().swap(section_vertices_map) — which destroys the map entries but does NOT delete the heap-allocated Vec3f pointers. Every mesh cut operation leaks all these Vec3f objects. Note: OrcaSlicer upstream has fixed this by using std::map<int, Vec3f> (value type, no pointer).",
+      "fix": "Change map type from std::map<int, Vec3f*> to std::map<int, Vec3f>, or iterate and delete before swap"
+    },
+    {
+      "id": "MS-004",
+      "severity": "high",
+      "category": "memory_leak",
+      "title": "m_task_manager never freed in OnExit()",
+      "file": "src/slic3r/GUI/GUI_App.cpp",
+      "line": 3402,
+      "evidence": "m_task_manager = new Slic3r::TaskManager(m_agent);",
+      "context": "m_task_manager is allocated at line 3402 but OnExit() (lines 2580-2610) deletes m_device_manager and m_user_manager but never deletes m_task_manager. The pointer is declared as raw (GUI_App.hpp:293).",
+      "fix": "Add 'delete m_task_manager; m_task_manager = nullptr;' in GUI_App::OnExit() alongside the other manager cleanup"
+    },
+    {
+      "id": "MS-005",
+      "severity": "high",
+      "category": "memory_leak",
+      "title": "CalibrationWizard temp_filament_preset leaked in auto-PA path",
+      "file": "src/slic3r/GUI/CalibrationWizard.cpp",
+      "lines": [766, 854],
+      "evidence": "Preset * temp_filament_preset = new Preset(preset->type, preset->name + \"_temp\");",
+      "context": "At lines 766 and 854, new Preset objects are allocated and assigned to calib_info.filament_prest. Ownership is unclear — no delete is observed for these paths (auto PA calibration). Only the manual flow-rate path at line 1354 has a delete. If the consumer of calib_info does not take ownership, these leak.",
+      "fix": "Clarify ownership or use std::unique_ptr / std::shared_ptr for filament_prest in CalibInfo"
+    },
+    {
+      "id": "MS-006",
+      "severity": "high",
+      "category": "raw_pointer_ownership",
+      "title": "new boost::thread assigned to raw pointer with exception-unsafe cleanup",
+      "file": "src/libslic3r/Format/STEP.cpp",
+      "lines": [456, 529],
+      "evidence": "auto task = new boost::thread(Slic3r::create_thread([&]() -> void {",
+      "context": "boost::thread is heap-allocated via raw 'new'. Cleanup occurs via 'delete task' only in two specific branches (joinable check). If the thread is not joinable or an exception occurs before join, the thread object leaks. Using std::unique_ptr<boost::thread> would make this exception-safe.",
+      "fix": "Use std::unique_ptr<boost::thread> or stack-allocate the thread object"
+    },
+    {
+      "id": "MS-007",
+      "severity": "high",
+      "category": "raw_pointer_ownership",
+      "title": "PlateData* objects in bbs_3mf.cpp managed via raw new/delete across complex control flow",
+      "file": "src/libslic3r/Format/bbs_3mf.cpp",
+      "lines": [1492, 2154, 4424],
+      "evidence": "PlateData* plate = new PlateData();",
+      "context": "PlateData objects are heap-allocated in multiple places and inserted into vectors. Final cleanup at line 8630 iterates and deletes: 'delete plate_data_list[i]'. But if parsing throws or returns early in the ~200+ line parsing functions, these PlateData* leak. No RAII wrapper is used.",
+      "fix": "Use std::unique_ptr<PlateData> or a vector of unique_ptrs for plate_data_list"
+    },
+    {
+      "id": "MS-008",
+      "severity": "high",
+      "category": "raw_pointer_ownership",
+      "title": "CurrentObject* allocated/deleted across complex parsing state machine",
+      "file": "src/libslic3r/Format/bbs_3mf.cpp",
+      "lines": [3396, 5125],
+      "evidence": "m_curr_object = new CurrentObject();",
+      "context": "m_curr_object is allocated via new and deleted in 5+ different error-handling branches (lines 1250, 3388, 3422, 3459, 3473, 3478). Any missed branch or early return causes a leak. The parsing state machine is ~2000 lines, making manual lifetime correctness fragile.",
+      "fix": "Use std::unique_ptr<CurrentObject> for m_curr_object to ensure automatic cleanup"
+    },
+    {
+      "id": "MS-009",
+      "severity": "high",
+      "category": "raw_pointer_ownership",
+      "title": "Preset* allocated with new, pushed into vector, ownership unclear",
+      "file": "src/libslic3r/Format/bbs_3mf.cpp",
+      "line": 2598,
+      "evidence": "Preset *preset = new Preset(type, preset_name, false);",
+      "context": "A Preset is heap-allocated and pushed into project_presets vector. The vector stores raw pointers. If the consumer of project_presets forgets to delete, or if an exception occurs before push_back, this leaks.",
+      "fix": "Use std::unique_ptr<Preset> for project_presets entries"
+    },
+    {
+      "id": "MS-010",
+      "severity": "high",
+      "category": "memory_leak",
+      "title": "Preset::save() allocates new_preset but never deletes it on certain paths",
+      "file": "src/libslic3r/Preset.cpp",
+      "line": 1423,
+      "evidence": "new_preset = new Preset();",
+      "context": "new_preset is allocated if a parent_preset exists. The function appears to use new_preset for serialization, but no delete is visible for it in the function. If the function returns without transferring ownership, this Preset leaks.",
+      "fix": "Use std::unique_ptr<Preset> for new_preset, or ensure delete on all exit paths"
+    },
+    {
+      "id": "MS-011",
+      "severity": "medium",
+      "category": "raw_pointer_ownership",
+      "title": "Model owns objects/volumes/instances via raw new/delete throughout Model.cpp",
+      "file": "src/libslic3r/Model.cpp",
+      "lines": [66, 464, 482, 636, 647, 781, 1239, 1252, 1265, 1282, 1293, 1380, 1391],
+      "evidence": "ModelObject* new_object = new ModelObject(this); / ModelVolume* v = new ModelVolume(this, mesh); / etc.",
+      "context": "The entire Model/ModelObject/ModelVolume hierarchy uses raw owning pointers. Objects are new'd and stored in std::vector<ModelObject*>, with manual delete in destructors and erase operations. This is a large-scale structural pattern that predates the fork, but any missed delete path will leak. This is the #1 memory leak risk area by surface area.",
+      "fix": "Long-term: migrate to std::unique_ptr storage in Model containers. Short-term: audit all early-return paths in Model mutation methods."
+    },
+    {
+      "id": "MS-012",
+      "severity": "medium",
+      "category": "raw_pointer_ownership",
+      "title": "PrintObject/PrintObjectRegions managed with raw new/delete + manual refcount",
+      "file": "src/libslic3r/PrintApply.cpp",
+      "lines": [1531, 1548, 1649],
+      "evidence": "PrintObject *print_object = new PrintObject(this, model_object, ...); / print_object_regions = new PrintObjectRegions{};",
+      "context": "PrintObject is heap-allocated and stored in m_objects vector of raw pointers. PrintObjectRegions uses a manual m_ref_cnt (PrintObject.cpp:114). This hand-rolled reference counting is error-prone compared to shared_ptr.",
+      "fix": "Consider std::shared_ptr<PrintObjectRegions> to replace manual refcount"
+    },
+    {
+      "id": "MS-013",
+      "severity": "medium",
+      "category": "memory_leak",
+      "title": "PressureEqualizer uses raw new for LayerResult, fragile lifetime",
+      "file": "src/libslic3r/GCode/PressureEqualizer.cpp",
+      "line": 203,
+      "evidence": "delete prev_layer_result;",
+      "context": "prev_layer_result is a raw pointer to a heap-allocated LayerResult. The code copies its content to 'out' then deletes it. If an exception occurs between use and delete, or if the copy throws, the pointer leaks.",
+      "fix": "Use std::unique_ptr<LayerResult> and move semantics"
+    },
+    {
+      "id": "MS-014",
+      "severity": "medium",
+      "category": "raw_pointer_ownership",
+      "title": "GCode::PlaceholderParserIntegration raw-news ConfigOption objects into output_config",
+      "file": "src/libslic3r/GCode.cpp",
+      "lines": [1605, 1606, 1611, 1615, 1616, 1617, 1618],
+      "evidence": "this->opt_e_retracted = new ConfigOptionFloats(e_retracted); / this->opt_e_restart_extra = new ConfigOptionFloats(e_restart_extra); / etc.",
+      "context": "Multiple ConfigOption* objects are heap-allocated and passed to output_config.set_key_value() and parser.set(). Ownership appears to transfer to the config containers, but the raw pointers are also stored as member variables. If output_config takes ownership and these members are used after the config is destroyed, it's use-after-free. If neither takes ownership, they leak.",
+      "fix": "Clarify ownership contract; consider using ConfigOptionUniquePtr"
+    },
+    {
+      "id": "MS-015",
+      "severity": "medium",
+      "category": "memory_leak",
+      "title": "SpiralVase allocates vector on heap but ownership is fragile",
+      "file": "src/libslic3r/GCode/SpiralVase.cpp",
+      "line": 111,
+      "evidence": "std::vector<SpiralVase::SpiralPoint>* current_layer = new std::vector<SpiralVase::SpiralPoint>();",
+      "context": "A vector is heap-allocated and stored via m_previous_layer pointer. Cleanup happens at line 211: 'delete m_previous_layer; m_previous_layer = current_layer;'. If an exception occurs during the GCode parsing callback before reaching line 211, current_layer leaks and m_previous_layer may be stale.",
+      "fix": "Use std::unique_ptr<std::vector<SpiralPoint>> for m_previous_layer"
+    },
+    {
+      "id": "MS-016",
+      "severity": "medium",
+      "category": "memory_leak",
+      "title": "BBLSubTask objects allocated with new in parse loop",
+      "file": "src/libslic3r/ProjectTask.cpp",
+      "line": 146,
+      "evidence": "BBLSubTask* new_subtask = new BBLSubTask(this);",
+      "context": "Subtasks are new'd in a loop and pushed to a vector. Old subtasks are deleted at lines 139-141 before the loop. If push_back throws (allocation failure), the just-created subtask leaks.",
+      "fix": "Use emplace with unique_ptr, or wrap in unique_ptr before push_back"
+    },
+    {
+      "id": "MS-017",
+      "severity": "medium",
+      "category": "raw_pointer_ownership",
+      "title": "TreeSupport allocates ExtrusionEntityCollection on heap, conditional delete",
+      "file": "src/libslic3r/Support/TreeSupport.cpp",
+      "line": 1496,
+      "evidence": "ExtrusionEntityCollection* temp_support_fills = new ExtrusionEntityCollection();",
+      "context": "An EEC is allocated, filled, then either pushed to support_fills.entities or deleted if empty (line 1504). The pattern is correct but fragile — if make_perimeter_and_infill throws, temp_support_fills leaks.",
+      "fix": "Use std::unique_ptr and release() only on successful push_back"
+    },
+    {
+      "id": "MS-018",
+      "severity": "medium",
+      "category": "raw_pointer_ownership",
+      "title": "ObjectImporter* in bbs_3mf.cpp with manual delete",
+      "file": "src/libslic3r/Format/bbs_3mf.cpp",
+      "line": 1671,
+      "evidence": "ObjectImporter *object_importer = new ObjectImporter(this, filename, path);",
+      "context": "ObjectImporter is allocated, used, and manually deleted at line 1703. The ~32 lines between allocation and deletion contain error-prone logic. Any early return would leak.",
+      "fix": "Use std::unique_ptr<ObjectImporter>"
+    },
+    {
+      "id": "MS-019",
+      "severity": "low",
+      "category": "intentional_leak",
+      "title": "wxLocale intentionally leaked to avoid wxWidgets crash",
+      "file": "src/slic3r/GUI/GUI_App.cpp",
+      "line": 6442,
+      "evidence": "m_wxLocale.release();",
+      "context": "Documented intentional leak: '//FIXME wxWidgets cause havoc if the current locale is deleted. We just forget it causing memory leaks for now.' This is a known wxWidgets limitation.",
+      "fix": "No immediate fix needed; tracked as known technical debt"
+    },
+    {
+      "id": "MS-020",
+      "severity": "low",
+      "category": "raw_pointer_ownership",
+      "title": "agent_ptr.release() transfers unique_ptr to raw m_agent",
+      "file": "src/slic3r/GUI/GUI_App.cpp",
+      "line": 3388,
+      "evidence": "m_agent = agent_ptr.release();",
+      "context": "A unique_ptr<NetworkAgent> is released to a raw pointer m_agent. The raw pointer is later deleted in OnExit() and on_init_network(). This works but loses the RAII safety of unique_ptr, meaning any unhandled exception between creation and deletion will leak.",
+      "fix": "Store m_agent as std::unique_ptr<NetworkAgent> throughout its lifetime"
+    },
+    {
+      "id": "MS-021",
+      "severity": "low",
+      "category": "intentional_leak",
+      "title": "Static tbb::task_scheduler_init leaked intentionally",
+      "file": "src/libslic3r/utils.cpp",
+      "line": 188,
+      "evidence": "static tbb::task_scheduler_init *tbb_init = new tbb::task_scheduler_init(1);",
+      "context": "Process-lifetime singleton, never freed. This is a common pattern for global TBB configuration and is harmless since it lives until process exit.",
+      "fix": "No fix needed; intentional process-lifetime allocation"
+    },
+    {
+      "id": "MS-022",
+      "severity": "low",
+      "category": "raw_array_allocation",
+      "title": "Windows-only wchar_t arrays allocated with new[] in copy_file",
+      "file": "src/libslic3r/utils.cpp",
+      "lines": [879, 884],
+      "evidence": "wchar_t* src_wstr = new wchar_t[src_wlen + 1]; / wchar_t* dst_wstr = new wchar_t[dst_wlen + 1];",
+      "context": "Raw new[] arrays with goto-based cleanup. The delete[] happens via goto __finished label. While this works, it's fragile and not exception-safe.",
+      "fix": "Use std::wstring or std::vector<wchar_t> instead of raw new[]"
+    },
+    {
+      "id": "MS-023",
+      "severity": "low",
+      "category": "raw_array_allocation",
+      "title": "Windows-only WCHAR/BYTE arrays in Emboss.cpp font enumeration",
+      "file": "src/libslic3r/Emboss.cpp",
+      "lines": [855, 856, 941, 942],
+      "evidence": "LPWSTR valueName = new WCHAR[maxValueNameSize]; / LPBYTE valueData = new BYTE[maxValueDataSize];",
+      "context": "Arrays allocated with new[] and cleaned up with delete[] at lines 883-884 and 963-964. If RegEnumValue throws or any exception occurs in the loop body, these leak.",
+      "fix": "Use std::vector<WCHAR> and std::vector<BYTE>"
+    },
+    {
+      "id": "MS-024",
+      "severity": "informational",
+      "category": "correct_malloc_free",
+      "title": "calloc/free pairing in Config.cpp is correct",
+      "file": "src/libslic3r/Config.cpp",
+      "lines": [1199, 1259],
+      "evidence": "char* result = (char*)calloc(strlen(str) + 1, 1); ... free(result);",
+      "context": "calloc allocation correctly paired with free(). No mismatch.",
+      "fix": "None needed"
+    },
+    {
+      "id": "MS-025",
+      "severity": "informational",
+      "category": "correct_malloc_free",
+      "title": "malloc/free pairing in GCode.cpp vsnprintf is correct",
+      "file": "src/libslic3r/GCode.cpp",
+      "lines": [6060, 6065],
+      "evidence": "char *bufptr = buffer_dynamic ? (char*)malloc(buflen) : buffer; ... free(bufptr);",
+      "context": "malloc allocation correctly paired with free(). No mismatch.",
+      "fix": "None needed"
+    },
+    {
+      "id": "MS-026",
+      "severity": "informational",
+      "category": "correct_pattern",
+      "title": "SLAPrint manages SLAPrintObject* with proper delete in cleanup paths",
+      "file": "src/libslic3r/SLAPrint.cpp",
+      "lines": [123, 269, 333, 338, 467, 490],
+      "evidence": "delete object; / delete print_object; / auto print_object = new SLAPrintObject(this, &model_object);",
+      "context": "SLAPrint follows the same raw-pointer ownership pattern as Print. Cleanup paths appear complete with delete in destructors and apply() method. This is a manual ownership pattern but appears correct.",
+      "fix": "Long-term migration to unique_ptr recommended but not urgent"
+    }
+  ],
+  "hotspot_summary": [
+    {
+      "file": "src/libslic3r/Format/bbs_3mf.cpp",
+      "risk": "HIGH",
+      "reason": "Highest density of raw new/delete across ~9000 lines of complex parsing logic. Multiple PlateData*, CurrentObject*, Preset*, ObjectImporter* allocated without RAII. Exception safety is poor throughout."
+    },
+    {
+      "file": "src/libslic3r/Model.cpp",
+      "risk": "HIGH",
+      "reason": "Core data model uses raw owning pointers everywhere (ModelObject*, ModelVolume*, ModelInstance*, ModelMaterial*). ~15 allocation sites. Any mutation method that takes an early return risks leaking."
+    },
+    {
+      "file": "src/libslic3r/PrintApply.cpp",
+      "risk": "MEDIUM",
+      "reason": "PrintObject*, PrintObjectRegions* managed with raw new/delete and a manual reference count. Complex state machine for object lifecycle."
+    },
+    {
+      "file": "src/libslic3r/GCode.cpp",
+      "risk": "MEDIUM",
+      "reason": "Contains unique_ptr misuse (release() without capture at L2411) and multiple raw ConfigOption* allocations with ambiguous ownership."
+    },
+    {
+      "file": "src/slic3r/GUI/GUI_App.cpp",
+      "risk": "MEDIUM",
+      "reason": "m_task_manager never deleted in OnExit(). m_agent ownership transferred from unique_ptr to raw pointer. Intentional wxLocale leak."
+    },
+    {
+      "file": "src/slic3r/GUI/CalibrationWizard.cpp",
+      "risk": "MEDIUM",
+      "reason": "Multiple Preset* objects allocated for calibration info with unclear ownership transfer. Only one code path has a matching delete."
+    }
+  ]
+}

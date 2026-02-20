@@ -1,0 +1,228 @@
+{
+  "audit": "Subagent-Spec-9 Performance Hotspot Analysis",
+  "scope": "src/libslic3r — GCode.cpp, TriangleMeshSlicer.cpp, Fill/, Support/, Arachne/",
+  "date": "2026-02-19",
+  "summary": "Identified 18 performance hotspots across 8 files. Key themes: O(n^2) nested loops in perimeter nesting and tree support merging, excessive string concatenation in GCode inner loops, linear searches with std::find in hot paths, repeated vector::erase(begin+i) causing O(n) shifts, missing reserve() calls, and mutex contention in parallel slicing.",
+  "hotspots": [
+    {
+      "id": "PERF-001",
+      "severity": "HIGH",
+      "file": "src/libslic3r/GCode.cpp",
+      "lines": "2184-2220",
+      "function": "autospeed_volumetric_limit",
+      "issue": "O(objects * regions * layers) triple-nested loop with repeated config.get_abs_value() string lookups",
+      "detail": "Iterates all objects × all regions × all layers calling get_abs_value() which does string-based config key lookup each iteration. For a model with many objects/regions, this is extremely slow. The mm3_per_mm vector also grows via push_back without reserve.",
+      "suggestion": "Cache config values outside the inner loop. Pre-compute get_abs_value results per-region before iterating layers. Add mm3_per_mm.reserve(estimated_count)."
+    },
+    {
+      "id": "PERF-002",
+      "severity": "HIGH",
+      "file": "src/libslic3r/PerimeterGenerator.cpp",
+      "lines": "1361-1413",
+      "function": "perimeter nesting (holes/contours)",
+      "issue": "O(n^2) to O(n^3) nested loop nesting with vector::erase(begin+i) inside inner loop",
+      "detail": "For each hole/contour at depth d, iterates all holes/contours at other depths calling polygon.contains(point) — an O(vertices) operation. Combined with vector::erase(begin+i) which shifts all subsequent elements O(n), this creates O(d * holes * contours * vertices) complexity. On complex models with many perimeters this is a major bottleneck.",
+      "suggestion": "Replace with a spatial index (e.g., point-in-polygon via AABB tree or R-tree). Use swap-and-pop or mark-and-sweep instead of erase(begin+i). Pre-sort polygons by bounding box to prune containment checks."
+    },
+    {
+      "id": "PERF-003",
+      "severity": "HIGH",
+      "file": "src/libslic3r/Support/TreeSupport3D.cpp",
+      "lines": "2279-2295",
+      "function": "merge_influence_areas_leaves",
+      "issue": "Explicit O(n^2) pairwise merge at AABB tree leaf level",
+      "detail": "Comment in code: 'Merging at the lowest level of the AABB tree. Checking one against each other, O(n^2).' Each pair calls merge_influence_areas_two_elements which involves polygon boolean operations. For large support structures with many elements per leaf bucket, this quadratic scan dominates tree support generation time.",
+      "suggestion": "Reduce bucket sizes to keep n small at leaf level. Consider spatial hashing or grid-based proximity checks to avoid brute-force pairwise comparison. Pre-filter by bounding box overlap."
+    },
+    {
+      "id": "PERF-004",
+      "severity": "HIGH",
+      "file": "src/libslic3r/GCode.cpp",
+      "lines": "5900-6000 (extrude_perimeters/extrude_infill/extrude_support)",
+      "function": "extrude_perimeters, extrude_infill, extrude_support",
+      "issue": "Repeated std::string concatenation via += in inner extrusion loops",
+      "detail": "The GCode generation hot path builds the output string by repeated gcode += this->extrude_entity(...) in tight loops over all perimeters, infills, and support entities per layer. Each += may trigger reallocation. For complex layers with thousands of extrusion entities, this creates significant allocation pressure. This pattern repeats throughout the file (lines 6450-6700 show sprintf+gcode+=buf dozens of times per path point).",
+      "suggestion": "Pre-allocate gcode string with reserve() based on estimated output size. Consider using a std::ostringstream or a pre-sized char buffer with write position tracking. Batch small tag writes."
+    },
+    {
+      "id": "PERF-005",
+      "severity": "MEDIUM",
+      "file": "src/libslic3r/Support/TreeSupport3D.cpp",
+      "lines": "1866-1872",
+      "function": "insertSetting (influence area expansion)",
+      "issue": "std::find + vector::insert(begin) on small vector in hot per-element loop",
+      "detail": "For every support element on every layer, insertSetting calls std::find on the order vector, then potentially order.insert(order.begin(), settings) which shifts all elements. Called inside a per-element loop during influence area calculation, which runs for every support node on every layer.",
+      "suggestion": "Use a small fixed-size array or std::array with a count, or a deque for O(1) front insertion. The order vector is small (typically <10 elements), so impact per call is small, but the frequency is very high."
+    },
+    {
+      "id": "PERF-006",
+      "severity": "MEDIUM",
+      "file": "src/libslic3r/Support/TreeSupport3D.cpp",
+      "lines": "3869, 3909-3910",
+      "function": "tree support slice assembly",
+      "issue": "vector::insert(begin, count, {}) causing O(n) shifts on potentially large slice vectors",
+      "detail": "slices.insert(slices.begin(), ...) shifts the entire vector contents when prepending bottom extra slices. tree.slices.insert(tree.slices.begin(), ...) does the same. For tall tree support structures with many layers, these shifts are expensive.",
+      "suggestion": "Use a deque for slices if frequent front-insertion is needed, or pre-calculate the final size and copy into position. Alternatively, offset indices instead of shifting data."
+    },
+    {
+      "id": "PERF-007",
+      "severity": "MEDIUM",
+      "file": "src/libslic3r/TriangleMeshSlicer.cpp",
+      "lines": "498-506",
+      "function": "slice_facet_at_zs",
+      "issue": "Mutex contention in parallel slicing — 64 mutexes for potentially thousands of slice planes",
+      "detail": "The parallel_for over mesh faces acquires lines_mutex[slice_id % 64] to push intersection lines. With many threads and slice planes mapping to the same mutex bucket, this creates contention. The modulo-64 hash can cluster if slice counts are multiples of 64.",
+      "suggestion": "Use thread-local storage to accumulate lines per-thread, then merge in a reduction step. Alternatively, increase mutex array size to a prime number or use lock-free concurrent containers."
+    },
+    {
+      "id": "PERF-008",
+      "severity": "MEDIUM",
+      "file": "src/libslic3r/Fill/FillRectilinear.cpp",
+      "lines": "2376, 2502",
+      "function": "monotonic infill path ordering (ant colony)",
+      "issue": "std::find on queue vector in inner ant colony optimization loop",
+      "detail": "The ant colony path optimization for monotonic infill calls std::find(queue.begin(), queue.end(), region) to remove selected regions from the queue. This is O(queue_size) per selection, run for every region in every ant iteration. With many monotonic regions, the cumulative cost is significant.",
+      "suggestion": "Use an unordered_set for O(1) lookup/removal, or maintain a position index. Alternatively, use swap-and-pop for O(1) removal from the queue vector."
+    },
+    {
+      "id": "PERF-009",
+      "severity": "MEDIUM",
+      "file": "src/libslic3r/GCode.cpp",
+      "lines": "2326-2360",
+      "function": "sort_object_instances_by_model_order",
+      "issue": "O(objects * model_objects) linear scan via find_object_index for each instance",
+      "detail": "find_object_index does a linear scan through model.objects for every print instance. With many objects, this is O(n^2). Then lower_bound is used on a sorted vector, but the preceding linear scan negates the benefit.",
+      "suggestion": "Build an unordered_map<ModelObject*, int> upfront for O(1) index lookup. The function is called once, but with many objects this adds up."
+    },
+    {
+      "id": "PERF-010",
+      "severity": "MEDIUM",
+      "file": "src/libslic3r/GCode.cpp",
+      "lines": "7210-7240",
+      "function": "is_through_overhang (retract check)",
+      "issue": "For each travel move, iterates all object instances × all layers checking ExPolygon::contains and intersection_pl",
+      "detail": "The overhang detection for retraction checks iterates through layers_of_objects sorted by loverhangs_bbox area, testing intersection_pl against each overhang ExPolygon. For objects with many overhangs across many layers, this is very expensive per travel move. The comment FIXME notes this: 'support_islands.contains should use some search structure!'",
+      "suggestion": "Use an EdgeGrid or AABB tree index for point/polyline-in-polygon queries. Cache the spatial index per layer. Pre-filter by bounding box before expensive intersection tests."
+    },
+    {
+      "id": "PERF-011",
+      "severity": "MEDIUM",
+      "file": "src/libslic3r/GCode.cpp",
+      "lines": "7280-7290",
+      "function": "retract check — support_island.contains(travel)",
+      "issue": "Linear scan over support islands calling ExPolygon::contains per travel move",
+      "detail": "Code comment: 'FIXME support_layer->support_islands.contains should use some search structure!' and 'FIXME any_internal_region_slice_contains() is potentially very slow, it shall test for the bounding boxes first.' These are called for every travel move during GCode generation.",
+      "suggestion": "Build a spatial index (EdgeGrid, AABB tree) for the support islands and internal region slices. Cache the index per layer and reuse across travel moves."
+    },
+    {
+      "id": "PERF-012",
+      "severity": "MEDIUM",
+      "file": "src/libslic3r/PerimeterGenerator.cpp",
+      "lines": "1888-1900",
+      "function": "unsupported region filtering",
+      "issue": "Repeated vector::erase(begin+i) with intersection_ex inside loop",
+      "detail": "Erases elements from the middle of 'last' and 'all_surfaces' vectors using erase(begin+i) with index adjustment. Each erase shifts subsequent elements. Combined with intersection_ex() which is an expensive polygon boolean, this creates O(n^2) behavior for surfaces with many unsupported regions.",
+      "suggestion": "Use mark-and-sweep: mark items for removal, then use std::remove_if + erase at the end. This converts O(n^2) shifts to O(n)."
+    },
+    {
+      "id": "PERF-013",
+      "severity": "LOW",
+      "file": "src/libslic3r/GCode.cpp",
+      "lines": "2410-2460",
+      "function": "layer count calculation",
+      "issue": "Redundant unique + epsilon loop after std::unique already handles duplicates",
+      "detail": "After std::sort + std::unique, an additional loop checks adjacent elements within EPSILON. The std::unique should already merge exact duplicates; the epsilon pass is O(n) but the approach is convoluted. Also, this code is duplicated for ByObject vs. ByAll cases.",
+      "suggestion": "Use a single custom unique predicate that incorporates the epsilon comparison: std::unique(begin, end, [](auto a, auto b) { return abs(a-b) < EPSILON; }). Deduplicate the ByObject/ByAll code paths."
+    },
+    {
+      "id": "PERF-014",
+      "severity": "LOW",
+      "file": "src/libslic3r/Arachne/SkeletalTrapezoidation.cpp",
+      "lines": "1479, 1585, 1629, 1839",
+      "function": "beading propagation",
+      "issue": "Allocation of BeadingPropagation via new in inner loop without pooling",
+      "detail": "node_beadings.emplace_back(new BeadingPropagation(...)) allocates on the heap for every skeletal node. For complex geometries with thousands of nodes, this creates allocation pressure. The Beading objects contain vectors internally, compounding allocations.",
+      "suggestion": "Use an object pool or arena allocator for BeadingPropagation. Alternatively, store BeadingPropagation by value if move semantics are efficient."
+    },
+    {
+      "id": "PERF-015",
+      "severity": "LOW",
+      "file": "src/libslic3r/Arachne/SkeletalTrapezoidation.cpp",
+      "lines": "854, 1182, 1280",
+      "function": "transition handling",
+      "issue": "std::shared_ptr allocation for TransitionMiddle/TransitionEnd lists in inner loop",
+      "detail": "edge_transitions.emplace_back(std::make_shared<std::list<TransitionMiddle>>()) allocates both a shared_ptr control block and a list node for every edge with transitions. For meshes with many edges, this is thousands of small heap allocations.",
+      "suggestion": "Use unique_ptr instead of shared_ptr (no reference counting overhead). Consider storing transitions inline or using a flat vector with index-based lookup instead of list<>."
+    },
+    {
+      "id": "PERF-016",
+      "severity": "LOW",
+      "file": "src/libslic3r/GCode.cpp",
+      "lines": "6450-6560",
+      "function": "extrude_path — Adaptive PA tag generation",
+      "issue": "DynamicConfig allocation with new ConfigOption* for every extrusion role change",
+      "detail": "When change_extrusion_role_gcode is non-empty, a DynamicConfig is created with new ConfigOptionString/Int/Float allocations for every role change. Also, placeholder_parser_process involves template evaluation. This runs for every extrusion entity in the model.",
+      "suggestion": "Cache the DynamicConfig object and reuse it, only updating changed values. Consider pre-evaluating the template if it doesn't change between calls."
+    },
+    {
+      "id": "PERF-017",
+      "severity": "LOW",
+      "file": "src/libslic3r/TriangleMeshSlicer.cpp",
+      "lines": "1004-1010",
+      "function": "remove_tangent_edges",
+      "issue": "Potential O(n^2) in worst case for degenerate meshes with many shared edges",
+      "detail": "The inner loop 'for (auto line2 = line + 1; !edges_lower_sorted(*line, *line2); ++line2)' iterates all lines sharing the same vertex pair. For well-formed meshes this is typically O(1)-O(2) per edge, but degenerate meshes with many faces sharing an edge could trigger quadratic behavior.",
+      "suggestion": "Low priority — normal meshes are fine. Add a safety limit on the inner loop count for degenerate mesh protection."
+    },
+    {
+      "id": "PERF-018",
+      "severity": "LOW",
+      "file": "src/libslic3r/GCode.cpp",
+      "lines": "2990-3025",
+      "function": "hold_chamber_temp_for_flat_print calculation",
+      "issue": "Copies ExPolygons from layers for area calculation instead of computing in-place",
+      "detail": "ExPolygons temp_Expolys = print_object->layers().front()->lslices copies the ExPolygons vector. The copy is only used to iterate and sum area(), so the copy is wasteful.",
+      "suggestion": "Use const reference: const ExPolygons& temp_Expolys = ... to avoid the copy. Apply the same fix to support_islands."
+    }
+  ],
+  "summary_by_file": {
+    "GCode.cpp": {
+      "hotspot_count": 8,
+      "critical_issues": ["String concatenation in inner extrusion loops (PERF-004)", "Triple-nested config lookup loop (PERF-001)", "Linear scan retraction checks without spatial index (PERF-010, PERF-011)"],
+      "estimated_impact": "High — GCode generation is the final bottleneck after slicing; for complex models with many extrusion entities, string allocation and retract checks dominate"
+    },
+    "PerimeterGenerator.cpp": {
+      "hotspot_count": 2,
+      "critical_issues": ["O(n^2-n^3) perimeter nesting with erase(begin+i) (PERF-002)", "Repeated erase in surface filtering (PERF-012)"],
+      "estimated_impact": "High — perimeter nesting is called for every layer of every object; models with many holes/shells amplify the cost"
+    },
+    "Support/TreeSupport3D.cpp": {
+      "hotspot_count": 3,
+      "critical_issues": ["O(n^2) leaf-level merge (PERF-003)", "Front-insertion on large vectors (PERF-006)"],
+      "estimated_impact": "High — tree support generation is already one of the slowest operations; quadratic merge dominates for complex support structures"
+    },
+    "TriangleMeshSlicer.cpp": {
+      "hotspot_count": 2,
+      "critical_issues": ["Mutex contention in parallel slicing (PERF-007)"],
+      "estimated_impact": "Medium — mitigated by TBB parallelism, but contention limits scaling beyond 8-16 threads"
+    },
+    "Fill/FillRectilinear.cpp": {
+      "hotspot_count": 1,
+      "critical_issues": ["std::find on queue in ant colony optimization (PERF-008)"],
+      "estimated_impact": "Medium — affects monotonic infill path ordering; noticeable on models with many infill regions"
+    },
+    "Arachne/SkeletalTrapezoidation.cpp": {
+      "hotspot_count": 2,
+      "critical_issues": ["Heap allocations for beading/transitions in inner loops (PERF-014, PERF-015)"],
+      "estimated_impact": "Low-Medium — affects variable-width perimeter generation; noticeable on complex thin-wall geometries"
+    }
+  },
+  "priority_recommendations": [
+    "1. PERF-002 (PerimeterGenerator nesting) — Highest ROI fix. Replace O(n^2) containment with spatial index and swap-and-pop deletion.",
+    "2. PERF-003 (TreeSupport merge) — Already documented O(n^2); reduce leaf bucket sizes or add spatial pre-filtering.",
+    "3. PERF-004 (GCode string concat) — Pre-allocate output string; estimate ~100 bytes per extrusion point × point count.",
+    "4. PERF-010/011 (Retract spatial queries) — Build EdgeGrid/AABB index per layer as noted in existing FIXME comments.",
+    "5. PERF-001 (autospeed_volumetric_limit) — Cache config lookups outside inner loop; straightforward fix.",
+    "6. PERF-007 (TriangleMeshSlicer mutex) — Switch to thread-local accumulation with merge reduction."
+  ]
+}

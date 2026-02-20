@@ -1,3 +1,6 @@
+#ifndef SLIC3R_CLONABLE_PTR_HPP
+#define SLIC3R_CLONABLE_PTR_HPP
+
 // clonable_ptr: a smart pointer with a usage similar to unique_ptr, with the exception, that
 // the copy constructor / copy assignment operator work by calling the ->clone() method.
 
@@ -166,3 +169,5 @@ template<class T, class U> inline bool operator>(const clonable_ptr<T>& l, const
 }
 
 } // namespace Slic3r
+
+#endif // SLIC3R_CLONABLE_PTR_HPP

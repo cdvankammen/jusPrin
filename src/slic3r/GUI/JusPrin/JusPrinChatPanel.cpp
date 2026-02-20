@@ -17,6 +17,7 @@
 #include "JusPrinPlateUtils.hpp"
 #include "JusPrinView3D.hpp"
 #include "JusPrinPricingPlanDialog.hpp"
+#include "JusPrinLoginDialog.hpp"
 
 
 namespace Slic3r { namespace GUI {
@@ -184,7 +185,8 @@ void JusPrinChatPanel::handle_init_server_url_and_redirect(const nlohmann::json&
 
 void JusPrinChatPanel::handle_show_login(const nlohmann::json& params) {
     GUI::wxGetApp().CallAfter([this] {
-        wxGetApp().show_jusprin_login();
+        JusPrinLoginDialog dialog;
+        dialog.run();
     });
 }
 
@@ -297,8 +299,8 @@ nlohmann::json JusPrinChatPanel::handle_change_chatpanel_display(const nlohmann:
 
 void JusPrinChatPanel::handle_start_slicer_all(const nlohmann::json& params) {
     GUI::wxGetApp().CallAfter([this] {
-        // Pass false to prevent automatic switching to the preview tab
-        wxGetApp().mainframe->start_slicer_all(false);
+        Slic3r::GUI::Plater* plater = Slic3r::GUI::wxGetApp().plater();
+        plater->reslice();
     });
 }
 

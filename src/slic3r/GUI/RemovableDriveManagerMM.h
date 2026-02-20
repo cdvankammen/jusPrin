@@ -1,3 +1,6 @@
+#ifndef SLIC3R_GUI_REMOVABLEDRIVERMANAGERMM_H
+#define SLIC3R_GUI_REMOVABLEDRIVERMANAGERMM_H
+
 #import <Cocoa/Cocoa.h>
 
 @interface RemovableDriveManagerMM : NSObject
@@ -8,3 +11,5 @@
 -(NSArray*) list_dev;
 -(void)eject_drive:(NSString *)path;
 @end
+
+#endif // SLIC3R_GUI_REMOVABLEDRIVERMANAGERMM_H

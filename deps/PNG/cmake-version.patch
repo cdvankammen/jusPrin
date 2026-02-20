@@ -1,0 +1,15 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 1234567..abcdefg 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -11,8 +11,8 @@
+ # For conditions of distribution and use, see the disclaimer
+ # and license in png.h
+
+-cmake_minimum_required(VERSION 3.0.2)
+-cmake_policy(VERSION 3.0.2)
++cmake_minimum_required(VERSION 3.13)
++cmake_policy(VERSION 3.13)
+
+ # Set MacOSX @rpath usage globally.
+ if (POLICY CMP0020)

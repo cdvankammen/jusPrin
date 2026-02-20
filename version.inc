@@ -4,13 +4,17 @@
 set(SLIC3R_APP_NAME "JusPrin")
 set(SLIC3R_APP_KEY "JusPrin")
 
+if(NOT DEFINED SLIC3R_BUILD_ID)
+    set(SLIC3R_BUILD_ID "" CACHE STRING "Build identifier")
+endif()
+
 if(NOT DEFINED BBL_RELEASE_TO_PUBLIC)
 set(BBL_RELEASE_TO_PUBLIC "1")
 endif()
 if(NOT DEFINED BBL_INTERNAL_TESTING)
 set(BBL_INTERNAL_TESTING "0")
 endif()
-set(SoftFever_VERSION "1.4.0")
+set(SoftFever_VERSION "1.5.0")
 string(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)"
        SoftFever_VERSION_MATCH ${SoftFever_VERSION})
 set(ORCA_VERSION_MAJOR ${CMAKE_MATCH_1})

@@ -127,7 +127,13 @@ static std::vector<std::pair<TreeSupportSettings, std::vector<size_t>>> group_me
     std::vector<std::pair<TreeSupportSettings, std::vector<size_t>>> grouped_meshes;
 
     //FIXME this is ugly, it does not belong here.
-    for (size_t object_id : print_object_ids) {
+        std::vector<std::pair<SupportElement*, int>> elements_with_link_down;
+        // Estimate total elements to reserve capacity and avoid repeated reallocations
+        {
+            size_t est = 0;
+            for (const auto &layer : move_bounds) est += layer.size();
+            elements_with_link_down.reserve(est);
+        }
         const PrintObject       &print_object  = *print.get_object(object_id);
         const PrintObjectConfig &object_config = print_object.config();
         if (object_config.support_top_z_distance < EPSILON)
@@ -342,8 +348,13 @@ static std::vector<std::pair<TreeSupportSettings, std::vector<size_t>>> group_me
 {
     // calculate top most layer that is relevant for support
     LayerIndex max_layer = 0;
-    for (size_t object_id : object_ids) {
-        const PrintObject &print_object      = *print.get_object(object_id);
+        std::vector<openvdb::Vec3R> pts, prev, projections;
+        std::vector<float> distances;
+        // Reserve based on number of elements to avoid growth in tight loops
+        pts.reserve(elements_with_link_down.size());
+        prev.reserve(elements_with_link_down.size());
+        projections.reserve(elements_with_link_down.size());
+        distances.reserve(elements_with_link_down.size());
         const int       num_raft_layers      = int(config.raft_layers.size());
         const int       num_layers           = int(print_object.layer_count()) + num_raft_layers;
         int             max_support_layer_id = 0;
@@ -395,6 +406,8 @@ static std::vector<std::pair<TreeSupportSettings, std::vector<size_t>>> group_me
     const bool min_xy_dist = config.xy_distance > config.xy_min_distance;
 
     LineInformations result;
+    // Reserve approximate size to avoid incremental reallocations when most lines survive
+    result.reserve(polylines.size());
     // Also checks if the position is valid, if it is NOT, it deletes that point
     for (const Polyline &line : polylines) {
         LineInformation res_line;
@@ -446,7 +459,9 @@ static std::vector<std::pair<TreeSupportSettings, std::vector<size_t>>> group_me
 #endif
 
 /*!
- * \brief Evaluates if a point has to be added now. Required for a split_lines call in generate_initial_areas().
+        std::vector<Tree>        trees;
+        // Pre-reserve some capacity to reduce reallocations while building trees
+        trees.reserve(move_bounds.size());
  *
  * \param current_layer[in] The layer on which the point lies, point and its status.
  * \return whether the point is valid.
@@ -482,6 +497,9 @@ template<typename EvaluatePointFn>
 
     LineInformations keep;
     LineInformations set_free;
+    // Reserve upper bounds to reduce reallocations; actual sizes may be smaller
+    keep.reserve(lines.size());
+    set_free.reserve(lines.size());
     for (const std::vector<std::pair<Point, LineStatus>> &line : lines) {
         bool            current_keep = true;
         LineInformation resulting_line;
@@ -561,6 +579,8 @@ static std::optional<std::pair<Point, size_t>> polyline_sample_next_point_at_dis
 [[nodiscard]] static Polylines ensure_maximum_distance_polyline(const Polylines &input, double distance, size_t min_points)
 {
     Polylines result;
+    // Reserve expected capacity: roughly one output polyline per input
+    result.reserve(input.size());
     for (Polyline part : input) {
         if (part.empty())
             continue;
@@ -722,6 +742,8 @@ static std::optional<std::pair<Point, size_t>> polyline_sample_next_point_at_dis
     fill_params.dont_adjust = true;
 
     Polylines out;
+    // Reserve some capacity to avoid frequent reallocations. Use polygon.size() as a conservative estimate.
+    out.reserve(polygon.size());
     for (ExPolygon &expoly : union_ex(polygon)) {
         // The surface type does not matter.
         assert(area(expoly) > 0.);
@@ -4020,7 +4042,7 @@ void generate_tree_support_3D(PrintObject &print_object, TreeSupport* tree_suppo
     Points bedpts = tree_support->m_machine_border.contour.points;
     Pointfs bedptsf;
     std::transform(bedpts.begin(), bedpts.end(), std::back_inserter(bedptsf), [](const Point &p) { return unscale(p); });
-    BuildVolume build_volume{ bedptsf, tree_support->m_print_config->printable_height };
+    BuildVolume build_volume{ bedptsf, tree_support->m_print_config->printable_height, {}, {} };
 
     TreeSupport3D::generate_support_areas(*print_object.print(), tree_support, build_volume, { idx }, throw_on_cancel);
 }

@@ -53,11 +53,21 @@ if (APPLE)
     message(STATUS "CMAKE_OSX_DEPLOYMENT_TARGET: ${CMAKE_OSX_DEPLOYMENT_TARGET}")
 endif ()
 
-project(OrcaSlicer)
+project(JusPrin)
 
 include("version.inc")
 include(GNUInstallDirs)
 include(CMakeDependentOption)
+
+# Export version variables as compile definitions so they're available to preprocessor
+if(DEFINED BBL_RELEASE_TO_PUBLIC)
+    add_compile_definitions(BBL_RELEASE_TO_PUBLIC=${BBL_RELEASE_TO_PUBLIC})
+    message(STATUS "BBL_RELEASE_TO_PUBLIC: ${BBL_RELEASE_TO_PUBLIC}")
+endif()
+if(DEFINED BBL_INTERNAL_TESTING)
+    add_compile_definitions(BBL_INTERNAL_TESTING=${BBL_INTERNAL_TESTING})
+    message(STATUS "BBL_INTERNAL_TESTING: ${BBL_INTERNAL_TESTING}")
+endif()
 
 set(SLIC3R_RESOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/resources")
 file(TO_NATIVE_PATH "${SLIC3R_RESOURCES_DIR}" SLIC3R_RESOURCES_DIR_WIN)
@@ -89,12 +99,13 @@ else()
         endif()
 endif()
 
-option(SLIC3R_STATIC 			"Compile OrcaSlicer with static libraries (Boost, TBB, glew)" ${SLIC3R_STATIC_INITIAL})
-option(SLIC3R_GUI    			"Compile OrcaSlicer with GUI components (OpenGL, wxWidgets)" 1)
-option(SLIC3R_FHS               "Assume OrcaSlicer is to be installed in a FHS directory structure" 0)
+option(SLIC3R_STATIC 			"Compile JusPrin with static libraries (Boost, TBB, glew)" ${SLIC3R_STATIC_INITIAL})
+option(SLIC3R_GUI    			"Compile JusPrin with GUI components (OpenGL, wxWidgets)" 1)
+option(SLIC3R_FHS               "Assume JusPrin is to be installed in a FHS directory structure" 0)
 option(SLIC3R_WX_STABLE         "Build against wxWidgets stable (3.0) as oppsed to dev (3.1) on Linux" 0)
-option(SLIC3R_PROFILE 			"Compile OrcaSlicer with an invasive Shiny profiler" 0)
+option(SLIC3R_PROFILE 			"Compile JusPrin with an invasive Shiny profiler" 0)
 option(SLIC3R_PCH               "Use precompiled headers" 1)
+
 option(SLIC3R_MSVC_COMPILE_PARALLEL "Compile on Visual Studio in parallel" 1)
 option(SLIC3R_MSVC_PDB          "Generate PDB files on MSVC in Release mode" 1)
 option(SLIC3R_PERL_XS           "Compile XS Perl module and enable Perl unit and integration tests" 0)
@@ -105,6 +116,35 @@ CMAKE_DEPENDENT_OPTION(SLIC3R_DESKTOP_INTEGRATION "Allow perfoming desktop integ
 set(OPENVDB_FIND_MODULE_PATH "" CACHE PATH "Path to OpenVDB installation's find modules.")
 
 set(SLIC3R_GTK "2" CACHE STRING "GTK version to use with wxWidgets on Linux")
+
+# --- Wayland detection (Linux only) ---
+# Enable SLIC3R_WAYLAND when building on Linux if:
+#   (a) The WAYLAND_DISPLAY environment variable is set at configure time, OR
+#   (b) pkg-config can locate the wayland-client library.
+if (UNIX AND NOT APPLE)
+    set(_SLIC3R_WAYLAND_DEFAULT OFF)
+    if (DEFINED ENV{WAYLAND_DISPLAY})
+        set(_SLIC3R_WAYLAND_DEFAULT ON)
+        message(STATUS "WAYLAND_DISPLAY env var detected at configure time — enabling SLIC3R_WAYLAND")
+    else()
+        find_package(PkgConfig QUIET)
+        if (PKG_CONFIG_FOUND)
+            pkg_check_modules(WAYLAND_CLIENT QUIET wayland-client)
+            if (WAYLAND_CLIENT_FOUND)
+                set(_SLIC3R_WAYLAND_DEFAULT ON)
+                message(STATUS "wayland-client found via pkg-config — enabling SLIC3R_WAYLAND")
+            endif()
+        endif()
+    endif()
+    option(SLIC3R_WAYLAND "Enable Wayland-specific popup and window manager fixes" ${_SLIC3R_WAYLAND_DEFAULT})
+    if (SLIC3R_WAYLAND)
+        add_definitions(-DSLIC3R_WAYLAND)
+        message(STATUS "SLIC3R_WAYLAND: ON")
+    else()
+        message(STATUS "SLIC3R_WAYLAND: OFF")
+    endif()
+endif()
+# --- end Wayland detection ---
 
 set(IS_CROSS_COMPILE FALSE)
 
@@ -200,10 +240,101 @@ if (MINGW)
     add_compile_options(-Wa,-mbig-obj)
 endif ()
 
+# CRITICAL FIX: Find Threads BEFORE applying security hardening flags
+# The security flags (-fPIE, -fstack-protector-strong, etc.) can interfere with
+# CMake's thread detection test compilation on macOS. By finding Threads first,
+# we ensure detection happens in a clean environment.
+# This fixes "Could NOT find Threads" error on macOS when Boost tries to find Threads.
+if (NOT MSVC AND NOT WIN32)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    find_package(Threads REQUIRED)
+endif()
+
 if (NOT MSVC)
-    # ARMs (Raspberry PI) use an unsigned char by default. Let's make it consistent for OrcaSlicer on all platforms.
+    # ARMs (Raspberry PI) use an unsigned char by default. Let's make it consistent for JusPrin on all platforms.
     add_compile_options(-fsigned-char)
+
+    # Security hardening flags (GCC/Clang)
+    # Enable when building in Release mode to avoid debug performance impact
+    if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+        # Buffer overflow detection
+        add_compile_definitions(_FORTIFY_SOURCE=2)
+
+        # Stack protection against buffer overflows
+        add_compile_options(-fstack-protector-strong)
+
+        # Position Independent Executable (ASLR support)
+        add_compile_options(-fPIE)
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pie")
+
+        # CRITICAL: RELRO flags are Linux-specific (GNU ld)
+        # macOS uses ld64 which doesn't support -z options
+        # Applying these to macOS causes silent failures or link errors
+        if(NOT APPLE)
+            # Full RELRO (Read-Only Relocation) - prevents GOT overwrite attacks
+            set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,relro,-z,now")
+        endif()
+
+        # Stack clash protection (GCC 8+, Linux only)
+        # NOTE: Not supported by macOS Clang (ld64 doesn't support this flag)
+        if(NOT APPLE)
+            include(CheckCXXCompilerFlag)
+            check_cxx_compiler_flag("-fstack-clash-protection" COMPILER_SUPPORTS_STACK_CLASH)
+            if(COMPILER_SUPPORTS_STACK_CLASH)
+                add_compile_options(-fstack-clash-protection)
+            endif()
+        endif()
+
+        message(STATUS "Security hardening flags enabled for ${CMAKE_BUILD_TYPE} build")
+    endif()
 endif ()
+
+# Auto-generate CMAKE_PREFIX_PATH for dependencies if not provided
+if (NOT CMAKE_PREFIX_PATH AND NOT ENV{CMAKE_PREFIX_PATH})
+    # Determine architecture-specific deps directory
+    if (APPLE)
+        # On macOS, detect the architecture
+        execute_process(
+            COMMAND uname -m
+            OUTPUT_VARIABLE DEPS_ARCH
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    elseif (MSVC)
+        set(DEPS_ARCH "win64")
+    elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "^(aarch64|arm64)")
+        set(DEPS_ARCH "aarch64")
+    elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "^(x86_64|AMD64)")
+        set(DEPS_ARCH "x86_64")
+    else()
+        set(DEPS_ARCH ${CMAKE_SYSTEM_PROCESSOR})
+    endif()
+
+    # Check for deps in standard locations
+    set(DEP_BUILD_DIR "${CMAKE_SOURCE_DIR}/deps/build/${DEPS_ARCH}")
+    if (NOT EXISTS "${DEP_BUILD_DIR}")
+        # Try without architecture subdirectory
+        set(DEP_BUILD_DIR "${CMAKE_SOURCE_DIR}/deps/build")
+    endif()
+    if (NOT EXISTS "${DEP_BUILD_DIR}")
+        # Try alternative location used by build scripts
+        set(DEP_BUILD_DIR "${CMAKE_SOURCE_DIR}/deps/build/destdir")
+    endif()
+
+    # Set CMAKE_PREFIX_PATH to the deps install directory
+    if (EXISTS "${DEP_BUILD_DIR}/OrcaSlicer_dep/usr/local" OR EXISTS "${DEP_BUILD_DIR}/JusPrin_dep/usr/local")
+        if (EXISTS "${DEP_BUILD_DIR}/JusPrin_dep/usr/local")
+            set(CMAKE_PREFIX_PATH "${DEP_BUILD_DIR}/JusPrin_dep/usr/local" CACHE PATH "Path to dependencies" FORCE)
+        else()
+            set(CMAKE_PREFIX_PATH "${DEP_BUILD_DIR}/OrcaSlicer_dep/usr/local" CACHE PATH "Path to dependencies" FORCE)
+        endif()
+        message(STATUS "Auto-detected CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
+    elseif (EXISTS "${DEP_BUILD_DIR}/usr/local")
+        set(CMAKE_PREFIX_PATH "${DEP_BUILD_DIR}/usr/local" CACHE PATH "Path to dependencies" FORCE)
+        message(STATUS "Auto-detected CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
+    else()
+        message(WARNING "Could not auto-detect dependencies directory. Please set CMAKE_PREFIX_PATH manually.")
+    endif()
+endif()
 
 # Display and check CMAKE_PREFIX_PATH
 message(STATUS "SLIC3R_STATIC: ${SLIC3R_STATIC}")
@@ -217,12 +348,53 @@ else ()
     message(STATUS "CMAKE_PREFIX_PATH: (default)")
 endif ()
 
+if ("${DEP_BUILD_DIR}" STREQUAL "")
+    get_filename_component(BIN_DIR_NAME ${CMAKE_BINARY_DIR} NAME)
+    if (APPLE AND BIN_DIR_NAME STREQUAL "${CMAKE_OSX_ARCHITECTURES}")
+        file(RELATIVE_PATH BIN_DIR_NAME ${CMAKE_BINARY_DIR}/../.. ${CMAKE_BINARY_DIR})
+    endif ()
+    set(DEP_BUILD_DIR "${CMAKE_SOURCE_DIR}/deps/${BIN_DIR_NAME}" CACHE PATH "Path to dependencies build directory" FORCE)
+    message(STATUS "DEP_BUILD_DIR: ${DEP_BUILD_DIR} (generated automatically and saved to cache)")
+    set(AUTOGENERATED_DEP_BUILD_DIR ${DEP_BUILD_DIR} CACHE PATH "Provides the last autogenerated DEP_BUILD_DIR" FORCE)
+else ()
+    message(STATUS "DEP_BUILD_DIR: ${DEP_BUILD_DIR} (from cache or command line)")
+endif ()
+
+if ("${CMAKE_PREFIX_PATH}" STREQUAL "" OR "${CMAKE_PREFIX_PATH}" STREQUAL "${AUTOGENERATED_PREFIX_PATH}")
+    if (DEFINED AUTOGENERATED_DEP_BUILD_DIR AND NOT "${DEP_BUILD_DIR}" STREQUAL "${AUTOGENERATED_DEP_BUILD_DIR}")
+        message(STATUS "CMAKE_PREFIX_PATH is being re-generated due to DEP_BUILD_DIR being manually updated")
+        set(REGEN_DESTDIR TRUE)
+        unset(AUTOGENERATED_DEP_BUILD_DIR CACHE)
+    endif ()
+else ()
+    unset(AUTOGENERATED_PREFIX_PATH CACHE)
+endif ()
+
+# Display and check CMAKE_PREFIX_PATH
+if ("${CMAKE_PREFIX_PATH}" STREQUAL "" OR REGEN_DESTDIR)
+    set(CMAKE_PREFIX_PATH "${DEP_BUILD_DIR}/JusPrin_dep/usr/local" CACHE PATH "Path to dependencies install directory" FORCE)
+    message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH} (generated automatically and saved to cache)")
+    set(AUTOGENERATED_PREFIX_PATH ${CMAKE_PREFIX_PATH} CACHE STRING "Provides the last autogenerated CMAKE_PREFIX_PATH" FORCE)
+    unset(REGEN_DESTDIR CACHE)
+else ()
+    message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH} (from cache or command line)")
+endif ()
+set(PREFIX_PATH_CHECK ${CMAKE_PREFIX_PATH})
+
+# the CMAKE_PREFIX_PATH environment variable is separate from the CMAKE_PREFIX_PATH cache variable and provides additional paths to search for libraries.
+if (NOT "$ENV{CMAKE_PREFIX_PATH}" STREQUAL "")
+    message(STATUS "CMAKE_PREFIX_PATH: $ENV{CMAKE_PREFIX_PATH} (from environment)")
+    list(APPEND PREFIX_PATH_CHECK $ENV{CMAKE_PREFIX_PATH})
+endif ()
+
+# Check all directories in CMAKE_PREFIX_PATH variables
 foreach (DIR ${PREFIX_PATH_CHECK})
     if (NOT EXISTS "${DIR}")
         message(WARNING "CMAKE_PREFIX_PATH element doesn't exist: ${DIR}")
     endif ()
 endforeach ()
 
+# Add our own cmake module path.
 # Add our own cmake module path.
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules/)
 message(STATUS "PROJECT_SOURCE_DIR: ${PROJECT_SOURCE_DIR}")
@@ -297,8 +469,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     endif()
 
     # Boost on Raspberry-Pi does not link to pthreads.
-    set(THREADS_PREFER_PTHREAD_FLAG ON)
-    find_package(Threads REQUIRED)
+    # NOTE: Threads already found earlier (line ~250) for all non-Windows platforms
+    # This duplicate find_package is kept for documentation but is a no-op (CMake caches results)
 
     find_package(DBus REQUIRED)
     include_directories(SYSTEM ${DBUS_INCLUDE_DIRS})
@@ -421,7 +593,7 @@ if(WIN32)
     if(MSVC)
         # BOOST_ALL_NO_LIB: Avoid the automatic linking of Boost libraries on Windows. Rather rely on explicit linking.
         add_definitions(-DBOOST_ALL_NO_LIB -DBOOST_USE_WINAPI_VERSION=0x602 -DBOOST_SYSTEM_USE_UTF8 )
-        # Force the source code encoding to UTF-8. See OrcaSlicer GH pull request #5583
+        # Force the source code encoding to UTF-8. See OrcaSlicer GH pull request #5583 (upstream)
         add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
         add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
     endif(MSVC)
@@ -433,7 +605,7 @@ add_definitions(-DwxUSE_UNICODE -D_UNICODE -DUNICODE -DWXINTL_NO_GETTEXT_MACRO)
 add_definitions(-DwxNO_UNSAFE_WXSTRING_CONV)
 
 if (SLIC3R_PROFILE)
-    message("OrcaSlicer will be built with a Shiny invasive profiler")
+    message("JusPrin will be built with a Shiny invasive profiler")
     add_definitions(-DSLIC3R_PROFILE)
 endif ()
 
@@ -606,10 +778,32 @@ find_package(OpenGL REQUIRED)
 
 set(GLEW_ROOT "${CMAKE_PREFIX_PATH}")
 message("GLEW_ROOT: ${GLEW_ROOT}")
+
 # Find glew or use bundled version
 if (SLIC3R_STATIC AND NOT SLIC3R_STATIC_EXCLUDE_GLEW)
     set(GLEW_USE_STATIC_LIBS ON)
     set(GLEW_VERBOSE ON)
+endif()
+
+# CRITICAL FIX: Add explicit paths for GLEW on Windows to help FindGLEW locate the library
+# The dependency cache may have GLEW in non-standard locations
+if (WIN32 AND CMAKE_PREFIX_PATH)
+    # Add explicit hints for GLEW location
+    set(GLEW_INCLUDE_DIR "${CMAKE_PREFIX_PATH}/include" CACHE PATH "GLEW include directory hint" FORCE)
+    list(APPEND CMAKE_PREFIX_PATH
+        "${CMAKE_PREFIX_PATH}"
+        "${CMAKE_PREFIX_PATH}/include"
+        "${CMAKE_PREFIX_PATH}/lib"
+    )
+    message(STATUS "Windows: Added GLEW search hints - Include: ${CMAKE_PREFIX_PATH}/include, Lib: ${CMAKE_PREFIX_PATH}/lib")
+
+    # Check if GLEW files actually exist
+    if(EXISTS "${CMAKE_PREFIX_PATH}/include/GL/glew.h")
+        message(STATUS "Found GLEW header: ${CMAKE_PREFIX_PATH}/include/GL/glew.h")
+    else()
+        message(WARNING "GLEW header not found at expected location: ${CMAKE_PREFIX_PATH}/include/GL/glew.h")
+        message(WARNING "This may indicate the dependencies cache is incomplete. Try rebuilding dependencies.")
+    endif()
 endif()
 
 find_package(GLEW REQUIRED)
@@ -631,7 +825,7 @@ set(BBL_L18N_DIR "${CMAKE_CURRENT_SOURCE_DIR}/localization/i18n")
 add_custom_target(gettext_make_pot
     COMMAND xgettext --keyword=L --keyword=_L --keyword=_u8L --keyword=L_CONTEXT:1,2c --keyword=_L_PLURAL:1,2 --add-comments=TRN --from-code=UTF-8 --no-location --debug --boost
         -f "${BBL_L18N_DIR}/list.txt"
-        -o "${BBL_L18N_DIR}/OrcaSlicer.pot"
+        -o "${BBL_L18N_DIR}/JusPrin.pot"
 	COMMAND hintsToPot ${SLIC3R_RESOURCES_DIR} ${BBL_L18N_DIR}
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
     COMMENT "Generate pot file from strings in the source tree"
@@ -640,13 +834,13 @@ add_custom_target(gettext_merge_po_with_pot
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
     COMMENT "Merge localization po with new generted pot file"
 )
-file(GLOB BBL_L10N_PO_FILES "${BBL_L18N_DIR}/*/OrcaSlicer*.po")
+file(GLOB BBL_L10N_PO_FILES "${BBL_L18N_DIR}/*/JusPrin*.po")
 foreach(po_file ${BBL_L10N_PO_FILES})
     GET_FILENAME_COMPONENT(po_dir "${po_file}" DIRECTORY)
-    SET(po_new_file "${po_dir}/OrcaSlicer_.po")
+    SET(po_new_file "${po_dir}/JusPrin_.po")
     add_custom_command(
         TARGET gettext_merge_po_with_pot PRE_BUILD
-        COMMAND msgmerge -N -o ${po_file} ${po_file} "${BBL_L18N_DIR}/OrcaSlicer.pot"
+        COMMAND msgmerge -N -o ${po_file} ${po_file} "${BBL_L18N_DIR}/JusPrin.pot"
         DEPENDS ${po_file}
     )
 endforeach()
@@ -654,11 +848,11 @@ add_custom_target(gettext_po_to_mo
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
     COMMENT "Generate localization po files (binary) from mo files (texts)"
 )
-file(GLOB L10N_PO_FILES "${BBL_L18N_DIR}/*/OrcaSlicer*.po")
+file(GLOB L10N_PO_FILES "${BBL_L18N_DIR}/*/*.po")
 foreach(po_file ${BBL_L10N_PO_FILES})
     GET_FILENAME_COMPONENT(SECOND_FOLDER_ABSOLUTE ${po_file} DIRECTORY)
     string(REGEX REPLACE ".*/(.*)" "\\1" po_dir "${SECOND_FOLDER_ABSOLUTE}" )
-    SET(mo_file "${L10N_DIR}/${po_dir}/OrcaSlicer.mo")
+    SET(mo_file "${L10N_DIR}/${po_dir}/JusPrin.mo")
     add_custom_command(
         TARGET gettext_po_to_mo PRE_BUILD
         COMMAND msgfmt ARGS --check-format -o ${mo_file} ${po_file}
@@ -796,7 +990,7 @@ function(orcaslicer_copy_dlls target config postfix output_dlls)
 endfunction()
 
 
-# libslic3r, OrcaSlicer GUI and the OrcaSlicer executable.
+# libslic3r, JusPrin GUI and the JusPrin executable.
 add_subdirectory(deps_src)
 add_subdirectory(src)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT JusPrin_app_gui)
@@ -832,20 +1026,20 @@ if (WIN32)
     install (PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION ".")
 elseif (SLIC3R_FHS)
     # CMAKE_INSTALL_FULL_DATAROOTDIR: read-only architecture-independent data root (share)
-    set(SLIC3R_FHS_RESOURCES "${CMAKE_INSTALL_FULL_DATAROOTDIR}/OrcaSlicer")
+    set(SLIC3R_FHS_RESOURCES "${CMAKE_INSTALL_FULL_DATAROOTDIR}/JusPrin")
     install(DIRECTORY ${SLIC3R_RESOURCES_DIR}/ DESTINATION ${SLIC3R_FHS_RESOURCES}
         PATTERN "*/udev" EXCLUDE
     )
-    install(FILES src/dev-utils/platform/unix/OrcaSlicer.desktop DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
+    install(FILES src/dev-utils/platform/unix/JusPrin.desktop DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
     foreach(SIZE 32 128 192)
-        install(FILES ${SLIC3R_RESOURCES_DIR}/images/OrcaSlicer_${SIZE}px.png
-            DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/${SIZE}x${SIZE}/apps RENAME OrcaSlicer.png
+        install(FILES ${SLIC3R_RESOURCES_DIR}/images/JusPrin_${SIZE}px.png
+            DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/${SIZE}x${SIZE}/apps RENAME JusPrin.png
         )
     endforeach()
 elseif (CMAKE_MACOSX_BUNDLE)
-    # install(DIRECTORY "${SLIC3R_RESOURCES_DIR}/" DESTINATION "${CMAKE_INSTALL_PREFIX}/OrcaSlicer.app/Contents/resources")
+    # install(DIRECTORY "${SLIC3R_RESOURCES_DIR}/" DESTINATION "${CMAKE_INSTALL_PREFIX}/JusPrin.app/Contents/resources")
 else ()
-    install(FILES src/dev-utils/platform/unix/OrcaSlicer.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/resources/applications)
+    install(FILES src/dev-utils/platform/unix/JusPrin.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/resources/applications)
     install(DIRECTORY "${SLIC3R_RESOURCES_DIR}/" DESTINATION "${CMAKE_INSTALL_PREFIX}/resources")
 endif ()
 

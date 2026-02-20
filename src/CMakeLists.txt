@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(OrcaSlicer-native)
+project(JusPrin-native)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -10,6 +10,7 @@ add_subdirectory(dev-utils)
 # Note: semver and hints are now included from deps_src/CMakeLists.txt
 
 add_subdirectory(libslic3r)
+add_subdirectory(libvgcode)  # G-code visualization library (JusPrin/OrcaSlicer merge)
 
 if (SLIC3R_GUI)
     # imgui, imguizmo, and hidapi are now included from deps_src
@@ -126,7 +127,9 @@ if (NOT WIN32 AND NOT APPLE)
 endif ()
 
 target_link_libraries(JusPrin libslic3r cereal::cereal)
-# target_include_directories(OrcaSlicer PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/slic3r)
+# Explicit dependency to ensure libslic3r is built before JusPrin
+add_dependencies(JusPrin libslic3r)
+# target_include_directories(JusPrin PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/slic3r)
 if (APPLE)
 #    add_compile_options(-stdlib=libc++)
 #    add_definitions(-DBOOST_THREAD_DONT_USE_CHRONO -DBOOST_NO_CXX11_RVALUE_REFERENCES -DBOOST_THREAD_USES_MOVE)
@@ -144,6 +147,8 @@ endif ()
 if (SLIC3R_GUI)
 #    target_link_libraries(JusPrin ws2_32 uxtheme setupapi libslic3r_gui ${wxWidgets_LIBRARIES})
 target_link_libraries(JusPrin libslic3r_gui)
+    # Explicit dependency to ensure libslic3r_gui is built before JusPrin
+    add_dependencies(JusPrin libslic3r_gui)
     if (MSVC)
         # Generate debug symbols even in release mode.
         target_link_options(JusPrin PUBLIC "$<$<CONFIG:RELEASE>:/DEBUG>")
@@ -157,7 +162,7 @@ target_link_libraries(JusPrin libslic3r_gui)
     endif ()
     #if (WIN32)
     #    find_library(PSAPI_LIB NAMES Psapi)
-    #    target_link_libraries(OrcaSlicer ${PSAPI_LIB})
+    #    target_link_libraries(JusPrin ${PSAPI_LIB})
     #endif ()
 endif ()
 

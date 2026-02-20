@@ -33,6 +33,7 @@ struct StringObjectException
     ObjectBase const *object = nullptr;
     std::string opt_key;
     StringExceptionType         type;   // warning type for tips
+    bool is_warning = false;
     std::vector<std::string>    params; // warning params for tips
 };
 
@@ -97,10 +98,9 @@ public:
     };
 
 protected:
-    //FIXME last timestamp is shared between Print & SLAPrint,
-    // and if multiple Print or SLAPrint instances are executed in parallel, modification of g_last_timestamp
-    // is not synchronized!
-    static size_t g_last_timestamp;
+    // FIXED: Made atomic to prevent data races when multiple Print/SLAPrint instances execute in parallel
+    // Previously this was a regular size_t with acknowledged synchronization issues (FIXME comment)
+    static std::atomic<size_t> g_last_timestamp;
 };
 
 // To be instantiated over PrintStep or PrintObjectStep enums.
@@ -550,6 +550,7 @@ protected:
 
 	Model                                   m_model;
 	DynamicPrintConfig						m_full_print_config;
+    DynamicPrintConfig						m_ori_full_print_config;  //original full print config without extruder applied
     PlaceholderParser                       m_placeholder_parser;
 
     //BBS: add plate id into print base

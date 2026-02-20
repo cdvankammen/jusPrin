@@ -1,30 +1,47 @@
-Build
-Build.bat
-/build/
-deps/build
-MYMETA.json
-MYMETA.yml
-_build
-blib
-xs/buildtmp
+# JusPrin Docker Build - Ignore unnecessary files
+
+# Build artifacts
+build/
+deps/build/
+deps/DL_CACHE/
 *.o
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+
+# Git
+.git/
+.gitignore
+.gitmodules
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Documentation (keep essential, ignore verbose)
+*.md
+!README.md
+!BUILD_WITH_DOCKER.md
+!CLAUDE.md
+
+# CI/CD
+.github/
+
+# Docker itself
+Dockerfile*
+docker-compose.yml
+.dockerignore
+
+# Logs
 *.log
-MANIFEST.bak
-xs/MANIFEST.bak
-xs/assertlib*
-.init_bundle.ini
-.vs/*
-local-lib
-/src/TAGS
-/.vscode/
-build-linux/*
-deps/build-linux/*
-**/.DS_Store
-install_*
-build_*/
-!build_linux.sh
-SVG
-scripts/Dockerfile
-scripts/DockerBuild.sh
-scripts/DockerRun.sh
-scripts/.dockerignore
+
+# Temporary files
+*.tmp
+*.temp
+*.cache

@@ -1,0 +1,58 @@
+# JusPrin Docker Build Configuration
+#
+# Usage:
+#   docker-compose up linux-build          # Build Linux version
+#   docker-compose up linux-build-appimage # Build Linux AppImage
+#   docker-compose run --rm linux-shell    # Interactive shell
+
+version: '3.8'
+
+services:
+  # Linux build service
+  linux-build:
+    build:
+      context: .
+      dockerfile: Dockerfile.linux
+    image: jusprin-linux-builder:latest
+    volumes:
+      # Mount build output directory
+      - ./build:/build/build:rw
+      # Cache deps to speed up rebuilds
+      - ./deps/build:/build/deps/build:rw
+      - ./deps/DL_CACHE:/build/deps/DL_CACHE:rw
+    environment:
+      - BUILD_APPIMAGE=0
+    command: /build/docker-build.sh
+
+  # Linux build with AppImage
+  linux-build-appimage:
+    build:
+      context: .
+      dockerfile: Dockerfile.linux
+    image: jusprin-linux-builder:latest
+    volumes:
+      - ./build:/build/build:rw
+      - ./deps/build:/build/deps/build:rw
+      - ./deps/DL_CACHE:/build/deps/DL_CACHE:rw
+    environment:
+      - BUILD_APPIMAGE=1
+    command: /build/docker-build.sh
+
+  # Interactive Linux shell for debugging
+  linux-shell:
+    build:
+      context: .
+      dockerfile: Dockerfile.linux
+    image: jusprin-linux-builder:latest
+    volumes:
+      - ./build:/build/build:rw
+      - ./deps/build:/build/deps/build:rw
+      - ./deps/DL_CACHE:/build/deps/DL_CACHE:rw
+    command: /bin/bash
+    stdin_open: true
+    tty: true
+
+# Volume definitions (optional - using bind mounts above)
+volumes:
+  build-output:
+  deps-cache:

@@ -13,9 +13,39 @@
 #include <string>
 #include <set>
 #include <memory>
+#include <utility>
 
 #define LOCALHOST_PORT      13618
 #define LOCALHOST_URL       "http://localhost:"
+
+// SECURITY: maximum request body size (1 MB) to reject oversized payloads
+static constexpr size_t MAX_REQUEST_BODY_SIZE = 1 * 1024 * 1024;
+
+// SECURITY: zero-fill a std::string before deallocation to prevent credential leaks
+inline void secure_clear_string(std::string& s) {
+    volatile char* p = const_cast<volatile char*>(s.data());
+    for (size_t i = 0; i < s.size(); ++i)
+        p[i] = 0;
+    s.clear();
+}
+
+// SECURITY: mask sensitive query-param values in a URL for safe logging
+inline std::string mask_sensitive_url_params(const std::string& raw_url) {
+    std::string safe = raw_url;
+    for (const char* key : {"access_token", "refresh_token", "code"}) {
+        std::string needle = std::string(key) + "=";
+        size_t pos = safe.find(needle);
+        if (pos != std::string::npos) {
+            size_t val_start = pos + needle.size();
+            size_t val_end   = safe.find('&', val_start);
+            if (val_end == std::string::npos) val_end = safe.size();
+            size_t visible = std::min<size_t>(4, val_end - val_start);
+            if (val_end - val_start > visible)
+                safe.replace(val_start + visible, val_end - val_start - visible, "***");
+        }
+    }
+    return safe;
+}
 
 namespace Slic3r { namespace GUI {
 
@@ -65,7 +95,8 @@ public:
         ssRequestLine >> url;
         ssRequestLine >> version;
 
-        std::cout << "request for resource: " << url << std::endl;
+        // SECURITY: mask tokens/codes in URL before logging
+        std::cout << "request for resource: " << mask_sensitive_url_params(url) << std::endl;
     }
 };
 
@@ -98,6 +129,16 @@ public:
         void write_response(std::stringstream& ssOut) override;
     };
 
+    class ResponseHtml : public Response
+    {
+        const std::string html;
+
+    public:
+        explicit ResponseHtml(std::string html) : html(std::move(html)) {}
+        ~ResponseHtml() override = default;
+        void write_response(std::stringstream& ssOut) override;
+    };
+
     HttpServer(boost::asio::ip::port_type port = LOCALHOST_PORT);
 
     boost::thread m_http_server_thread;
@@ -106,6 +147,8 @@ public:
     bool is_started() { return start_http_server; }
     void start();
     void stop();
+    void set_port(boost::asio::ip::port_type new_port) { port = new_port; }
+    boost::asio::ip::port_type get_port() const { return port; }
     void set_request_handler(const std::function<std::shared_ptr<Response>(const std::string&)>& m_request_handler);
 
     static std::shared_ptr<Response> bbl_auth_handle_request(const std::string& url);

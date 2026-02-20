@@ -373,7 +373,9 @@ static bool obj_parseline(const char *line, ObjData &data)
 
 	return true;
 }
-static std::string cur_mtl_name = "";
+// FIXED: Made thread_local to prevent data races when parsing MTL files concurrently
+// Previously static variable was shared across all threads causing corruption
+thread_local std::string cur_mtl_name = "";
 static bool        mtl_parseline(const char *line, MtlData &data)
 {
     if (*line == 0) return true;

@@ -2,6 +2,7 @@
 
 #include "libslic3r/Model.hpp"
 #include "slic3r/GUI/Plater.hpp"
+#include "slic3r/GUI/JusPrin/JusPrinChatPanel.hpp"
 #include "slic3r/GUI/GUI.hpp"
 #include "slic3r/GUI/GUI_App.hpp"
 #include "slic3r/GUI/NotificationManager.hpp"

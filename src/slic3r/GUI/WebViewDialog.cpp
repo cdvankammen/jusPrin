@@ -42,7 +42,7 @@ WebViewPanel::WebViewPanel(wxWindow *parent)
         url = wxString::Format("file://%s/web/homepage/index.html?lang=%s", from_u8(resources_dir()), strlang);
 
     wxBoxSizer* topsizer = new wxBoxSizer(wxVERTICAL);
-
+    
 #if !BBL_RELEASE_TO_PUBLIC
     // Create the button
     bSizer_toolbar = new wxBoxSizer(wxHORIZONTAL);
@@ -225,7 +225,7 @@ WebViewPanel::~WebViewPanel()
 {
     BOOST_LOG_TRIVIAL(trace) << __FUNCTION__ << " Start";
     SetEvtHandlerEnabled(false);
-
+    
     delete m_tools_menu;
 
     if (m_LoginUpdateTimer != nullptr) {
@@ -281,7 +281,6 @@ void WebViewPanel::UpdateState()
     //SetTitle(m_browser->GetCurrentTitle());
     m_url->SetValue(m_browser->GetCurrentURL());
 #endif //BBL_RELEASE_TO_PUBLIC
-    update_oauth_access_token();
 }
 
 void WebViewPanel::OnIdle(wxIdleEvent& WXUNUSED(evt))
@@ -422,6 +421,11 @@ void WebViewPanel::OnFreshLoginStatus(wxTimerEvent &event)
         Slic3r::GUI::wxGetApp().get_login_info();
 }
 
+void WebViewPanel::SetLoginPanelVisibility(bool bshow)
+{
+    wxString strJS = wxString::Format("SetLoginPanelVisibility(%s)", bshow ? "true" : "false");
+    RunScript(strJS);
+}
 void WebViewPanel::SendRecentList(int images)
 {
     boost::property_tree::wptree req;
@@ -459,16 +463,16 @@ void WebViewPanel::SendDesignStaffpick(bool on)
 void WebViewPanel::OpenModelDetail(std::string id, NetworkAgent *agent)
 {
     std::string url;
-    if ((agent ? agent->get_model_mall_detail_url(&url, id) : get_model_mall_detail_url(&url, id)) == 0)
+    if ((agent ? agent->get_model_mall_detail_url(&url, id) : get_model_mall_detail_url(&url, id)) == 0) 
     {
-        if (url.find("?") != std::string::npos)
-        {
+        if (url.find("?") != std::string::npos) 
+        { 
             url += "&from=orcaslicer";
         } else {
             url += "?from=orcaslicer";
         }
-
-        wxLaunchDefaultBrowser(url);
+        
+        wxLaunchDefaultBrowser(url); 
     }
 }
 
@@ -484,7 +488,10 @@ void WebViewPanel::SendLoginInfo()
 void WebViewPanel::ShowNetpluginTip()
 {
     // Install Network Plugin
-    //std::string NP_Installed = wxGetApp().app_config->get("installed_networking");
+    const auto bblnetwork_enabled =wxGetApp().app_config->get_bool("installed_networking");
+    if(!bblnetwork_enabled) {
+        return;
+    }
     bool        bValid       = wxGetApp().is_compatibility_version();
 
     int nShow = 0;
@@ -530,16 +537,8 @@ int WebViewPanel::get_model_mall_detail_url(std::string *url, std::string id)
 
 void WebViewPanel::update_mode()
 {
-    m_browser->EnableAccessToDevTools(wxGetApp().app_config->get_bool("developer_mode"));
     GetSizer()->Show(size_t(0), wxGetApp().app_config->get("internal_developer_mode") == "true");
     GetSizer()->Layout();
-}
-
-void WebViewPanel::update_oauth_access_token()
-{
-    wxString strJS = wxString::Format("SetLoginStatus(%s)", wxGetApp().app_config->get_with_default("jusprin_server", "access_token", "").empty() ? "false" : "true");
-    RunScript(strJS);
-    BOOST_LOG_TRIVIAL(debug) << __FUNCTION__ << " " << strJS;
 }
 
 /**
@@ -548,7 +547,7 @@ void WebViewPanel::update_oauth_access_token()
     */
 void WebViewPanel::OnNavigationRequest(wxWebViewEvent& evt)
 {
-    BOOST_LOG_TRIVIAL(trace) << __FUNCTION__ << ": " << evt.GetTarget().ToUTF8().data();
+    BOOST_LOG_TRIVIAL(trace) << __FUNCTION__ << ": " << evt.GetURL().ToUTF8().data();
     const wxString &url = evt.GetURL();
     if (url.StartsWith("File://") || url.StartsWith("file://")) {
         if (!url.Contains("/web/homepage/index.html")) {
@@ -594,7 +593,7 @@ void WebViewPanel::OnNavigationComplete(wxWebViewEvent& evt)
 {
     m_browser->Show();
     Layout();
-    BOOST_LOG_TRIVIAL(trace) << __FUNCTION__ << ": " << evt.GetTarget().ToUTF8().data();
+    BOOST_LOG_TRIVIAL(trace) << __FUNCTION__ << ": " << evt.GetURL().ToUTF8().data();
     if (wxGetApp().get_mode() == comDevelop)
         wxLogMessage("%s", "Navigation complete; url='" + evt.GetURL() + "'");
     UpdateState();
@@ -896,7 +895,7 @@ void WebViewPanel::OnError(wxWebViewEvent& evt)
 
     BOOST_LOG_TRIVIAL(trace) << __FUNCTION__ << ": [" << category << "] " << evt.GetString().ToUTF8().data();
 
-    if (wxGetApp().get_mode() == comDevelop)
+    if (wxGetApp().get_mode() == comDevelop) 
     {
         wxLogMessage("%s", "Error; url='" + evt.GetURL() + "', error='" + category + " (" + evt.GetString() + ")'");
 

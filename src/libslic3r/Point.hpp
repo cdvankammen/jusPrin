@@ -681,4 +681,28 @@ template<class T, int N, int M>
 const T* end(const Slic3r::Mat<N, M, T> &mat) { return mat.data() + N * M; }
 } // namespace Eigen
 
+// std::hash specializations for vector types
+namespace std {
+    template<> struct hash<Slic3r::Vec2ds> {
+        size_t operator()(const Slic3r::Vec2ds& vec) const {
+            size_t seed = 0;
+            for (const auto& element : vec) {
+                seed ^= std::hash<double>()(element[0]) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= std::hash<double>()(element[1]) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            }
+            return seed;
+        }
+    };
+
+    template<> struct hash<std::vector<int>> {
+        size_t operator()(const std::vector<int>& vec) const {
+            size_t seed = 0;
+            for (const auto& element : vec) {
+                seed ^= std::hash<int>()(element) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            }
+            return seed;
+        }
+    };
+} // namespace std
+
 #endif

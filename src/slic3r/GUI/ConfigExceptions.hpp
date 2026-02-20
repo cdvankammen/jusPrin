@@ -1,4 +1,7 @@
-#include <exception> 
+#ifndef SLIC3R_GUI_CONFIGEXCEPTIONS_HPP
+#define SLIC3R_GUI_CONFIGEXCEPTIONS_HPP
+
+#include <exception>
 namespace Slic3r {
 
 class ConfigError : public Slic3r::RuntimeError { 
@@ -13,3 +16,5 @@ class ConfigGUITypeError : public ConfigError {
 
 } // namespace GUI
 } // namespace Slic3r
+
+#endif // SLIC3R_GUI_CONFIGEXCEPTIONS_HPP

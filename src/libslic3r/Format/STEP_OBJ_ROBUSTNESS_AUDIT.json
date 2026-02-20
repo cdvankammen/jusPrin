@@ -1,0 +1,270 @@
+{
+  "audit": {
+    "id": "subagent-spec-7-serialization-step-obj",
+    "agent": "Subagent-Spec-7 (Serialization)",
+    "scope": "STEP and OBJ parser robustness: error handling, bounds checking, Unicode path handling",
+    "date": "2026-02-19",
+    "files_reviewed": [
+      "src/libslic3r/Format/OBJ.cpp",
+      "src/libslic3r/Format/OBJ.hpp",
+      "src/libslic3r/Format/objparser.cpp",
+      "src/libslic3r/Format/objparser.hpp",
+      "src/libslic3r/Format/STEP.cpp",
+      "src/libslic3r/Format/STEP.hpp"
+    ]
+  },
+  "findings": [
+    {
+      "id": "STEPOBJ-001",
+      "file": "src/libslic3r/Format/objparser.cpp",
+      "lines": "590-610",
+      "severity": "high",
+      "category": "error_handling",
+      "title": "obj_parseline return value silently discarded — malformed lines produce garbage geometry",
+      "description": "objparse() calls obj_parseline() in a loop but never checks its return value. The code contains a FIXME comment: 'check the return value and exit on error? Will it break parsing of some obj files?'. Malformed lines — including NaN coordinates, truncated face indices, and invalid syntax — are silently swallowed. The same issue exists in mtlparse() for mtl_parseline(), and in the std::istream overload of objparse().",
+      "affected_functions": [
+        "ObjParser::objparse(const char*, ObjData&)",
+        "ObjParser::objparse(std::istream&, ObjData&)",
+        "ObjParser::mtlparse(const char*, MtlData&)"
+      ],
+      "recommendation": "Check the return value of obj_parseline/mtl_parseline. On failure, log the offending line number and either abort parsing or skip the line with a warning counter. Adding a line counter to the parse loop is trivial."
+    },
+    {
+      "id": "STEPOBJ-002",
+      "file": "src/libslic3r/Format/objparser.cpp",
+      "lines": "596-600",
+      "severity": "high",
+      "category": "error_handling",
+      "title": "objparse returns true after std::bad_alloc — caller sees success with partial/corrupt data",
+      "description": "The file-based objparse() catches std::bad_alloc, logs an error, but then falls through to 'return true', telling the caller the parse succeeded. The stream-based overload correctly returns false in its catch block. Partial data will be passed to OBJ.cpp which will generate truncated or corrupt geometry.",
+      "affected_functions": ["ObjParser::objparse(const char*, ObjData&)"],
+      "evidence": "catch (std::bad_alloc&) { BOOST_LOG_TRIVIAL(error) << \"ObjParser: Out of memory\"; } ::fclose(pFile); return true;",
+      "recommendation": "Add 'return false;' inside the catch(std::bad_alloc&) block, or set a bool flag that prevents the final 'return true'."
+    },
+    {
+      "id": "STEPOBJ-003",
+      "file": "src/libslic3r/Format/objparser.cpp",
+      "lines": "243-255",
+      "severity": "high",
+      "category": "bounds_checking",
+      "title": "Negative OBJ vertex indices not bounds-checked after resolution — possible negative coordIdx",
+      "description": "OBJ supports relative (negative) vertex indices. The parser resolves them via 'vertex.coordIdx += (int) data.coordinates.size() / OBJ_VERTEX_LENGTH'. If the negative index has a greater magnitude than the current vertex count, the resolved index remains negative. The same applies to normalIdx and textureCoordIdx. While OBJ.cpp validates coordIdx >= 0 before use, textureCoordIdx and normalIdx are never validated (see STEPOBJ-004).",
+      "affected_functions": ["ObjParser::obj_parseline"],
+      "evidence": "if (vertex.coordIdx < 0) vertex.coordIdx += (int) data.coordinates.size() / OBJ_VERTEX_LENGTH; else --vertex.coordIdx;",
+      "recommendation": "Immediately after resolving negative indices, validate that coordIdx, normalIdx, and textureCoordIdx are non-negative and within the current data bounds. Return false on violation."
+    },
+    {
+      "id": "STEPOBJ-004",
+      "file": "src/libslic3r/Format/OBJ.cpp",
+      "lines": "159-166",
+      "severity": "high",
+      "category": "bounds_checking",
+      "title": "textureCoordIdx used without bounds checking — out-of-bounds vector read",
+      "description": "In the set_face_color lambda, uvs[] values (from vertex.textureCoordIdx) are used to index data.textureCoordinates as 'data.textureCoordinates[uvs[0] * 2]' and 'data.textureCoordinates[uvs[0] * 2 + 1]' without any bounds check. A crafted OBJ file with out-of-range texture coordinate indices will cause an out-of-bounds vector access (undefined behavior / crash). The same issue applies to uvs[1] and uvs[2].",
+      "affected_functions": ["Slic3r::load_obj(const char*, TriangleMesh*, ObjInfo&, std::string&)"],
+      "evidence": "Vec2f uv0(data.textureCoordinates[uvs[0] * 2], data.textureCoordinates[uvs[0] * 2 + 1]);",
+      "recommendation": "Before accessing textureCoordinates, validate: 'if (uvs[i] < 0 || (size_t)(uvs[i] * 2 + 1) >= data.textureCoordinates.size()) { error; return false; }'. Apply to all three uvs indices."
+    },
+    {
+      "id": "STEPOBJ-005",
+      "file": "src/libslic3r/Format/OBJ.cpp",
+      "lines": "59-61",
+      "severity": "critical",
+      "category": "memory_safety",
+      "title": "Dangling pointer from temporary std::string — undefined behavior on every MTL load",
+      "description": "Line 61: 'auto _mtl_path = mtl_name_is_path ? mtl_abs_path.string().c_str() : mtl_path.string().c_str();'. boost::filesystem::path::string() returns a temporary std::string. Calling .c_str() on that temporary yields a pointer that dangles immediately when the temporary is destroyed at the semicolon. ALL subsequent uses of _mtl_path (exists check, mtlparse call, logging) read freed memory. This is undefined behavior that happens on every OBJ file loaded with a MTL reference.",
+      "affected_functions": ["Slic3r::load_obj(const char*, TriangleMesh*, ObjInfo&, std::string&)"],
+      "evidence": "auto _mtl_path = mtl_name_is_path ? mtl_abs_path.string().c_str() : mtl_path.string().c_str();",
+      "recommendation": "Store the string result in a named variable: 'std::string mtl_path_str = mtl_name_is_path ? mtl_abs_path.string() : mtl_path.string(); const char* _mtl_path = mtl_path_str.c_str();'"
+    },
+    {
+      "id": "STEPOBJ-006",
+      "file": "src/libslic3r/Format/OBJ.cpp",
+      "lines": "127-131",
+      "severity": "medium",
+      "category": "bounds_checking",
+      "title": "Face vertex count guard uses assert — disabled in release builds",
+      "description": "The inner face-parsing loop uses 'assert(cnt < OBJ_VERTEX_LENGTH)' to guard the fixed-size stack arrays 'indices[ONE_FACE_SIZE]' (size 4) and 'uvs[ONE_FACE_SIZE]'. In release builds (NDEBUG), assert is a no-op. While the earlier face-counting pass rejects >4-vertex polygons, the two passes are separate iterations and no structural invariant formally ties them.",
+      "affected_functions": ["Slic3r::load_obj(const char*, TriangleMesh*, ObjInfo&, std::string&)"],
+      "evidence": "assert(cnt < OBJ_VERTEX_LENGTH);",
+      "recommendation": "Replace the assert with a runtime check: 'if (cnt >= ONE_FACE_SIZE) { BOOST_LOG_TRIVIAL(error) << ...; return false; }'. This prevents stack buffer overflow in release builds."
+    },
+    {
+      "id": "STEPOBJ-007",
+      "file": "src/libslic3r/Format/objparser.cpp",
+      "lines": "424-425",
+      "severity": "medium",
+      "category": "thread_safety",
+      "title": "Static global cur_mtl_name causes data race in concurrent MTL parsing",
+      "description": "'static std::string cur_mtl_name' is module-level mutable state shared across all calls to mtl_parseline(). If two OBJ files with MTL references are loaded concurrently (e.g. via drag-and-drop batch import), the shared variable will be corrupted — classic data race, undefined behavior per C++11.",
+      "affected_functions": ["ObjParser::mtl_parseline", "ObjParser::mtlparse"],
+      "evidence": "static std::string cur_mtl_name = \"\";",
+      "recommendation": "Move cur_mtl_name into MtlData as a member variable (e.g. MtlData::current_mtl_name), or pass it as a reference parameter to mtl_parseline(). Eliminates global mutable state entirely."
+    },
+    {
+      "id": "STEPOBJ-008",
+      "file": "src/libslic3r/Format/OBJ.cpp",
+      "lines": "39-65",
+      "severity": "medium",
+      "category": "path_traversal",
+      "title": "OBJ mtllib path allows directory traversal and absolute paths",
+      "description": "The mtllib directive value from the OBJ file is used to construct a file path: 'dir + \"/\" + mtl_name'. The code also checks if mtl_name is itself an absolute path (mtl_abs_path.exists()). A crafted OBJ with 'mtllib ../../sensitive.mtl' or 'mtllib /etc/passwd' will cause the parser to attempt to open and parse arbitrary files. While mtlparse only understands MTL syntax, this enables filesystem probing.",
+      "affected_functions": ["Slic3r::load_obj(const char*, TriangleMesh*, ObjInfo&, std::string&)"],
+      "recommendation": "Sanitize mtl_name: reject absolute paths and entries containing '..'. Verify the resolved path stays within the parent directory of the OBJ file."
+    },
+    {
+      "id": "STEPOBJ-009",
+      "file": "src/libslic3r/Format/STEP.cpp",
+      "lines": "142-150",
+      "severity": "medium",
+      "category": "bounds_checking",
+      "title": "isGBK reads past string bounds on trailing high-byte",
+      "description": "In isGBK(), when str[i] >= 0x81, the code accesses str[i + 1] without checking 'i + 1 < str.length()'. If the string ends with a byte in the 0x81-0xFE range, this accesses one byte past the string's logical content. While std::string guarantees str[str.size()] == '\\0', the function signature takes std::string by value (not const ref), and the access pattern is still technically reading beyond the valid data range.",
+      "affected_functions": ["StepPreProcessor::isGBK"],
+      "evidence": "if (str[i] >= 0x81 && str[i] <= 0xfe && str[i + 1] >= 0x40 && str[i + 1] <= 0xfe && str[i + 1] != 0xf7)",
+      "recommendation": "Add 'if (i + 1 >= str.length()) return false;' before accessing str[i + 1]."
+    },
+    {
+      "id": "STEPOBJ-010",
+      "file": "src/libslic3r/Format/STEP.cpp",
+      "lines": "380-395",
+      "severity": "high",
+      "category": "unicode_filepath",
+      "title": "STEP ReadFile fails with non-ASCII paths on Windows",
+      "description": "Step::load() passes m_path.c_str() directly to STEPCAFControl_Reader::ReadFile(). On Windows, OCCT's ReadFile internally uses narrow-string Win32 APIs which cannot handle paths containing characters outside the current ANSI codepage. Any path with CJK characters, emoji, diacritics, etc. will silently fail to open. The StepPreProcessor class handles GBK encoding of file CONTENTS but does nothing for the file PATH.",
+      "affected_functions": ["Step::load"],
+      "evidence": "IFSelect_ReturnStatus stat = reader.ReadFile(m_path.c_str());",
+      "recommendation": "On Windows, convert the path to an 8.3 short-path form via GetShortPathNameW, or copy the STEP file to a temporary ASCII-only path before passing to OCCT. Alternatively, if using OCCT >= 7.6, use OSD_FileSystem API with wide path support."
+    },
+    {
+      "id": "STEPOBJ-011",
+      "file": "src/libslic3r/Format/STEP.cpp",
+      "lines": "54-57",
+      "severity": "medium",
+      "category": "unicode_filepath",
+      "title": "Hardcoded temp STEP filename causes collision under concurrent loads",
+      "description": "StepPreProcessor::preprocess() writes to temporary_dir() + '/temp.step'. If multiple STEP files are loaded concurrently or if a previous temp file was not cleaned up, this single hardcoded filename will cause data corruption or race conditions.",
+      "affected_functions": ["StepPreProcessor::preprocess"],
+      "evidence": "std::string temp_step_path = temp_path.string() + \"/temp.step\";",
+      "recommendation": "Use a unique temp filename per invocation via boost::filesystem::unique_path() or by incorporating the source file hash / PID / timestamp."
+    },
+    {
+      "id": "STEPOBJ-012",
+      "file": "src/libslic3r/Format/STEP.cpp",
+      "lines": "390-460",
+      "severity": "high",
+      "category": "thread_safety",
+      "title": "Data races on shared variables between STEP loading thread and monitor loop",
+      "description": "In Step::load() and Step::mesh(), variables 'task_result', 'cb_cancel', 'progress', 'progress_2', 'load_result', and 'namedSolids' are shared between a spawned boost::thread and the monitoring while-loop without synchronization. Only 'meshed_solid_num' is correctly declared std::atomic. All others are plain bool/float/int — reading and writing them from two threads simultaneously is a data race (undefined behavior per C++11 memory model).",
+      "affected_functions": ["Step::load", "Step::mesh"],
+      "evidence": "bool task_result = false; bool cb_cancel = false; int progress = 0; bool load_result = false; // all read/written from two threads without synchronization",
+      "recommendation": "Declare task_result, cb_cancel, load_result as std::atomic<bool> and progress/progress_2 as std::atomic<float> (or std::atomic<int> scaled). Alternatively, restructure to use std::future/std::promise to communicate thread results."
+    },
+    {
+      "id": "STEPOBJ-013",
+      "file": "src/libslic3r/Format/STEP.cpp",
+      "lines": "540-560",
+      "severity": "medium",
+      "category": "bounds_checking",
+      "title": "STEP triangulation indices used without bounds validation",
+      "description": "In Step::mesh(), triangle vertex indices from OCCT (anId[0..2]) are used to index the 'points' vector via 'points[anId[X] + aNodeOffset - 1]' without checking bounds. If OCCT returns invalid triangulation data from a malformed STEP file, this results in an out-of-bounds vector access. The stl[i].facet_start array is also accessed via 'aTriangleOffet + aTriIter - 1' without an explicit bounds check.",
+      "affected_functions": ["Step::mesh"],
+      "evidence": "facet.vertex[0] = points[anId[0] + aNodeOffset - 1].cast<float>();",
+      "recommendation": "Add bounds checks: validate 'anId[k] + aNodeOffset - 1 >= 0 && anId[k] + aNodeOffset - 1 < (int)points.size()' before accessing points[], and 'aTriangleOffet + aTriIter - 1 < stl[i].stats.number_of_facets' before writing facet_start[]."
+    },
+    {
+      "id": "STEPOBJ-014",
+      "file": "src/libslic3r/Format/STEP.cpp",
+      "lines": "46-50",
+      "severity": "low",
+      "category": "error_handling",
+      "title": "StepPreProcessor::preprocess throws then returns false — dead code after throw",
+      "description": "Line 48 throws RuntimeError, making 'return false' on line 49 unreachable dead code. The control flow is confusing: the API contract should either throw (caller must catch) or return a status, but not both.",
+      "affected_functions": ["StepPreProcessor::preprocess"],
+      "evidence": "throw Slic3r::RuntimeError(std::string(\"Load step file failed.\\nCannot open file for reading.\\n\")); return false;",
+      "recommendation": "Choose one error-reporting strategy. For consistency with Step_Status returns elsewhere, prefer returning false and logging the error."
+    },
+    {
+      "id": "STEPOBJ-015",
+      "file": "src/libslic3r/Format/STEP.cpp",
+      "lines": "370-375",
+      "severity": "medium",
+      "category": "error_handling",
+      "title": "Step::load rejects non-UTF8 files without attempting GBK preprocessing",
+      "description": "Step::load() calls isUtf8File() and on failure immediately returns LOAD_ERROR after invoking the UTF8 callback. It never invokes StepPreProcessor::preprocess() to attempt GBK→UTF8 conversion. The StepPreProcessor class exists precisely for this purpose but is unused in the Step class. STEP files with GBK-encoded part names (common in Chinese manufacturing) will always fail to load.",
+      "affected_functions": ["Step::load"],
+      "evidence": "if (!StepPreProcessor::isUtf8File(m_path.c_str()) && m_utf8Fn) { m_utf8Fn(false); return Step_Status::LOAD_ERROR; }",
+      "recommendation": "Integrate StepPreProcessor::preprocess() into Step::load(). When GBK is detected, preprocess the file and use the output path for ReadFile. This was done correctly in the commented-out load_step() function."
+    },
+    {
+      "id": "STEPOBJ-016",
+      "file": "src/libslic3r/Format/STEP.cpp",
+      "lines": "390-460",
+      "severity": "medium",
+      "category": "memory_safety",
+      "title": "Raw new/delete for boost::thread — potential leak on exception",
+      "description": "Step::load() and Step::mesh() allocate boost::thread via 'new boost::thread(...)' and manually delete it in multiple places. If an exception is thrown between allocation and deletion, the thread object leaks. The manual joinable/join/delete pattern is error-prone and repeated in multiple locations.",
+      "affected_functions": ["Step::load", "Step::mesh"],
+      "evidence": "auto task = new boost::thread(Slic3r::create_thread([&]() -> void { ... })); ... if (task) { if (task->joinable()) { task->join(); delete task; } }",
+      "recommendation": "Use std::unique_ptr<boost::thread> or a stack-allocated boost::thread. Even better, use std::async/std::future which handles lifetime automatically."
+    },
+    {
+      "id": "STEPOBJ-017",
+      "file": "src/libslic3r/Format/STEP.cpp",
+      "lines": "705",
+      "severity": "low",
+      "category": "error_handling",
+      "title": "OpenCASCADE Exception caught by value — object slicing",
+      "description": "get_triangle_num() catches 'Exception e' by value rather than by const reference. This slices derived exception types, losing diagnostic information and incurring an unnecessary copy.",
+      "affected_functions": ["Step::get_triangle_num"],
+      "evidence": "} catch(Exception e) { return 0; }",
+      "recommendation": "Change to 'catch (const Standard_Failure& e)' (the OCCT base exception type) to preserve polymorphism and exception details."
+    },
+    {
+      "id": "STEPOBJ-018",
+      "file": "src/libslic3r/Format/objparser.cpp",
+      "lines": "170-196",
+      "severity": "low",
+      "category": "error_handling",
+      "title": "Vertex color parsing: extra data after z silently accepted due to commented-out check",
+      "description": "The vertex position parsing code has a commented-out check: '// if (*line != 0) return false;'. This means any extra data on a vertex line after the z coordinate (or after color components) is silently ignored. Combined with STEPOBJ-001 (return value not checked), this results in garbage data being silently skipped rather than flagged.",
+      "affected_functions": ["ObjParser::obj_parseline"],
+      "evidence": "// if (*line != 0) return false;  // commented out, see SPE-1019",
+      "recommendation": "Log a warning when extra data is found on vertex lines, even if not treating it as an error. This aids debugging of malformed files."
+    }
+  ],
+  "summary": {
+    "total_findings": 18,
+    "by_severity": {
+      "critical": 1,
+      "high": 5,
+      "medium": 8,
+      "low": 4
+    },
+    "by_category": {
+      "error_handling": 6,
+      "bounds_checking": 5,
+      "unicode_filepath": 2,
+      "memory_safety": 2,
+      "thread_safety": 2,
+      "path_traversal": 1
+    },
+    "top_risks": [
+      "STEPOBJ-005 [CRITICAL]: Dangling pointer in OBJ MTL path handling — undefined behavior on every OBJ file loaded with a .mtl reference. Active use-after-free.",
+      "STEPOBJ-004 [HIGH]: Unchecked texture coordinate indices — exploitable out-of-bounds read from crafted OBJ file with large textureCoordIdx values.",
+      "STEPOBJ-012 [HIGH]: Multiple data races in STEP loading threads — undefined behavior per C++ memory model, can cause crashes or corrupt data.",
+      "STEPOBJ-010 [HIGH]: STEP files with non-ASCII Windows paths silently fail to load via OCCT narrow-string API.",
+      "STEPOBJ-001 [HIGH]: All OBJ/MTL parse errors silently swallowed — garbage geometry passed to downstream slicing pipeline."
+    ],
+    "obj_parser_status": {
+      "malformed_file_handling": "POOR — parse errors from obj_parseline are silently discarded; OOM returns success; partial color data accepted",
+      "bounds_checking": "PARTIAL — coordIdx is validated in OBJ.cpp, but textureCoordIdx and normalIdx are never bounds-checked; negative index resolution has no post-validation",
+      "unicode_paths": "GOOD — uses boost::nowide::fopen for file I/O, supporting UTF-8 paths on Windows"
+    },
+    "step_parser_status": {
+      "malformed_file_handling": "MODERATE — delegates to OCCT which has internal validation, but OCCT exceptions are caught by value; GBK preprocessing exists but is not wired into the Step class",
+      "bounds_checking": "POOR — triangulation indices from OCCT used without validation; isGBK has OOB read on trailing bytes",
+      "unicode_paths": "POOR — file path passed as narrow string to OCCT's ReadFile which uses ANSI Win32 APIs; will fail for non-ANSI paths on Windows"
+    }
+  }
+}

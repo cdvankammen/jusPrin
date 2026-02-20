@@ -2,6 +2,7 @@
 #include "slic3r/GUI/GLCanvas3D.hpp"
 #include "slic3r/GUI/GUI_App.hpp"
 #include "slic3r/GUI/Plater.hpp"
+#include "slic3r/GUI/JusPrin/JusPrinChatPanel.hpp"
 #include "slic3r/GUI/Camera.hpp"
 #include "slic3r/GUI/PartPlate.hpp"
 #include <wx/mstream.h>
@@ -165,7 +166,7 @@ void JusPrinPlateUtils::RenderThumbnail(ThumbnailData& thumbnail_data,
     }
 
     ModelObjectPtrs& model_objects = GUI::wxGetApp().model().objects;
-    std::vector<ColorRGBA> extruder_colors = ::get_extruders_colors();
+    std::vector<ColorRGBA> extruder_colors = wxGetApp().plater()->get_extruders_colors();
     auto canvas3D = wxGetApp().plater()->canvas3D();
     const GLVolumeCollection& volumes = canvas3D->get_volumes();
     PartPlate* plate = wxGetApp().plater()->get_partplate_list().get_plate(0);

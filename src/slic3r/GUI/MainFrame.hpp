@@ -25,6 +25,8 @@
 #include "UnsavedChangesDialog.hpp"
 #include "Widgets/SideButton.hpp"
 #include "Widgets/SideMenuPopup.hpp"
+#include "FilamentGroupPopup.hpp"
+
 
 #include <boost/property_tree/ptree_fwd.hpp>
 
@@ -89,7 +91,10 @@ protected:
 
 class MainFrame : public DPIFrame
 {
-    bool        m_loaded {false};
+#ifdef __APPLE__
+    bool     m_mac_fullscreen{false};
+#endif
+    bool     m_loaded {false};
     wxTimer* m_reset_title_text_colour_timer{ nullptr };
 
     wxString    m_qs_last_input_file = wxEmptyString;
@@ -139,8 +144,6 @@ class MainFrame : public DPIFrame
 
     // BBS
     wxBoxSizer* create_side_tools();
-
-
 
     // MenuBar items changeable in respect to printer technology
     enum MenuItems
@@ -205,10 +208,9 @@ protected:
 public:
     MainFrame();
     ~MainFrame() = default;
-
-    wxWindowID m_mode_id_base;
-
-
+#ifdef __APPLE__
+    bool get_mac_full_screen() { return m_mac_fullscreen; }
+#endif
     //BBS GUI refactor
     enum TabPosition
     {
@@ -343,6 +345,7 @@ public:
 
     void        technology_changed();
 
+
     //BBS
     void        load_url(wxString url);
     void        load_printer_url(wxString url, wxString apikey = "");
@@ -350,8 +353,6 @@ public:
     bool        is_printer_view() const;
     void        refresh_plugin_tips();
     void RunScript(wxString js);
-
-    void start_slicer_all(bool pop_up_slicing_progress = true);
 
     //SoftFever
     void show_device(bool bBBLPrinter);
@@ -363,7 +364,7 @@ public:
     Retraction_Test_Dlg* m_retraction_calib_dlg{ nullptr };
     Input_Shaping_Freq_Test_Dlg* m_IS_freq_calib_dlg{ nullptr };
     Input_Shaping_Damp_Test_Dlg* m_IS_damp_calib_dlg{ nullptr };
-    Junction_Deviation_Test_Dlg* m_junction_deviation_calib_dlg{ nullptr };
+    Cornering_Test_Dlg* m_cornering_calib_dlg{ nullptr };
 
     // BBS. Replace title bar and menu bar with top bar.
     BBLTopbar*            m_topbar{ nullptr };
@@ -392,7 +393,7 @@ public:
     wxWindow*             m_plater_page{ nullptr };
     PrintHostQueueDialog* m_printhost_queue_dlg;
 
-
+    
     mutable int m_print_select{ ePrintAll };
     mutable int m_slice_select{ eSliceAll };
     // Button* m_publish_btn{ nullptr };
@@ -400,6 +401,10 @@ public:
     SideButton* m_slice_option_btn{ nullptr };
     SideButton* m_print_btn{ nullptr };
     SideButton* m_print_option_btn{ nullptr };
+
+    SidePopup*  m_slice_option_pop_up{ nullptr };
+
+    FilamentGroupPopup* m_filament_group_popup{ nullptr };
     mutable bool          m_slice_enable{ true };
     mutable bool          m_print_enable{ true };
     bool get_enable_slice_status();
@@ -425,7 +430,6 @@ wxDECLARE_EVENT(EVT_USER_LOGIN_HANDLE, wxCommandEvent);
 wxDECLARE_EVENT(EVT_CHECK_PRIVACY_VER, wxCommandEvent);
 wxDECLARE_EVENT(EVT_CHECK_PRIVACY_SHOW, wxCommandEvent);
 wxDECLARE_EVENT(EVT_SHOW_IP_DIALOG, wxCommandEvent);
-wxDECLARE_EVENT(EVT_SET_SELECTED_MACHINE, wxCommandEvent);
 wxDECLARE_EVENT(EVT_UPDATE_MACHINE_LIST, wxCommandEvent);
 wxDECLARE_EVENT(EVT_UPDATE_PRESET_CB, SimpleEvent);
 

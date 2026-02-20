@@ -93,6 +93,9 @@ set(lisbslic3r_sources
     ClipperUtils.cpp
     ClipperUtils.hpp
     ClipperZUtils.hpp
+    Clipper2Utils.cpp
+    Clipper2Utils.hpp
+    Clipper2ZUtils.hpp
     Color.cpp
     Color.hpp
     Config.cpp
@@ -134,6 +137,10 @@ set(lisbslic3r_sources
     Feature/Interlocking/VoxelUtils.cpp
     Feature/Interlocking/VoxelUtils.hpp
     FileParserError.hpp
+    FilamentGroup.cpp
+    FilamentGroup.hpp
+    FilamentGroupUtils.cpp
+    FilamentGroupUtils.hpp
     Fill/Fill3DHoneycomb.cpp
     Fill/Fill3DHoneycomb.hpp
     Fill/FillAdaptive.cpp
@@ -176,12 +183,16 @@ set(lisbslic3r_sources
     Flow.hpp
     FlushVolCalc.cpp
     FlushVolCalc.hpp
+    FlushVolPredictor.cpp
+    FlushVolPredictor.hpp
     Format/3mf.cpp
     Format/3mf.hpp
     Format/AMF.cpp
     Format/AMF.hpp
     Format/bbs_3mf.cpp
     Format/bbs_3mf.hpp
+    Format/DRC.cpp
+    Format/DRC.hpp
     format.hpp
     Format/OBJ.cpp
     Format/OBJ.hpp
@@ -238,14 +249,20 @@ set(lisbslic3r_sources
     GCode/ThumbnailData.hpp
     GCode/Thumbnails.cpp
     GCode/Thumbnails.hpp
+    GCode/TimelapsePosPicker.cpp
+    GCode/TimelapsePosPicker.hpp
     GCode/ToolOrdering.cpp
     GCode/ToolOrdering.hpp
+    GCode/ToolOrderUtils.cpp
+    GCode/ToolOrderUtils.hpp
     GCode/WipeTower2.cpp
     GCode/WipeTower2.hpp
     GCode/WipeTower.cpp
     GCode/WipeTower.hpp
     GCodeWriter.cpp
     GCodeWriter.hpp
+    Geometry/ArcWelder.cpp
+    Geometry/ArcWelder.hpp
     Geometry/Bicubic.hpp
     Geometry/Circle.cpp
     Geometry/Circle.hpp
@@ -280,6 +297,8 @@ set(lisbslic3r_sources
     Measure.cpp
     Measure.hpp
     MeasureUtils.hpp
+    MaterialType.cpp
+    MaterialType.hpp
     MeshSplitImpl.hpp
     MinAreaBoundingBox.cpp
     MinAreaBoundingBox.hpp
@@ -303,6 +322,7 @@ set(lisbslic3r_sources
     NormalUtils.hpp
     NSVGUtils.cpp
     NSVGUtils.hpp
+    ObjColorUtils.cpp
     ObjColorUtils.hpp
     ObjectID.cpp
     ObjectID.hpp
@@ -436,6 +456,8 @@ set(lisbslic3r_sources
     Timer.cpp
     Timer.hpp
     TriangleMesh.cpp
+    TriangleMeshDeal.cpp
+    TriangleMeshDeal.hpp
     TriangleMesh.hpp
     TriangleMeshSlicer.cpp
     TriangleMeshSlicer.hpp
@@ -474,7 +496,7 @@ set(CGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE ON CACHE BOOL "" FORCE)
 cmake_policy(PUSH)
 cmake_policy(SET CMP0011 NEW)
 find_package(CGAL REQUIRED)
-find_package(OpenCV REQUIRED core)
+find_package(OpenCV REQUIRED)
 cmake_policy(POP)
 
 add_library(libslic3r_cgal STATIC 
@@ -519,6 +541,11 @@ set(OpenCASCADE_DIR "${CMAKE_PREFIX_PATH}/lib/cmake/occt")
 find_package(OpenCASCADE REQUIRED)
 target_include_directories(libslic3r SYSTEM PUBLIC ${OpenCASCADE_INCLUDE_DIR})
 
+# JPEG handling:
+# - Thumbnails.cpp uses #include <jpeglib.h> for JPEG encoding (jpeg_mem_dest, etc.)
+# - OpenCV bundles libjpeg-turbo statically, but symbols may not be exported
+# - We need to link JPEG library explicitly for the linker to resolve symbols
+# - Use deps-built JPEG to avoid conflicts with system libraries
 find_package(JPEG REQUIRED)
 
 set(OCCT_LIBS
@@ -551,6 +578,7 @@ set(OCCT_LIBS
 )
 
 find_package(libnoise REQUIRED)
+# find_package(draco REQUIRED)  # Temporarily disabled - DRC file format support
 target_link_libraries(libslic3r
     PUBLIC
         admesh
@@ -565,6 +593,8 @@ target_link_libraries(libslic3r
         boost_libs
         cereal::cereal
         clipper
+        Clipper2
+        # draco::draco  # Temporarily disabled - DRC file format support
         eigen
         glu-libtess
         JPEG::JPEG

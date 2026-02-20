@@ -3,6 +3,8 @@
 
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
+#include "slic3r/GUI/DeviceCore/DevStorage.h"
+#include "slic3r/GUI/HttpServer.hpp" // for secure_clear_string
 #include "Job.hpp"
 #include "PrintJob.hpp"
 
@@ -32,6 +34,10 @@ class SendJob : public Job
 public:
     void prepare();
     SendJob(std::string dev_id = "");
+    // SECURITY: zero-fill credential strings on destruction
+    ~SendJob() {
+        secure_clear_string(m_access_code);
+    }
 
     std::string m_project_name;
     std::string m_dev_ip;
@@ -41,10 +47,12 @@ public:
 	std::string connection_type;
 
     bool        m_local_use_ssl_for_ftp{true};
-    bool        m_local_use_ssl_for_mqtt{true};
+    bool        m_local_use_ssl{true};
     bool        cloud_print_only { false };
     bool        has_sdcard { false };
     bool        task_use_ams { true };
+
+    DevStorage::SdcardState sdcard_state = DevStorage::SdcardState::NO_SDCARD;
 
     wxWindow*   m_parent{nullptr};
 

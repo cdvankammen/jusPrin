@@ -103,6 +103,8 @@ static ExtrusionEntityCollection traverse_loops(const PerimeterGenerator &perime
     // loops is an arrayref of ::Loop objects
     // turn each one into an ExtrusionLoop object
     ExtrusionEntityCollection   coll;
+    // Reserve expected capacity to avoid repeated reallocations when adding entities
+    coll.entities.reserve(loops.size() + thin_walls.size());
     
     // Detect steep overhangs
     bool overhangs_reverse = perimeter_generator.config->overhang_reverse &&
@@ -362,6 +364,8 @@ static ExtrusionEntityCollection traverse_extrusions(const PerimeterGenerator& p
                              perimeter_generator.layer_id % 2 == 1;  // Only calculate overhang degree on even (from GUI POV) layers
 
     ExtrusionEntityCollection extrusion_coll;
+    // reserve capacity based on number of input extrusions to reduce reallocations
+    extrusion_coll.entities.reserve(pg_extrusions.size());
     for (PerimeterGeneratorArachneExtrusion& pg_extrusion : pg_extrusions) {
         Arachne::ExtrusionLine* extrusion = pg_extrusion.extrusion;
         if (extrusion->empty())
@@ -708,6 +712,8 @@ Polylines reconnect_polylines(const Polylines &polylines, double limit_distance)
     }
 
     Polylines result;
+    // Reserve estimated size to avoid repeated reallocations
+    result.reserve(connected.size());
     for (auto &ext : connected) {
         result.push_back(std::move(ext.second));
     }
@@ -760,7 +766,9 @@ ExtrusionPaths sort_extra_perimeters(const ExtrusionPaths& extra_perims, int ind
 
     Point current_point = extra_perims.begin()->first_point();
 
+    // Reserve to expected sizes to avoid growth overheads
     ExtrusionPaths sorted_paths{};
+    sorted_paths.reserve(extra_perims.size());
     size_t         null_idx = size_t(-1);
     size_t         next_idx = null_idx;
     bool           reverse  = false;
@@ -890,7 +898,10 @@ std::tuple<std::vector<ExtrusionPaths>, Polygons> generate_extra_perimeters_over
     Polygons inset_overhang_area_left_unfilled;
 
     std::vector<ExtrusionPaths> extra_perims; // overhang region -> extrusion paths
-    for (const ExPolygon &overhang : union_ex(to_expolygons(inset_overhang_area))) {
+    // materialize union_ex result so we can reserve capacity for extra_perims and avoid growth churn
+    std::vector<ExPolygon> overhangs_union = union_ex(to_expolygons(inset_overhang_area));
+    extra_perims.reserve(overhangs_union.size());
+    for (const ExPolygon &overhang : overhangs_union) {
         Polygons overhang_to_cover = to_polygons(overhang);
         Polygons expanded_overhang_to_cover = expand(overhang_to_cover, 1.1 * overhang_flow.scaled_spacing());
         Polygons shrinked_overhang_to_cover = shrink(overhang_to_cover, 0.1 * overhang_flow.scaled_spacing());

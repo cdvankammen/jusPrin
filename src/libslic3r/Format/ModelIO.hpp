@@ -1,3 +1,6 @@
+#ifndef SLIC3R_FORMAT_MODELIO_HPP
+#define SLIC3R_FORMAT_MODELIO_HPP
+
 #include <string>
 
 namespace Slic3r {
@@ -16,4 +19,6 @@ namespace Slic3r {
      */
     void delete_temp_file(const std::string &temp_file);
 }
+
+#endif // SLIC3R_FORMAT_MODELIO_HPP
 
