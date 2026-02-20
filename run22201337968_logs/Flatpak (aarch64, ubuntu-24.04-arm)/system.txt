@@ -1,0 +1,8 @@
+2026-02-20T00:19:17.2200000Z Evaluating flatpak.if
+2026-02-20T00:19:17.2200000Z Evaluating: success()
+2026-02-20T00:19:17.2200000Z Result: true
+2026-02-20T00:19:17.7020000Z Requested labels: ubuntu-24.04-arm
+2026-02-20T00:19:17.7020000Z Job defined at: cdvankammen/jusPrin/.github/workflows/build_all.yml@refs/pull/8/merge
+2026-02-20T00:19:17.7020000Z Waiting for a runner to pick up this job...
+2026-02-20T00:19:17.7150000Z Job is about to start running on the hosted runner: GitHub Actions 1000000597
+2026-02-20T00:19:17.7150000Z Job is waiting for a hosted runner to come online.

@@ -1,0 +1,569 @@
+﻿2026-02-20T00:19:19.6368980Z Current runner version: '2.331.0'
+2026-02-20T00:19:19.6382950Z ##[group]Runner Image Provisioner
+2026-02-20T00:19:19.6383420Z Hosted Compute Agent
+2026-02-20T00:19:19.6383780Z Version: 20260213.493
+2026-02-20T00:19:19.6384160Z Commit: 5c115507f6dd24b8de37d8bbe0bb4509d0cc0fa3
+2026-02-20T00:19:19.6384630Z Build Date: 2026-02-13T00:28:41Z
+2026-02-20T00:19:19.6385050Z Worker ID: {6e666f65-2aa5-4f1c-a347-e4a43b6f4a71}
+2026-02-20T00:19:19.6385480Z Azure Region: westus
+2026-02-20T00:19:19.6385860Z ##[endgroup]
+2026-02-20T00:19:19.6386670Z ##[group]Operating System
+2026-02-20T00:19:19.6387030Z macOS
+2026-02-20T00:19:19.6387410Z 14.8.4
+2026-02-20T00:19:19.6388080Z 23J319
+2026-02-20T00:19:19.6388390Z ##[endgroup]
+2026-02-20T00:19:19.6388700Z ##[group]Runner Image
+2026-02-20T00:19:19.6389040Z Image: macos-14-arm64
+2026-02-20T00:19:19.6389370Z Version: 20260218.0127.1
+2026-02-20T00:19:19.6390150Z Included Software: https://github.com/actions/runner-images/blob/macos-14-arm64/20260218.0127/images/macos/macos-14-arm64-Readme.md
+2026-02-20T00:19:19.6391170Z Image Release: https://github.com/actions/runner-images/releases/tag/macos-14-arm64%2F20260218.0127
+2026-02-20T00:19:19.6391870Z ##[endgroup]
+2026-02-20T00:19:19.6392590Z ##[group]GITHUB_TOKEN Permissions
+2026-02-20T00:19:19.6393590Z Contents: read
+2026-02-20T00:19:19.6393900Z Metadata: read
+2026-02-20T00:19:19.6394220Z Packages: read
+2026-02-20T00:19:19.6394530Z ##[endgroup]
+2026-02-20T00:19:19.6395960Z Secret source: Actions
+2026-02-20T00:19:19.6396360Z Prepare workflow directory
+2026-02-20T00:19:19.6749330Z Prepare all required actions
+2026-02-20T00:19:19.6775680Z Getting action download info
+2026-02-20T00:19:19.9913570Z Download action repository 'actions/checkout@v5' (SHA:93cb6efe18208431cddfb8368fd83d5badbf9bfd)
+2026-02-20T00:19:20.4643600Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-02-20T00:19:20.5866840Z Download action repository 'lukka/get-cmake@latest' (SHA:f176ccd3f28bda569c43aae4894f06b2435a3375)
+2026-02-20T00:19:21.8801210Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-02-20T00:19:22.0317050Z Download action repository 'WebFreak001/deploy-nightly@v3.2.0' (SHA:46ecbabd7fad70d3e7d2c97fe8cd54e7a52e215b)
+2026-02-20T00:19:23.4460120Z Download action repository 'microsoft/setup-msbuild@v2' (SHA:6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce)
+2026-02-20T00:19:24.5938990Z Download action repository 'rickstaa/action-create-tag@v1' (SHA:a1c7777fcb2fee4f19b0f283ba888afa11678b72)
+2026-02-20T00:19:25.5652650Z Container action is only supported on Linux, skip pull and build docker images.
+2026-02-20T00:19:25.5689940Z Uses: cdvankammen/jusPrin/.github/workflows/build_orca.yml@refs/pull/8/merge (e32af2bca07a970958648eb921c0f72c9f1c526a)
+2026-02-20T00:19:25.5693920Z ##[group] Inputs
+2026-02-20T00:19:25.5694380Z   cache-key: macos-14-cache-orcaslicer_deps-build-e296ce077d008a3d663ac40d8757276001ff373e00943bd747e1e7c4e2663271
+2026-02-20T00:19:25.5694900Z   cache-path: /Users/runner/work/jusPrin/jusPrin/deps/build
+2026-02-20T00:19:25.5695160Z   os: macos-14
+2026-02-20T00:19:25.5695280Z   arch: arm64
+2026-02-20T00:19:25.5695480Z ##[endgroup]
+2026-02-20T00:19:25.5695770Z Complete job name: Build All (macos-14, arm64) / Build Deps / Build OrcaSlicer / Build JusPrin
+2026-02-20T00:19:25.6114140Z ##[group]Run actions/checkout@v5
+2026-02-20T00:19:25.6114510Z with:
+2026-02-20T00:19:25.6114640Z   lfs: true
+2026-02-20T00:19:25.6114780Z   repository: cdvankammen/jusPrin
+2026-02-20T00:19:25.6115100Z   token: ***
+2026-02-20T00:19:25.6115220Z   ssh-strict: true
+2026-02-20T00:19:25.6115350Z   ssh-user: git
+2026-02-20T00:19:25.6115490Z   persist-credentials: true
+2026-02-20T00:19:25.6115660Z   clean: true
+2026-02-20T00:19:25.6115800Z   sparse-checkout-cone-mode: true
+2026-02-20T00:19:25.6115970Z   fetch-depth: 1
+2026-02-20T00:19:25.6116100Z   fetch-tags: false
+2026-02-20T00:19:25.6116240Z   show-progress: true
+2026-02-20T00:19:25.6116370Z   submodules: false
+2026-02-20T00:19:25.6117340Z   set-safe-directory: true
+2026-02-20T00:19:25.6118300Z env:
+2026-02-20T00:19:25.6118430Z   date: 
+2026-02-20T00:19:25.6118570Z   ver: 
+2026-02-20T00:19:25.6118680Z   ver_pure: 
+2026-02-20T00:19:25.6118810Z   ORCA_UPDATER_SIG_KEY: 
+2026-02-20T00:19:25.6118960Z ##[endgroup]
+2026-02-20T00:19:25.9349100Z Syncing repository: cdvankammen/jusPrin
+2026-02-20T00:19:25.9360950Z ##[group]Getting Git version info
+2026-02-20T00:19:25.9362390Z Working directory is '/Users/runner/work/jusPrin/jusPrin'
+2026-02-20T00:19:25.9362940Z [command]/opt/homebrew/bin/git version
+2026-02-20T00:19:25.9504010Z git version 2.53.0
+2026-02-20T00:19:25.9533560Z [command]/opt/homebrew/bin/git lfs version
+2026-02-20T00:19:26.0555560Z git-lfs/3.7.1 (GitHub; darwin arm64; go 1.25.3)
+2026-02-20T00:19:26.0560430Z ##[endgroup]
+2026-02-20T00:19:26.0564750Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/9d184be8-eda5-48ba-a012-949506b18cc4/.gitconfig'
+2026-02-20T00:19:26.0565560Z Temporarily overriding HOME='/Users/runner/work/_temp/9d184be8-eda5-48ba-a012-949506b18cc4' before making global git config changes
+2026-02-20T00:19:26.0566720Z Adding repository directory to the temporary git global config as a safe directory
+2026-02-20T00:19:26.0567360Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/jusPrin/jusPrin
+2026-02-20T00:19:26.0635130Z Deleting the contents of '/Users/runner/work/jusPrin/jusPrin'
+2026-02-20T00:19:26.0635780Z ##[group]Initializing the repository
+2026-02-20T00:19:26.0636310Z [command]/opt/homebrew/bin/git init /Users/runner/work/jusPrin/jusPrin
+2026-02-20T00:19:26.1085940Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-02-20T00:19:26.1087010Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-02-20T00:19:26.1087510Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-02-20T00:19:26.1088160Z hint: call:
+2026-02-20T00:19:26.1088410Z hint:
+2026-02-20T00:19:26.1088710Z hint: 	git config --global init.defaultBranch <name>
+2026-02-20T00:19:26.1089050Z hint:
+2026-02-20T00:19:26.1089350Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-02-20T00:19:26.1089800Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-02-20T00:19:26.1090190Z hint:
+2026-02-20T00:19:26.1090400Z hint: 	git branch -m <name>
+2026-02-20T00:19:26.1091000Z hint:
+2026-02-20T00:19:26.1092100Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-02-20T00:19:26.1092730Z Initialized empty Git repository in /Users/runner/work/jusPrin/jusPrin/.git/
+2026-02-20T00:19:26.1093820Z [command]/opt/homebrew/bin/git remote add origin https://github.com/cdvankammen/jusPrin
+2026-02-20T00:19:26.1145020Z ##[endgroup]
+2026-02-20T00:19:26.1145410Z ##[group]Disabling automatic garbage collection
+2026-02-20T00:19:26.1146830Z [command]/opt/homebrew/bin/git config --local gc.auto 0
+2026-02-20T00:19:26.1188150Z ##[endgroup]
+2026-02-20T00:19:26.1188540Z ##[group]Setting up auth
+2026-02-20T00:19:26.1192950Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-02-20T00:19:26.1237170Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-02-20T00:19:26.1853870Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-02-20T00:19:26.1900850Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-02-20T00:19:26.2427740Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-02-20T00:19:26.2470680Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-02-20T00:19:26.3007830Z [command]/opt/homebrew/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-02-20T00:19:26.3059370Z ##[endgroup]
+2026-02-20T00:19:26.3062280Z [command]/opt/homebrew/bin/git lfs install --local
+2026-02-20T00:19:26.4284700Z Updated Git hooks.
+2026-02-20T00:19:26.4285310Z Git LFS initialized.
+2026-02-20T00:19:26.4309630Z ##[group]Fetching the repository
+2026-02-20T00:19:26.4315300Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +e32af2bca07a970958648eb921c0f72c9f1c526a:refs/remotes/pull/8/merge
+2026-02-20T00:19:32.6815320Z From https://github.com/cdvankammen/jusPrin
+2026-02-20T00:19:32.6816160Z  * [new ref]         e32af2bca07a970958648eb921c0f72c9f1c526a -> pull/8/merge
+2026-02-20T00:19:32.6923520Z ##[endgroup]
+2026-02-20T00:19:32.6924410Z ##[group]Determining the checkout info
+2026-02-20T00:19:32.6928150Z ##[endgroup]
+2026-02-20T00:19:32.6928590Z ##[group]Fetching LFS objects
+2026-02-20T00:19:32.6934380Z [command]/opt/homebrew/bin/git lfs fetch origin refs/remotes/pull/8/merge
+2026-02-20T00:19:32.7691210Z Fetching reference refs/remotes/pull/8/merge
+2026-02-20T00:19:33.8563650Z ##[endgroup]
+2026-02-20T00:19:33.8567580Z [command]/opt/homebrew/bin/git sparse-checkout disable
+2026-02-20T00:19:33.8669390Z [command]/opt/homebrew/bin/git config --local --unset-all extensions.worktreeConfig
+2026-02-20T00:19:33.8753480Z ##[group]Checking out the ref
+2026-02-20T00:19:33.8760520Z [command]/opt/homebrew/bin/git checkout --progress --force refs/remotes/pull/8/merge
+2026-02-20T00:19:35.1111420Z Updating files:  16% (2324/14440)
+2026-02-20T00:19:35.6390710Z Updating files:  17% (2455/14440)
+2026-02-20T00:19:35.8958440Z Updating files:  18% (2600/14440)
+2026-02-20T00:19:35.8986260Z Updating files:  19% (2744/14440)
+2026-02-20T00:19:36.0405890Z Updating files:  19% (2749/14440)
+2026-02-20T00:19:36.1352570Z Updating files:  20% (2888/14440)
+2026-02-20T00:19:36.1653730Z Updating files:  21% (3033/14440)
+2026-02-20T00:19:36.1964840Z Updating files:  22% (3177/14440)
+2026-02-20T00:19:36.2672810Z Updating files:  23% (3322/14440)
+2026-02-20T00:19:36.2981280Z Updating files:  24% (3466/14440)
+2026-02-20T00:19:36.3088120Z Updating files:  25% (3610/14440)
+2026-02-20T00:19:36.4064300Z Updating files:  26% (3755/14440)
+2026-02-20T00:19:36.4657720Z Updating files:  27% (3899/14440)
+2026-02-20T00:19:36.5069970Z Updating files:  28% (4044/14440)
+2026-02-20T00:19:36.5335360Z Updating files:  29% (4188/14440)
+2026-02-20T00:19:36.5843900Z Updating files:  30% (4332/14440)
+2026-02-20T00:19:36.6053030Z Updating files:  31% (4477/14440)
+2026-02-20T00:19:36.6400060Z Updating files:  32% (4621/14440)
+2026-02-20T00:19:36.6589300Z Updating files:  33% (4766/14440)
+2026-02-20T00:19:36.6913150Z Updating files:  34% (4910/14440)
+2026-02-20T00:19:36.7617790Z Updating files:  35% (5054/14440)
+2026-02-20T00:19:36.7952110Z Updating files:  36% (5199/14440)
+2026-02-20T00:19:36.8392630Z Updating files:  37% (5343/14440)
+2026-02-20T00:19:36.8718010Z Updating files:  38% (5488/14440)
+2026-02-20T00:19:36.9047080Z Updating files:  39% (5632/14440)
+2026-02-20T00:19:36.9152370Z Updating files:  39% (5716/14440)
+2026-02-20T00:19:36.9349480Z Updating files:  40% (5776/14440)
+2026-02-20T00:19:36.9496030Z Updating files:  41% (5921/14440)
+2026-02-20T00:19:36.9716280Z Updating files:  42% (6065/14440)
+2026-02-20T00:19:36.9982440Z Updating files:  43% (6210/14440)
+2026-02-20T00:19:37.0183960Z Updating files:  44% (6354/14440)
+2026-02-20T00:19:37.0528140Z Updating files:  45% (6498/14440)
+2026-02-20T00:19:37.0838820Z Updating files:  46% (6643/14440)
+2026-02-20T00:19:37.1110430Z Updating files:  47% (6787/14440)
+2026-02-20T00:19:37.1340920Z Updating files:  48% (6932/14440)
+2026-02-20T00:19:37.1564560Z Updating files:  49% (7076/14440)
+2026-02-20T00:19:37.1963340Z Updating files:  50% (7220/14440)
+2026-02-20T00:19:37.2421520Z Updating files:  51% (7365/14440)
+2026-02-20T00:19:37.2852710Z Updating files:  52% (7509/14440)
+2026-02-20T00:19:37.2990650Z Updating files:  53% (7654/14440)
+2026-02-20T00:19:37.3205240Z Updating files:  54% (7798/14440)
+2026-02-20T00:19:37.3825890Z Updating files:  55% (7942/14440)
+2026-02-20T00:19:37.4080420Z Updating files:  56% (8087/14440)
+2026-02-20T00:19:37.4208390Z Updating files:  57% (8231/14440)
+2026-02-20T00:19:37.4452060Z Updating files:  58% (8376/14440)
+2026-02-20T00:19:37.4792680Z Updating files:  59% (8520/14440)
+2026-02-20T00:19:37.5622600Z Updating files:  60% (8664/14440)
+2026-02-20T00:19:37.5922490Z Updating files:  61% (8809/14440)
+2026-02-20T00:19:37.6140420Z Updating files:  62% (8953/14440)
+2026-02-20T00:19:37.6473450Z Updating files:  63% (9098/14440)
+2026-02-20T00:19:37.6682000Z Updating files:  64% (9242/14440)
+2026-02-20T00:19:37.6864150Z Updating files:  65% (9386/14440)
+2026-02-20T00:19:37.6970600Z Updating files:  66% (9531/14440)
+2026-02-20T00:19:37.7091200Z Updating files:  67% (9675/14440)
+2026-02-20T00:19:37.7277100Z Updating files:  68% (9820/14440)
+2026-02-20T00:19:37.7487000Z Updating files:  69% (9964/14440)
+2026-02-20T00:19:37.7754110Z Updating files:  70% (10108/14440)
+2026-02-20T00:19:37.8009920Z Updating files:  71% (10253/14440)
+2026-02-20T00:19:37.8411630Z Updating files:  72% (10397/14440)
+2026-02-20T00:19:37.8690440Z Updating files:  73% (10542/14440)
+2026-02-20T00:19:37.8900930Z Updating files:  74% (10686/14440)
+2026-02-20T00:19:37.8993030Z Updating files:  75% (10830/14440)
+2026-02-20T00:19:37.9151430Z Updating files:  75% (10889/14440)
+2026-02-20T00:19:37.9403230Z Updating files:  76% (10975/14440)
+2026-02-20T00:19:37.9571140Z Updating files:  77% (11119/14440)
+2026-02-20T00:19:38.0035330Z Updating files:  78% (11264/14440)
+2026-02-20T00:19:38.0611100Z Updating files:  79% (11408/14440)
+2026-02-20T00:19:38.1261630Z Updating files:  80% (11552/14440)
+2026-02-20T00:19:38.1832140Z Updating files:  81% (11697/14440)
+2026-02-20T00:19:38.2311670Z Updating files:  82% (11841/14440)
+2026-02-20T00:19:38.2562360Z Updating files:  83% (11986/14440)
+2026-02-20T00:19:38.3173980Z Updating files:  84% (12130/14440)
+2026-02-20T00:19:38.3380700Z Updating files:  85% (12274/14440)
+2026-02-20T00:19:38.3721010Z Updating files:  86% (12419/14440)
+2026-02-20T00:19:38.4606180Z Updating files:  87% (12563/14440)
+2026-02-20T00:19:38.4941890Z Updating files:  88% (12708/14440)
+2026-02-20T00:19:38.6094860Z Updating files:  89% (12852/14440)
+2026-02-20T00:19:38.6524920Z Updating files:  90% (12996/14440)
+2026-02-20T00:19:38.6898470Z Updating files:  91% (13141/14440)
+2026-02-20T00:19:38.7430030Z Updating files:  92% (13285/14440)
+2026-02-20T00:19:38.7814250Z Updating files:  93% (13430/14440)
+2026-02-20T00:19:38.8138000Z Updating files:  94% (13574/14440)
+2026-02-20T00:19:38.8571380Z Updating files:  95% (13718/14440)
+2026-02-20T00:19:38.8979180Z Updating files:  96% (13863/14440)
+2026-02-20T00:19:38.9025590Z Updating files:  97% (14007/14440)
+2026-02-20T00:19:38.9434310Z Updating files:  97% (14013/14440)
+2026-02-20T00:19:38.9805770Z Updating files:  98% (14152/14440)
+2026-02-20T00:19:39.0705500Z Updating files:  99% (14296/14440)
+2026-02-20T00:19:39.0706140Z Updating files: 100% (14440/14440)
+2026-02-20T00:19:39.0706500Z Updating files: 100% (14440/14440), done.
+2026-02-20T00:19:39.1012910Z HEAD is now at e32af2b Merge 6c1736e015d9a07a7d26a42a9be5489968bafe1c into cd1f485ab825bd4eb310348f1a7a96e8b185d94b
+2026-02-20T00:19:39.3199650Z ##[endgroup]
+2026-02-20T00:19:39.3638060Z [command]/opt/homebrew/bin/git log -1 --format=%H
+2026-02-20T00:19:39.3650780Z e32af2bca07a970958648eb921c0f72c9f1c526a
+2026-02-20T00:19:39.4179460Z ##[group]Run actions/cache@v4
+2026-02-20T00:19:39.4179710Z with:
+2026-02-20T00:19:39.4179930Z   path: /Users/runner/work/jusPrin/jusPrin/deps/build
+2026-02-20T00:19:39.4180830Z   key: macos-14-cache-orcaslicer_deps-build-e296ce077d008a3d663ac40d8757276001ff373e00943bd747e1e7c4e2663271
+2026-02-20T00:19:39.4181300Z   fail-on-cache-miss: true
+2026-02-20T00:19:39.4181510Z   enableCrossOsArchive: false
+2026-02-20T00:19:39.4181720Z   lookup-only: false
+2026-02-20T00:19:39.4182000Z   save-always: false
+2026-02-20T00:19:39.4182530Z env:
+2026-02-20T00:19:39.4182690Z   date: 
+2026-02-20T00:19:39.4182850Z   ver: 
+2026-02-20T00:19:39.4183040Z   ver_pure: 
+2026-02-20T00:19:39.4183220Z   ORCA_UPDATER_SIG_KEY: 
+2026-02-20T00:19:39.4183410Z ##[endgroup]
+2026-02-20T00:19:40.3226760Z Cache hit for: macos-14-cache-orcaslicer_deps-build-e296ce077d008a3d663ac40d8757276001ff373e00943bd747e1e7c4e2663271
+2026-02-20T00:19:40.3644240Z Received 306 of 306 (100.0%), 0.0 MBs/sec
+2026-02-20T00:19:40.3663090Z Cache Size: ~0 MB (306 B)
+2026-02-20T00:19:40.3686170Z [command]/opt/homebrew/bin/gtar -xf /Users/runner/work/_temp/b8ae4d36-253a-4a4b-9d4f-ea377f55d0fa/cache.tzst -P -C /Users/runner/work/jusPrin/jusPrin --delay-directory-restore --use-compress-program unzstd
+2026-02-20T00:19:40.4119130Z Cache restored successfully
+2026-02-20T00:19:40.5208570Z Cache restored from key: macos-14-cache-orcaslicer_deps-build-e296ce077d008a3d663ac40d8757276001ff373e00943bd747e1e7c4e2663271
+2026-02-20T00:19:40.5425830Z ##[group]Run lukka/get-cmake@latest
+2026-02-20T00:19:40.5427130Z with:
+2026-02-20T00:19:40.5427670Z   cmakeVersion: ~3.28.0
+2026-02-20T00:19:40.5428230Z   useCloudCache: true
+2026-02-20T00:19:40.5428900Z   useLocalCache: false
+2026-02-20T00:19:40.5429430Z env:
+2026-02-20T00:19:40.5429860Z   date: 
+2026-02-20T00:19:40.5430410Z   ver: 
+2026-02-20T00:19:40.5430920Z   ver_pure: 
+2026-02-20T00:19:40.5431370Z   ORCA_UPDATER_SIG_KEY: 
+2026-02-20T00:19:40.5431870Z ##[endgroup]
+2026-02-20T00:19:40.7959060Z useCloudCache:true
+2026-02-20T00:19:40.8073100Z useLocalCache:false
+2026-02-20T00:19:40.8175260Z user defined cmake version:~3.28.0
+2026-02-20T00:19:40.8277760Z user defined ninja version:
+2026-02-20T00:19:40.8379390Z cmake version:~3.28.0
+2026-02-20T00:19:40.8487400Z ninja version:latest
+2026-02-20T00:19:40.9002700Z ##[group]Computing cache key from the downloads' URLs
+2026-02-20T00:19:40.9005770Z Cache key: '-1186616757'.
+2026-02-20T00:19:40.9007770Z Local install root: '/Users/runner/work/_temp/-1186616757''.
+2026-02-20T00:19:40.9008930Z ##[endgroup]
+2026-02-20T00:19:40.9010140Z ##[group]Restoring from GitHub cloud cache using key '-1186616757' into '/Users/runner/work/_temp/-1186616757'
+2026-02-20T00:19:40.9265980Z Cache hit for: -1186616757
+2026-02-20T00:19:42.0045430Z Received 71303168 of 78418427 (90.9%), 67.8 MBs/sec
+2026-02-20T00:19:42.1766390Z Received 78418427 of 78418427 (100.0%), 63.5 MBs/sec
+2026-02-20T00:19:42.1874470Z Cache Size: ~75 MB (78418427 B)
+2026-02-20T00:19:42.1982380Z [command]/opt/homebrew/bin/gtar -xf /Users/runner/work/_temp/261975f4-b563-4fe3-90d8-66340b8a8215/cache.tzst -P -C /Users/runner/work/jusPrin/jusPrin --delay-directory-restore --use-compress-program unzstd
+2026-02-20T00:19:44.4848670Z Cache restored successfully
+2026-02-20T00:19:44.4875350Z Cloud cache hit.
+2026-02-20T00:19:44.4879860Z ##[endgroup]
+2026-02-20T00:19:44.4880450Z ##[group]Add CMake and Ninja to PATH
+2026-02-20T00:19:44.4881000Z CMake path: '/Users/runner/work/_temp/-1186616757/cmake-3.28.6-macos-universal/CMake.app/Contents/bin/'
+2026-02-20T00:19:44.4881600Z Ninja path: '/Users/runner/work/_temp/-1186616757'
+2026-02-20T00:19:44.4897400Z ##[group]Validating the installed CMake and Ninja
+2026-02-20T00:19:44.4959190Z CMake actual path is: '/Users/runner/work/_temp/-1186616757/cmake-3.28.6-macos-universal/CMake.app/Contents/bin/cmake'
+2026-02-20T00:19:44.4980470Z Ninja actual path is: '/Users/runner/work/_temp/-1186616757/ninja'
+2026-02-20T00:19:44.4982250Z ##[endgroup]
+2026-02-20T00:19:44.4983520Z ##[endgroup]
+2026-02-20T00:19:44.4984380Z get-cmake action execution succeeded
+2026-02-20T00:19:44.5312500Z ##[group]Run ver_pure=$(grep 'set(SoftFever_VERSION' version.inc | cut -d '"' -f2)
+2026-02-20T00:19:44.5313290Z [36;1mver_pure=$(grep 'set(SoftFever_VERSION' version.inc | cut -d '"' -f2)[0m
+2026-02-20T00:19:44.5313720Z [36;1mif [[ "pull_request" == "pull_request" ]]; then[0m
+2026-02-20T00:19:44.5314080Z [36;1m  ver="PR-8"[0m
+2026-02-20T00:19:44.5314340Z [36;1melse[0m
+2026-02-20T00:19:44.5314640Z [36;1m  ver=V$ver_pure[0m
+2026-02-20T00:19:44.5315540Z [36;1mfi[0m
+2026-02-20T00:19:44.5315760Z [36;1mecho "ver=$ver" >> $GITHUB_ENV[0m
+2026-02-20T00:19:44.5316110Z [36;1mecho "ver_pure=$ver_pure" >> $GITHUB_ENV[0m
+2026-02-20T00:19:44.5316420Z [36;1mecho "date=$(date +'%Y%m%d')" >> $GITHUB_ENV[0m
+2026-02-20T00:19:44.5537160Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-02-20T00:19:44.5538730Z env:
+2026-02-20T00:19:44.5548190Z   date: 
+2026-02-20T00:19:44.5552340Z   ver: 
+2026-02-20T00:19:44.5552640Z   ver_pure: 
+2026-02-20T00:19:44.5553100Z   ORCA_UPDATER_SIG_KEY: 
+2026-02-20T00:19:44.5553920Z ##[endgroup]
+2026-02-20T00:19:44.6914810Z ##[group]Run brew install libtool
+2026-02-20T00:19:44.6915220Z [36;1mbrew install libtool[0m
+2026-02-20T00:19:44.6915480Z [36;1mbrew list[0m
+2026-02-20T00:19:44.6917630Z [36;1mmkdir -p /Users/runner/work/jusPrin/jusPrin/deps/build[0m
+2026-02-20T00:19:44.6985470Z shell: /bin/bash -e {0}
+2026-02-20T00:19:44.6985760Z env:
+2026-02-20T00:19:44.6986080Z   date: 20260220
+2026-02-20T00:19:44.6986360Z   ver: PR-8
+2026-02-20T00:19:44.6986630Z   ver_pure: 1.5.0
+2026-02-20T00:19:44.6986850Z   ORCA_UPDATER_SIG_KEY: 
+2026-02-20T00:19:44.6987080Z ##[endgroup]
+2026-02-20T00:19:51.9609370Z [32m==>[0m [1mFetching downloads for: [32mlibtool[39m[0m
+2026-02-20T00:19:52.6933310Z ✔︎ Bottle Manifest libtool (2.5.4)
+2026-02-20T00:19:53.6209510Z ✔︎ Bottle Manifest m4 (1.4.21)
+2026-02-20T00:19:53.6212630Z ✔︎ Bottle m4 (1.4.21)
+2026-02-20T00:19:53.7621990Z ✔︎ Bottle libtool (2.5.4)
+2026-02-20T00:19:53.9754250Z [32m==>[0m [1mInstalling libtool dependency: [32mm4[39m[0m
+2026-02-20T00:19:53.9867790Z [34m==>[0m [1mPouring m4--1.4.21.arm64_sonoma.bottle.tar.gz[0m
+2026-02-20T00:19:56.2354140Z 🍺  /opt/homebrew/Cellar/m4/1.4.21: 14 files, 815.9KB
+2026-02-20T00:19:56.2431230Z [34m==>[0m [1mPouring libtool--2.5.4.arm64_sonoma.bottle.tar.gz[0m
+2026-02-20T00:19:58.3521150Z [34m==>[0m [1mCaveats[0m
+2026-02-20T00:19:58.3631770Z All commands have been installed with the prefix "g".
+2026-02-20T00:19:58.3735760Z If you need to use these commands with their normal names, you
+2026-02-20T00:19:58.3838100Z can add a "gnubin" directory to your PATH from your bashrc like:
+2026-02-20T00:19:58.3942940Z   PATH="/opt/homebrew/opt/libtool/libexec/gnubin:$PATH"
+2026-02-20T00:19:58.4043200Z [34m==>[0m [1mSummary[0m
+2026-02-20T00:19:58.4149250Z 🍺  /opt/homebrew/Cellar/libtool/2.5.4: 76 files, 4.1MB
+2026-02-20T00:19:58.4250930Z [32m==>[0m [1mCaveats[0m
+2026-02-20T00:19:58.4352520Z [34m==>[0m [1mlibtool[0m
+2026-02-20T00:19:58.4452650Z All commands have been installed with the prefix "g".
+2026-02-20T00:19:58.4556050Z If you need to use these commands with their normal names, you
+2026-02-20T00:19:58.4660710Z can add a "gnubin" directory to your PATH from your bashrc like:
+2026-02-20T00:19:58.4767360Z   PATH="/opt/homebrew/opt/libtool/libexec/gnubin:$PATH"
+2026-02-20T00:19:58.6212580Z ant
+2026-02-20T00:19:58.6212970Z aria2
+2026-02-20T00:19:58.6214590Z aws-sam-cli
+2026-02-20T00:19:58.6214990Z azure-cli
+2026-02-20T00:19:58.6215410Z bazelisk
+2026-02-20T00:19:58.6215880Z berkeley-db@5
+2026-02-20T00:19:58.6216220Z bicep
+2026-02-20T00:19:58.6216580Z brotli
+2026-02-20T00:19:58.6216870Z c-ares
+2026-02-20T00:19:58.6217260Z ca-certificates
+2026-02-20T00:19:58.6217660Z cairo
+2026-02-20T00:19:58.6218020Z carthage
+2026-02-20T00:19:58.6218450Z certifi
+2026-02-20T00:19:58.6218810Z cffi
+2026-02-20T00:19:58.6219240Z cmake
+2026-02-20T00:19:58.6219600Z cryptography
+2026-02-20T00:19:58.6220050Z curl
+2026-02-20T00:19:58.6220420Z expat
+2026-02-20T00:19:58.6220770Z fontconfig
+2026-02-20T00:19:58.6221240Z freetype
+2026-02-20T00:19:58.6221560Z gcc
+2026-02-20T00:19:58.6222000Z gcc@13
+2026-02-20T00:19:58.6222350Z gcc@14
+2026-02-20T00:19:58.6222600Z gdbm
+2026-02-20T00:19:58.6222840Z geckodriver
+2026-02-20T00:19:58.6223130Z gettext
+2026-02-20T00:19:58.6223350Z gh
+2026-02-20T00:19:58.6223610Z giflib
+2026-02-20T00:19:58.6223780Z git
+2026-02-20T00:19:58.6223970Z git-lfs
+2026-02-20T00:19:58.6224240Z glib
+2026-02-20T00:19:58.6224420Z gmp
+2026-02-20T00:19:58.6230800Z gnu-tar
+2026-02-20T00:19:58.6231100Z gnupg
+2026-02-20T00:19:58.6231350Z gnutls
+2026-02-20T00:19:58.6231580Z gradle
+2026-02-20T00:19:58.6231980Z gradle-completion
+2026-02-20T00:19:58.6233190Z graphite2
+2026-02-20T00:19:58.6233930Z harfbuzz
+2026-02-20T00:19:58.6234470Z icu4c@78
+2026-02-20T00:19:58.6234890Z isl
+2026-02-20T00:19:58.6235530Z jpeg-turbo
+2026-02-20T00:19:58.6236030Z jq
+2026-02-20T00:19:58.6236710Z kotlin
+2026-02-20T00:19:58.6237210Z krb5
+2026-02-20T00:19:58.6238180Z libassuan
+2026-02-20T00:19:58.6238600Z libevent
+2026-02-20T00:19:58.6238820Z libgcrypt
+2026-02-20T00:19:58.6240000Z libgpg-error
+2026-02-20T00:19:58.6240220Z libiconv
+2026-02-20T00:19:58.6240430Z libidn2
+2026-02-20T00:19:58.6240710Z libksba
+2026-02-20T00:19:58.6240930Z libmpc
+2026-02-20T00:19:58.6241200Z libnghttp2
+2026-02-20T00:19:58.6241410Z libnghttp3
+2026-02-20T00:19:58.6241730Z libngtcp2
+2026-02-20T00:19:58.6241910Z libpng
+2026-02-20T00:19:58.6242090Z libpq
+2026-02-20T00:19:58.6242360Z libsodium
+2026-02-20T00:19:58.6242550Z libssh2
+2026-02-20T00:19:58.6242820Z libtasn1
+2026-02-20T00:19:58.6243000Z libtiff
+2026-02-20T00:19:58.6243190Z libtool
+2026-02-20T00:19:58.6245140Z libunistring
+2026-02-20T00:19:58.6246650Z libusb
+2026-02-20T00:19:58.6247300Z libuv
+2026-02-20T00:19:58.6247800Z libx11
+2026-02-20T00:19:58.6248650Z libxau
+2026-02-20T00:19:58.6249140Z libxcb
+2026-02-20T00:19:58.6249650Z libxdmcp
+2026-02-20T00:19:58.6252130Z libxext
+2026-02-20T00:19:58.6252690Z libxrender
+2026-02-20T00:19:58.6253250Z libyaml
+2026-02-20T00:19:58.6253780Z little-cms2
+2026-02-20T00:19:58.6254320Z llvm@15
+2026-02-20T00:19:58.6255060Z lz4
+2026-02-20T00:19:58.6255820Z lzo
+2026-02-20T00:19:58.6256370Z m4
+2026-02-20T00:19:58.6257820Z maven
+2026-02-20T00:19:58.6258390Z mpdecimal
+2026-02-20T00:19:58.6258940Z mpfr
+2026-02-20T00:19:58.6259540Z nettle
+2026-02-20T00:19:58.6260010Z ninja
+2026-02-20T00:19:58.6260640Z node@20
+2026-02-20T00:19:58.6261190Z npth
+2026-02-20T00:19:58.6261700Z oniguruma
+2026-02-20T00:19:58.6262390Z openjdk
+2026-02-20T00:19:58.6262930Z openssl@1.1
+2026-02-20T00:19:58.6264700Z openssl@3
+2026-02-20T00:19:58.6265610Z p11-kit
+2026-02-20T00:19:58.6267380Z p7zip
+2026-02-20T00:19:58.6268040Z packer
+2026-02-20T00:19:58.6268480Z pcre2
+2026-02-20T00:19:58.6269050Z perl
+2026-02-20T00:19:58.6269490Z pinentry
+2026-02-20T00:19:58.6269930Z pipx
+2026-02-20T00:19:58.6270490Z pixman
+2026-02-20T00:19:58.6270950Z pkgconf
+2026-02-20T00:19:58.6272540Z pycparser
+2026-02-20T00:19:58.6272740Z pydantic
+2026-02-20T00:19:58.6272940Z python@3.13
+2026-02-20T00:19:58.6273360Z python@3.14
+2026-02-20T00:19:58.6273580Z readline
+2026-02-20T00:19:58.6274080Z rpds-py
+2026-02-20T00:19:58.6274320Z ruby@3.3
+2026-02-20T00:19:58.6274510Z rustup
+2026-02-20T00:19:58.6274770Z selenium-server
+2026-02-20T00:19:58.6274980Z sqlite
+2026-02-20T00:19:58.6275310Z swiftformat
+2026-02-20T00:19:58.6275510Z tcl-tk@8
+2026-02-20T00:19:58.6275720Z unbound
+2026-02-20T00:19:58.6276570Z unxip
+2026-02-20T00:19:58.6276770Z wget
+2026-02-20T00:19:58.6277020Z xcbeautify
+2026-02-20T00:19:58.6277220Z xcodes
+2026-02-20T00:19:58.6277490Z xorgproto
+2026-02-20T00:19:58.6277690Z xz
+2026-02-20T00:19:58.6277880Z yq
+2026-02-20T00:19:58.6278110Z zstd
+2026-02-20T00:19:58.6282120Z firefox
+2026-02-20T00:19:58.6285400Z google-chrome
+2026-02-20T00:19:58.6290900Z microsoft-edge
+2026-02-20T00:19:58.6292460Z session-manager-plugin
+2026-02-20T00:19:58.6505730Z ##[group]Run df -hI /dev/disk3s1s1
+2026-02-20T00:19:58.6509390Z [36;1mdf -hI /dev/disk3s1s1[0m
+2026-02-20T00:19:58.6511840Z [36;1msudo find /Applications -maxdepth 1 -type d -name "Xcode_*.app" ! -name "Xcode_15.4.app" -exec rm -rf {} +[0m
+2026-02-20T00:19:58.6512560Z [36;1msudo rm -rf ~/Library/Developer/CoreSimulator/Caches/*[0m
+2026-02-20T00:19:58.6512990Z [36;1mdf -hI /dev/disk3s1s1[0m
+2026-02-20T00:19:58.6752270Z shell: /bin/bash -e {0}
+2026-02-20T00:19:58.6752540Z env:
+2026-02-20T00:19:58.6752800Z   date: 20260220
+2026-02-20T00:19:58.6753000Z   ver: PR-8
+2026-02-20T00:19:58.6753240Z   ver_pure: 1.5.0
+2026-02-20T00:19:58.6753440Z   ORCA_UPDATER_SIG_KEY: 
+2026-02-20T00:19:58.6753960Z ##[endgroup]
+2026-02-20T00:19:58.7786230Z Filesystem        Size    Used   Avail Capacity  Mounted on
+2026-02-20T00:19:58.7886620Z /dev/disk3s1s1   320Gi   9.6Gi    41Gi    19%    /
+2026-02-20T00:21:55.0393700Z Filesystem        Size    Used   Avail Capacity  Mounted on
+2026-02-20T00:21:55.0395320Z /dev/disk3s1s1   320Gi   9.6Gi   125Gi     8%    /
+2026-02-20T00:21:55.0633610Z ##[group]Run ./build_release_macos.sh -s -n -x -a universal -t 10.15 -1
+2026-02-20T00:21:55.0634520Z [36;1m./build_release_macos.sh -s -n -x -a universal -t 10.15 -1[0m
+2026-02-20T00:21:55.0970330Z shell: /bin/bash -e {0}
+2026-02-20T00:21:55.0970760Z env:
+2026-02-20T00:21:55.0970970Z   date: 20260220
+2026-02-20T00:21:55.0971240Z   ver: PR-8
+2026-02-20T00:21:55.0971440Z   ver_pure: 1.5.0
+2026-02-20T00:21:55.0971720Z   ORCA_UPDATER_SIG_KEY: 
+2026-02-20T00:21:55.0972000Z ##[endgroup]
+2026-02-20T00:21:55.1616940Z Build params:
+2026-02-20T00:21:55.1617740Z  - ARCH: universal
+2026-02-20T00:21:55.1619070Z  - BUILD_CONFIG: Release
+2026-02-20T00:21:55.1619720Z  - BUILD_TARGET: slicer
+2026-02-20T00:21:55.1620790Z  - CMAKE_GENERATOR: Ninja Multi-Config for Slicer, Ninja for deps
+2026-02-20T00:21:55.1621250Z  - OSX_DEPLOYMENT_TARGET: 10.15
+2026-02-20T00:21:55.1621510Z 
+2026-02-20T00:21:55.1658190Z Building slicer for x86_64...
+2026-02-20T00:21:55.1661440Z + mkdir -p /Users/runner/work/jusPrin/jusPrin/build/x86_64
+2026-02-20T00:21:55.1689810Z + cd /Users/runner/work/jusPrin/jusPrin/build/x86_64
+2026-02-20T00:21:55.1690610Z + '[' 1. '!=' . ']'
+2026-02-20T00:21:55.1695550Z + cmake /Users/runner/work/jusPrin/jusPrin -G 'Ninja Multi-Config' -DBBL_RELEASE_TO_PUBLIC=1 -DORCA_TOOLS=ON -DCMAKE_PREFIX_PATH=/Users/runner/work/jusPrin/jusPrin/deps/build/x86_64/JusPrin_dep/usr/local -DCMAKE_INSTALL_PREFIX=/Users/runner/work/jusPrin/jusPrin/build/x86_64/JusPrin -DCMAKE_BUILD_TYPE=Release -DCMAKE_MACOSX_RPATH=ON -DCMAKE_INSTALL_RPATH=/Users/runner/work/jusPrin/jusPrin/deps/build/x86_64/JusPrin_dep/usr/local -DCMAKE_MACOSX_BUNDLE=ON -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15
+2026-02-20T00:21:55.2460260Z -- CMAKE_OSX_DEPLOYMENT_TARGET: 10.15
+2026-02-20T00:21:56.4687020Z -- The C compiler identification is AppleClang 15.0.0.15000309
+2026-02-20T00:21:56.5321390Z -- The CXX compiler identification is AppleClang 15.0.0.15000309
+2026-02-20T00:21:56.5623860Z -- Detecting C compiler ABI info
+2026-02-20T00:21:56.7421820Z -- Detecting C compiler ABI info - done
+2026-02-20T00:21:56.7456990Z -- Check for working C compiler: /Applications/Xcode_15.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc - skipped
+2026-02-20T00:21:56.7462850Z -- Detecting C compile features
+2026-02-20T00:21:56.7468580Z -- Detecting C compile features - done
+2026-02-20T00:21:56.7689760Z -- Detecting CXX compiler ABI info
+2026-02-20T00:21:56.9005800Z -- Detecting CXX compiler ABI info - done
+2026-02-20T00:21:56.9045360Z -- Check for working CXX compiler: /Applications/Xcode_15.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ - skipped
+2026-02-20T00:21:56.9046900Z -- Detecting CXX compile features
+2026-02-20T00:21:56.9051770Z -- Detecting CXX compile features - done
+2026-02-20T00:21:56.9093900Z -- BBL_RELEASE_TO_PUBLIC: 1
+2026-02-20T00:21:56.9095000Z -- BBL_INTERNAL_TESTING: 0
+2026-02-20T00:21:56.9251450Z -- Found Git: /opt/homebrew/bin/git (found version "2.53.0") 
+2026-02-20T00:21:56.9344390Z Detected cross compilation setup. Tests and encoding checks will be forcedly disabled!
+2026-02-20T00:21:56.9345650Z -- Orca: IS_CROSS_COMPILE: TRUE
+2026-02-20T00:21:56.9346260Z -- SLIC3R_ASAN: OFF
+2026-02-20T00:21:56.9346770Z -- SLIC3R_BUILD_ID: 
+2026-02-20T00:21:56.9347580Z -- SLIC3R_BUILD_SANDBOXES: OFF
+2026-02-20T00:21:56.9347900Z -- SLIC3R_DESKTOP_INTEGRATION: ON
+2026-02-20T00:21:56.9348220Z -- SLIC3R_FHS: OFF
+2026-02-20T00:21:56.9348460Z -- SLIC3R_GTK: 2
+2026-02-20T00:21:56.9348760Z -- SLIC3R_GUI: ON
+2026-02-20T00:21:56.9348980Z -- SLIC3R_MSVC_COMPILE_PARALLEL: ON
+2026-02-20T00:21:56.9349290Z -- SLIC3R_MSVC_PDB: ON
+2026-02-20T00:21:56.9358450Z -- SLIC3R_PCH: ON
+2026-02-20T00:21:56.9358670Z -- SLIC3R_PERL_XS: OFF
+2026-02-20T00:21:56.9358950Z -- SLIC3R_PROFILE: OFF
+2026-02-20T00:21:56.9359180Z -- SLIC3R_STATIC: ON
+2026-02-20T00:21:56.9359410Z -- SLIC3R_WX_STABLE: OFF
+2026-02-20T00:21:56.9380540Z -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+2026-02-20T00:21:57.1017400Z -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+2026-02-20T00:21:57.1023030Z -- Found Threads: TRUE  
+2026-02-20T00:21:57.1023530Z -- Security hardening flags enabled for Release build
+2026-02-20T00:21:57.1023960Z -- SLIC3R_STATIC: ON
+2026-02-20T00:21:57.1024470Z -- CMAKE_PREFIX_PATH: /Users/runner/work/jusPrin/jusPrin/deps/build/x86_64/JusPrin_dep/usr/local (from cache or command line)
+2026-02-20T00:21:57.1025500Z CMake Warning at CMakeLists.txt:393 (message):
+2026-02-20T00:21:57.1025880Z   CMAKE_PREFIX_PATH element doesn't exist:
+2026-02-20T00:21:57.1026400Z   /Users/runner/work/jusPrin/jusPrin/deps/build/x86_64/JusPrin_dep/usr/local
+2026-02-20T00:21:57.1026730Z 
+2026-02-20T00:21:57.1026740Z 
+2026-02-20T00:21:57.1027010Z -- DEP_BUILD_DIR: /Users/runner/work/jusPrin/jusPrin/deps/build/x86_64 (generated automatically and saved to cache)
+2026-02-20T00:21:57.1027820Z -- CMAKE_PREFIX_PATH: /Users/runner/work/jusPrin/jusPrin/deps/build/x86_64/JusPrin_dep/usr/local (from cache or command line)
+2026-02-20T00:21:57.1028430Z -- PROJECT_SOURCE_DIR: /Users/runner/work/jusPrin/jusPrin
+2026-02-20T00:21:57.1028920Z -- CMAKE_MODULE_PATH: /Users/runner/work/jusPrin/jusPrin/cmake/modules/
+2026-02-20T00:21:57.1029510Z OS X SDK Path: /Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk
+2026-02-20T00:21:57.1030070Z OS X Deployment Target: 10.15
+2026-02-20T00:21:57.1030350Z -- LIBDIR: /Users/runner/work/jusPrin/jusPrin/src
+2026-02-20T00:21:57.1030720Z -- LIBDIR_BIN: /Users/runner/work/jusPrin/jusPrin/build/x86_64/src
+2026-02-20T00:21:57.9983620Z CMake Error at /Users/runner/work/_temp/-1186616757/cmake-3.28.6-macos-universal/CMake.app/Contents/share/cmake-3.28/Modules/FindPackageHandleStandardArgs.cmake:230 (message):
+2026-02-20T00:21:57.9984580Z   Could NOT find Boost (missing: Boost_INCLUDE_DIR system filesystem thread
+2026-02-20T00:21:57.9985280Z   log log_setup locale regex chrono atomic date_time iostreams
+2026-02-20T00:21:57.9985930Z   program_options nowide) (Required is at least version "1.83.0")
+2026-02-20T00:21:57.9986290Z Call Stack (most recent call first):
+2026-02-20T00:21:57.9986980Z   /Users/runner/work/_temp/-1186616757/cmake-3.28.6-macos-universal/CMake.app/Contents/share/cmake-3.28/Modules/FindPackageHandleStandardArgs.cmake:600 (_FPHSA_FAILURE_MESSAGE)
+2026-02-20T00:21:57.9988100Z   /Users/runner/work/_temp/-1186616757/cmake-3.28.6-macos-universal/CMake.app/Contents/share/cmake-3.28/Modules/FindBoost.cmake:2393 (find_package_handle_standard_args)
+2026-02-20T00:21:57.9988720Z   CMakeLists.txt:662 (find_package)
+2026-02-20T00:21:57.9988920Z 
+2026-02-20T00:21:57.9988930Z 
+2026-02-20T00:21:57.9989070Z -- Configuring incomplete, errors occurred!
+2026-02-20T00:21:58.0030670Z ##[error]Process completed with exit code 1.
+2026-02-20T00:21:58.0234630Z Post job cleanup.
+2026-02-20T00:21:58.3027620Z [command]/opt/homebrew/bin/git version
+2026-02-20T00:21:58.3080470Z git version 2.53.0
+2026-02-20T00:21:58.3101050Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/86cc3f0c-3940-4978-af21-0bfc2e0aa752/.gitconfig'
+2026-02-20T00:21:58.3108420Z Temporarily overriding HOME='/Users/runner/work/_temp/86cc3f0c-3940-4978-af21-0bfc2e0aa752' before making global git config changes
+2026-02-20T00:21:58.3109180Z Adding repository directory to the temporary git global config as a safe directory
+2026-02-20T00:21:58.3110910Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/jusPrin/jusPrin
+2026-02-20T00:21:58.3162100Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-02-20T00:21:58.3203890Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-02-20T00:21:58.4035130Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-02-20T00:21:58.4072720Z http.https://github.com/.extraheader
+2026-02-20T00:21:58.4078670Z [command]/opt/homebrew/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-02-20T00:21:58.4128490Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-02-20T00:21:58.4695400Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-02-20T00:21:58.4734490Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-02-20T00:21:58.5308530Z Cleaning up orphan processes

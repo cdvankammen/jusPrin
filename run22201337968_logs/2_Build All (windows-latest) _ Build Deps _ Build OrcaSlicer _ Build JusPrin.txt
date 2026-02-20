@@ -1,0 +1,740 @@
+﻿2026-02-20T00:19:23.2300417Z Current runner version: '2.331.0'
+2026-02-20T00:19:23.2326420Z ##[group]Runner Image Provisioner
+2026-02-20T00:19:23.2327198Z Hosted Compute Agent
+2026-02-20T00:19:23.2327682Z Version: 20260213.493
+2026-02-20T00:19:23.2328222Z Commit: 5c115507f6dd24b8de37d8bbe0bb4509d0cc0fa3
+2026-02-20T00:19:23.2328869Z Build Date: 2026-02-13T00:28:41Z
+2026-02-20T00:19:23.2329416Z Worker ID: {4c3c80e8-f6e5-42c6-bb1e-197e20514945}
+2026-02-20T00:19:23.2330033Z Azure Region: westus
+2026-02-20T00:19:23.2330480Z ##[endgroup]
+2026-02-20T00:19:23.2331770Z ##[group]Operating System
+2026-02-20T00:19:23.2332384Z Microsoft Windows Server 2025
+2026-02-20T00:19:23.2332896Z 10.0.26100
+2026-02-20T00:19:23.2333300Z Datacenter
+2026-02-20T00:19:23.2333681Z ##[endgroup]
+2026-02-20T00:19:23.2334142Z ##[group]Runner Image
+2026-02-20T00:19:23.2334591Z Image: windows-2025
+2026-02-20T00:19:23.2335031Z Version: 20260217.31.1
+2026-02-20T00:19:23.2336286Z Included Software: https://github.com/actions/runner-images/blob/win25/20260217.31/images/windows/Windows2025-Readme.md
+2026-02-20T00:19:23.2337627Z Image Release: https://github.com/actions/runner-images/releases/tag/win25%2F20260217.31
+2026-02-20T00:19:23.2338390Z ##[endgroup]
+2026-02-20T00:19:23.2339373Z ##[group]GITHUB_TOKEN Permissions
+2026-02-20T00:19:23.2341080Z Contents: read
+2026-02-20T00:19:23.2341575Z Metadata: read
+2026-02-20T00:19:23.2342010Z Packages: read
+2026-02-20T00:19:23.2342481Z ##[endgroup]
+2026-02-20T00:19:23.2344344Z Secret source: Actions
+2026-02-20T00:19:23.2344965Z Prepare workflow directory
+2026-02-20T00:19:23.2843300Z Prepare all required actions
+2026-02-20T00:19:23.2891697Z Getting action download info
+2026-02-20T00:19:23.7963997Z Download action repository 'actions/checkout@v5' (SHA:93cb6efe18208431cddfb8368fd83d5badbf9bfd)
+2026-02-20T00:19:23.9160528Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-02-20T00:19:24.0594458Z Download action repository 'lukka/get-cmake@latest' (SHA:f176ccd3f28bda569c43aae4894f06b2435a3375)
+2026-02-20T00:19:24.5740497Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-02-20T00:19:24.7802772Z Download action repository 'WebFreak001/deploy-nightly@v3.2.0' (SHA:46ecbabd7fad70d3e7d2c97fe8cd54e7a52e215b)
+2026-02-20T00:19:25.7041636Z Download action repository 'microsoft/setup-msbuild@v2' (SHA:6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce)
+2026-02-20T00:19:26.1363241Z Download action repository 'rickstaa/action-create-tag@v1' (SHA:a1c7777fcb2fee4f19b0f283ba888afa11678b72)
+2026-02-20T00:19:26.7595500Z Container action is only supported on Linux, skip pull and build docker images.
+2026-02-20T00:19:26.7658179Z Uses: cdvankammen/jusPrin/.github/workflows/build_orca.yml@refs/pull/8/merge (e32af2bca07a970958648eb921c0f72c9f1c526a)
+2026-02-20T00:19:26.7662137Z ##[group] Inputs
+2026-02-20T00:19:26.7662855Z   cache-key: windows-latest-cache-orcaslicer_deps-build-8a0cfaa7a9f0ddb754f835ebf855597eb77b523110a41b1f2121edbd41af53ab
+2026-02-20T00:19:26.7663640Z   cache-path: D:\a\jusPrin\jusPrin/deps/build/OrcaSlicer_dep
+2026-02-20T00:19:26.7664029Z   os: windows-latest
+2026-02-20T00:19:26.7664274Z   arch: 
+2026-02-20T00:19:26.7664510Z ##[endgroup]
+2026-02-20T00:19:26.7664945Z Complete job name: Build All (windows-latest) / Build Deps / Build OrcaSlicer / Build JusPrin
+2026-02-20T00:19:26.9031765Z ##[group]Run actions/checkout@v5
+2026-02-20T00:19:26.9032582Z with:
+2026-02-20T00:19:26.9032821Z   lfs: true
+2026-02-20T00:19:26.9033071Z   repository: cdvankammen/jusPrin
+2026-02-20T00:19:26.9033590Z   token: ***
+2026-02-20T00:19:26.9033825Z   ssh-strict: true
+2026-02-20T00:19:26.9034070Z   ssh-user: git
+2026-02-20T00:19:26.9034325Z   persist-credentials: true
+2026-02-20T00:19:26.9034857Z   clean: true
+2026-02-20T00:19:26.9035321Z   sparse-checkout-cone-mode: true
+2026-02-20T00:19:26.9035637Z   fetch-depth: 1
+2026-02-20T00:19:26.9035871Z   fetch-tags: false
+2026-02-20T00:19:26.9036113Z   show-progress: true
+2026-02-20T00:19:26.9038515Z   submodules: false
+2026-02-20T00:19:26.9038811Z   set-safe-directory: true
+2026-02-20T00:19:26.9039433Z env:
+2026-02-20T00:19:26.9039646Z   date: 
+2026-02-20T00:19:26.9039847Z   ver: 
+2026-02-20T00:19:26.9040042Z   ver_pure: 
+2026-02-20T00:19:26.9040279Z   ORCA_UPDATER_SIG_KEY: 
+2026-02-20T00:19:26.9040540Z ##[endgroup]
+2026-02-20T00:19:27.0417739Z Syncing repository: cdvankammen/jusPrin
+2026-02-20T00:19:27.0419157Z ##[group]Getting Git version info
+2026-02-20T00:19:27.0419553Z Working directory is 'D:\a\jusPrin\jusPrin'
+2026-02-20T00:19:27.1394076Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-02-20T00:19:27.4968562Z git version 2.53.0.windows.1
+2026-02-20T00:19:27.5917306Z [command]"C:\Program Files\Git\bin\git.exe" lfs version
+2026-02-20T00:19:29.0540240Z git-lfs/3.7.1 (GitHub; windows amd64; go 1.25.1; git b84b3384)
+2026-02-20T00:19:29.0602060Z ##[endgroup]
+2026-02-20T00:19:29.0625183Z Temporarily overriding HOME='D:\a\_temp\503607cc-55d3-4b5e-887e-5cc7faf87ba6' before making global git config changes
+2026-02-20T00:19:29.0626303Z Adding repository directory to the temporary git global config as a safe directory
+2026-02-20T00:19:29.0634554Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\jusPrin\jusPrin
+2026-02-20T00:19:29.1120371Z Deleting the contents of 'D:\a\jusPrin\jusPrin'
+2026-02-20T00:19:29.1126912Z ##[group]Initializing the repository
+2026-02-20T00:19:29.1135272Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\jusPrin\jusPrin
+2026-02-20T00:19:29.2010218Z Initialized empty Git repository in D:/a/jusPrin/jusPrin/.git/
+2026-02-20T00:19:29.2081881Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/cdvankammen/jusPrin
+2026-02-20T00:19:29.2617008Z ##[endgroup]
+2026-02-20T00:19:29.2617634Z ##[group]Disabling automatic garbage collection
+2026-02-20T00:19:29.2627004Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-02-20T00:19:29.2928957Z ##[endgroup]
+2026-02-20T00:19:29.2929536Z ##[group]Setting up auth
+2026-02-20T00:19:29.2944207Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-02-20T00:19:29.3241842Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-02-20T00:19:30.5458047Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-02-20T00:19:30.5787458Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-02-20T00:19:31.1555154Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-02-20T00:19:31.1855400Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-02-20T00:19:31.6825207Z [command]"C:\Program Files\Git\bin\git.exe" config --local http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-02-20T00:19:31.7141075Z ##[endgroup]
+2026-02-20T00:19:31.7151297Z [command]"C:\Program Files\Git\bin\git.exe" lfs install --local
+2026-02-20T00:19:32.1178861Z Updated Git hooks.
+2026-02-20T00:19:32.1179144Z Git LFS initialized.
+2026-02-20T00:19:32.1282411Z ##[group]Fetching the repository
+2026-02-20T00:19:32.1300135Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +e32af2bca07a970958648eb921c0f72c9f1c526a:refs/remotes/pull/8/merge
+2026-02-20T00:19:37.5358222Z From https://github.com/cdvankammen/jusPrin
+2026-02-20T00:19:37.5359395Z  * [new ref]         e32af2bca07a970958648eb921c0f72c9f1c526a -> pull/8/merge
+2026-02-20T00:19:37.5636263Z ##[endgroup]
+2026-02-20T00:19:37.5636789Z ##[group]Determining the checkout info
+2026-02-20T00:19:37.5639810Z ##[endgroup]
+2026-02-20T00:19:37.5640275Z ##[group]Fetching LFS objects
+2026-02-20T00:19:37.5656390Z [command]"C:\Program Files\Git\bin\git.exe" lfs fetch origin refs/remotes/pull/8/merge
+2026-02-20T00:19:37.8067374Z Fetching reference refs/remotes/pull/8/merge
+2026-02-20T00:19:39.2664465Z ##[endgroup]
+2026-02-20T00:19:39.2673368Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-02-20T00:19:39.3136098Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-02-20T00:19:39.3424394Z ##[group]Checking out the ref
+2026-02-20T00:19:39.3433176Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force refs/remotes/pull/8/merge
+2026-02-20T00:19:40.4528010Z Updating files:  16% (2439/14440)
+2026-02-20T00:19:40.9902981Z Updating files:  17% (2455/14440)
+2026-02-20T00:19:41.2681040Z Updating files:  18% (2600/14440)
+2026-02-20T00:19:41.3179867Z Updating files:  19% (2744/14440)
+2026-02-20T00:19:41.3874315Z Updating files:  20% (2888/14440)
+2026-02-20T00:19:41.4113498Z Updating files:  21% (3033/14440)
+2026-02-20T00:19:41.4177403Z Updating files:  21% (3143/14440)
+2026-02-20T00:19:41.4460201Z Updating files:  22% (3177/14440)
+2026-02-20T00:19:41.4818288Z Updating files:  23% (3322/14440)
+2026-02-20T00:19:41.5114730Z Updating files:  24% (3466/14440)
+2026-02-20T00:19:41.5413605Z Updating files:  25% (3610/14440)
+2026-02-20T00:19:41.5813707Z Updating files:  26% (3755/14440)
+2026-02-20T00:19:41.6203791Z Updating files:  27% (3899/14440)
+2026-02-20T00:19:41.6543951Z Updating files:  28% (4044/14440)
+2026-02-20T00:19:41.6828551Z Updating files:  29% (4188/14440)
+2026-02-20T00:19:41.7106736Z Updating files:  30% (4332/14440)
+2026-02-20T00:19:41.7384903Z Updating files:  31% (4477/14440)
+2026-02-20T00:19:41.7704209Z Updating files:  32% (4621/14440)
+2026-02-20T00:19:41.7990763Z Updating files:  33% (4766/14440)
+2026-02-20T00:19:41.8263675Z Updating files:  34% (4910/14440)
+2026-02-20T00:19:41.8560913Z Updating files:  35% (5054/14440)
+2026-02-20T00:19:41.8930022Z Updating files:  36% (5199/14440)
+2026-02-20T00:19:41.9359761Z Updating files:  37% (5343/14440)
+2026-02-20T00:19:41.9707795Z Updating files:  38% (5488/14440)
+2026-02-20T00:19:42.0167956Z Updating files:  39% (5632/14440)
+2026-02-20T00:19:42.0475158Z Updating files:  40% (5776/14440)
+2026-02-20T00:19:42.0778441Z Updating files:  41% (5921/14440)
+2026-02-20T00:19:42.1077170Z Updating files:  42% (6065/14440)
+2026-02-20T00:19:42.1460325Z Updating files:  43% (6210/14440)
+2026-02-20T00:19:42.1752699Z Updating files:  44% (6354/14440)
+2026-02-20T00:19:42.2054436Z Updating files:  45% (6498/14440)
+2026-02-20T00:19:42.2387262Z Updating files:  46% (6643/14440)
+2026-02-20T00:19:42.2713128Z Updating files:  47% (6787/14440)
+2026-02-20T00:19:42.3014545Z Updating files:  48% (6932/14440)
+2026-02-20T00:19:42.3310466Z Updating files:  49% (7076/14440)
+2026-02-20T00:19:42.3807516Z Updating files:  50% (7220/14440)
+2026-02-20T00:19:42.4127340Z Updating files:  51% (7365/14440)
+2026-02-20T00:19:42.4238474Z Updating files:  52% (7509/14440)
+2026-02-20T00:19:42.4481439Z Updating files:  52% (7563/14440)
+2026-02-20T00:19:42.4767342Z Updating files:  53% (7654/14440)
+2026-02-20T00:19:42.5096751Z Updating files:  54% (7798/14440)
+2026-02-20T00:19:42.5503530Z Updating files:  55% (7942/14440)
+2026-02-20T00:19:42.5775806Z Updating files:  56% (8087/14440)
+2026-02-20T00:19:42.6049382Z Updating files:  57% (8231/14440)
+2026-02-20T00:19:42.6339042Z Updating files:  58% (8376/14440)
+2026-02-20T00:19:42.6849686Z Updating files:  59% (8520/14440)
+2026-02-20T00:19:42.7128532Z Updating files:  60% (8664/14440)
+2026-02-20T00:19:42.7438895Z Updating files:  61% (8809/14440)
+2026-02-20T00:19:42.7738221Z Updating files:  62% (8953/14440)
+2026-02-20T00:19:42.8044518Z Updating files:  63% (9098/14440)
+2026-02-20T00:19:42.8325851Z Updating files:  64% (9242/14440)
+2026-02-20T00:19:42.8603616Z Updating files:  65% (9386/14440)
+2026-02-20T00:19:42.8878074Z Updating files:  66% (9531/14440)
+2026-02-20T00:19:42.9155167Z Updating files:  67% (9675/14440)
+2026-02-20T00:19:42.9429299Z Updating files:  68% (9820/14440)
+2026-02-20T00:19:42.9699875Z Updating files:  69% (9964/14440)
+2026-02-20T00:19:43.0055036Z Updating files:  70% (10108/14440)
+2026-02-20T00:19:43.0362988Z Updating files:  71% (10253/14440)
+2026-02-20T00:19:43.0857834Z Updating files:  72% (10397/14440)
+2026-02-20T00:19:43.1131365Z Updating files:  73% (10542/14440)
+2026-02-20T00:19:43.1398948Z Updating files:  74% (10686/14440)
+2026-02-20T00:19:43.1919858Z Updating files:  75% (10830/14440)
+2026-02-20T00:19:43.2270476Z Updating files:  76% (10975/14440)
+2026-02-20T00:19:43.2562289Z Updating files:  77% (11119/14440)
+2026-02-20T00:19:43.2985602Z Updating files:  78% (11264/14440)
+2026-02-20T00:19:43.3314857Z Updating files:  79% (11408/14440)
+2026-02-20T00:19:43.3707295Z Updating files:  80% (11552/14440)
+2026-02-20T00:19:43.4144627Z Updating files:  81% (11697/14440)
+2026-02-20T00:19:43.4256977Z Updating files:  82% (11841/14440)
+2026-02-20T00:19:43.4745903Z Updating files:  82% (11897/14440)
+2026-02-20T00:19:43.5035035Z Updating files:  83% (11986/14440)
+2026-02-20T00:19:43.5420958Z Updating files:  84% (12130/14440)
+2026-02-20T00:19:43.5752904Z Updating files:  85% (12274/14440)
+2026-02-20T00:19:43.6182671Z Updating files:  86% (12419/14440)
+2026-02-20T00:19:43.6661459Z Updating files:  87% (12563/14440)
+2026-02-20T00:19:43.6963561Z Updating files:  88% (12708/14440)
+2026-02-20T00:19:43.7504850Z Updating files:  89% (12852/14440)
+2026-02-20T00:19:43.8022603Z Updating files:  90% (12996/14440)
+2026-02-20T00:19:43.8472694Z Updating files:  91% (13141/14440)
+2026-02-20T00:19:43.8982589Z Updating files:  92% (13285/14440)
+2026-02-20T00:19:43.9417496Z Updating files:  93% (13430/14440)
+2026-02-20T00:19:43.9827943Z Updating files:  94% (13574/14440)
+2026-02-20T00:19:44.0346275Z Updating files:  95% (13718/14440)
+2026-02-20T00:19:44.0739540Z Updating files:  96% (13863/14440)
+2026-02-20T00:19:44.1282747Z Updating files:  97% (14007/14440)
+2026-02-20T00:19:44.1651216Z Updating files:  98% (14152/14440)
+2026-02-20T00:19:44.2569081Z Updating files:  99% (14296/14440)
+2026-02-20T00:19:44.2569579Z Updating files: 100% (14440/14440)
+2026-02-20T00:19:44.2569919Z Updating files: 100% (14440/14440), done.
+2026-02-20T00:19:44.2819965Z Note: switching to 'refs/remotes/pull/8/merge'.
+2026-02-20T00:19:44.2820338Z 
+2026-02-20T00:19:44.2820602Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-02-20T00:19:44.2821273Z changes and commit them, and you can discard any commits you make in this
+2026-02-20T00:19:44.2821958Z state without impacting any branches by switching back to a branch.
+2026-02-20T00:19:44.2822363Z 
+2026-02-20T00:19:44.2822618Z If you want to create a new branch to retain commits you create, you may
+2026-02-20T00:19:44.2823235Z do so (now or later) by using -c with the switch command. Example:
+2026-02-20T00:19:44.2823658Z 
+2026-02-20T00:19:44.2823747Z   git switch -c <new-branch-name>
+2026-02-20T00:19:44.2823921Z 
+2026-02-20T00:19:44.2824000Z Or undo this operation with:
+2026-02-20T00:19:44.2824142Z 
+2026-02-20T00:19:44.2824217Z   git switch -
+2026-02-20T00:19:44.2824610Z 
+2026-02-20T00:19:44.2825215Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-02-20T00:19:44.2825607Z 
+2026-02-20T00:19:44.2825970Z HEAD is now at e32af2b Merge 6c1736e015d9a07a7d26a42a9be5489968bafe1c into cd1f485ab825bd4eb310348f1a7a96e8b185d94b
+2026-02-20T00:19:44.6358287Z ##[endgroup]
+2026-02-20T00:19:44.6677261Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-02-20T00:19:44.6934926Z e32af2bca07a970958648eb921c0f72c9f1c526a
+2026-02-20T00:19:44.7403037Z ##[group]Run actions/cache@v4
+2026-02-20T00:19:44.7403320Z with:
+2026-02-20T00:19:44.7403536Z   path: D:\a\jusPrin\jusPrin/deps/build/OrcaSlicer_dep
+2026-02-20T00:19:44.7404355Z   key: windows-latest-cache-orcaslicer_deps-build-8a0cfaa7a9f0ddb754f835ebf855597eb77b523110a41b1f2121edbd41af53ab
+2026-02-20T00:19:44.7405141Z   fail-on-cache-miss: true
+2026-02-20T00:19:44.7405416Z   enableCrossOsArchive: false
+2026-02-20T00:19:44.7405682Z   lookup-only: false
+2026-02-20T00:19:44.7405898Z   save-always: false
+2026-02-20T00:19:44.7406099Z env:
+2026-02-20T00:19:44.7406261Z   date: 
+2026-02-20T00:19:44.7406428Z   ver: 
+2026-02-20T00:19:44.7406598Z   ver_pure: 
+2026-02-20T00:19:44.7406804Z   ORCA_UPDATER_SIG_KEY: 
+2026-02-20T00:19:44.7407665Z ##[endgroup]
+2026-02-20T00:19:45.3663171Z Cache hit for: windows-latest-cache-orcaslicer_deps-build-8a0cfaa7a9f0ddb754f835ebf855597eb77b523110a41b1f2121edbd41af53ab
+2026-02-20T00:19:46.6955534Z Received 33554432 of 91316216 (36.7%), 31.9 MBs/sec
+2026-02-20T00:19:47.1647476Z Received 91316216 of 91316216 (100.0%), 59.2 MBs/sec
+2026-02-20T00:19:47.1652647Z Cache Size: ~87 MB (91316216 B)
+2026-02-20T00:19:47.1740770Z [command]"C:\Program Files\Git\usr\bin\tar.exe" -xf D:/a/_temp/5d8e1c44-36ec-402e-9157-7438c45d9fd0/cache.tzst -P -C D:/a/jusPrin/jusPrin --force-local --use-compress-program "zstd -d"
+2026-02-20T00:19:55.4033669Z Cache restored successfully
+2026-02-20T00:19:55.4214540Z Cache restored from key: windows-latest-cache-orcaslicer_deps-build-8a0cfaa7a9f0ddb754f835ebf855597eb77b523110a41b1f2121edbd41af53ab
+2026-02-20T00:19:55.4488154Z ##[group]Run lukka/get-cmake@latest
+2026-02-20T00:19:55.4488470Z with:
+2026-02-20T00:19:55.4488639Z   cmakeVersion: ~3.28.0
+2026-02-20T00:19:55.4488838Z   useCloudCache: true
+2026-02-20T00:19:55.4489016Z   useLocalCache: false
+2026-02-20T00:19:55.4489174Z env:
+2026-02-20T00:19:55.4489302Z   date: 
+2026-02-20T00:19:55.4489437Z   ver: 
+2026-02-20T00:19:55.4489565Z   ver_pure: 
+2026-02-20T00:19:55.4489727Z   ORCA_UPDATER_SIG_KEY: 
+2026-02-20T00:19:55.4489912Z ##[endgroup]
+2026-02-20T00:19:55.8140781Z useCloudCache:true
+2026-02-20T00:19:55.8142647Z useLocalCache:false
+2026-02-20T00:19:55.8143080Z user defined cmake version:~3.28.0
+2026-02-20T00:19:55.8143524Z user defined ninja version:
+2026-02-20T00:19:55.8143859Z cmake version:~3.28.0
+2026-02-20T00:19:55.8144080Z ninja version:latest
+2026-02-20T00:19:55.8193936Z ##[group]Computing cache key from the downloads' URLs
+2026-02-20T00:19:55.8194618Z Cache key: '1677843955'.
+2026-02-20T00:19:55.8200206Z Local install root: 'D:\a\_temp\1677843955''.
+2026-02-20T00:19:55.8201157Z ##[endgroup]
+2026-02-20T00:19:55.8201755Z ##[group]Restoring from GitHub cloud cache using key '1677843955' into 'D:\a\_temp\1677843955'
+2026-02-20T00:19:56.2107855Z Cache hit for: 1677843955
+2026-02-20T00:19:57.5279033Z Received 33879387 of 38073691 (89.0%), 31.9 MBs/sec
+2026-02-20T00:19:57.5644720Z Received 38073691 of 38073691 (100.0%), 34.6 MBs/sec
+2026-02-20T00:19:57.5648218Z Cache Size: ~36 MB (38073691 B)
+2026-02-20T00:19:57.5677815Z [command]"C:\Program Files\Git\usr\bin\tar.exe" -xf D:/a/_temp/021902f6-d2f0-4347-b98f-0260b605a1d2/cache.tzst -P -C D:/a/jusPrin/jusPrin --force-local --use-compress-program "zstd -d"
+2026-02-20T00:19:59.6096406Z Cache restored successfully
+2026-02-20T00:19:59.6127301Z Cloud cache hit.
+2026-02-20T00:19:59.6127898Z ##[endgroup]
+2026-02-20T00:19:59.6130335Z ##[group]Add CMake and Ninja to PATH
+2026-02-20T00:19:59.6130814Z CMake path: 'D:\a\_temp\1677843955\cmake-3.28.6-windows-x86_64\bin\'
+2026-02-20T00:19:59.6139599Z Ninja path: 'D:\a\_temp\1677843955'
+2026-02-20T00:19:59.6149699Z ##[group]Validating the installed CMake and Ninja
+2026-02-20T00:19:59.8524643Z CMake actual path is: 'D:\a\_temp\1677843955\cmake-3.28.6-windows-x86_64\bin\cmake.exe'
+2026-02-20T00:19:59.8525161Z Ninja actual path is: 'D:\a\_temp\1677843955\ninja.exe'
+2026-02-20T00:19:59.8525694Z ##[endgroup]
+2026-02-20T00:19:59.8525977Z ##[endgroup]
+2026-02-20T00:19:59.8526155Z get-cmake action execution succeeded
+2026-02-20T00:19:59.8839758Z ##[group]Run $date = Get-Date -Format 'yyyyMMdd'
+2026-02-20T00:19:59.8840203Z [36;1m$date = Get-Date -Format 'yyyyMMdd'[0m
+2026-02-20T00:19:59.8841229Z [36;1m$ref = "refs/pull/8/merge"[0m
+2026-02-20T00:19:59.8841482Z [36;1m$eventName = "pull_request"[0m
+2026-02-20T00:19:59.8841723Z [36;1m$prNumber = "8"[0m
+2026-02-20T00:19:59.8841926Z [36;1m[0m
+2026-02-20T00:19:59.8842122Z [36;1mif ($eventName -eq 'pull_request') {[0m
+2026-02-20T00:19:59.8842395Z [36;1m    $ver = "PR" + $prNumber[0m
+2026-02-20T00:19:59.8842616Z [36;1m} else {[0m
+2026-02-20T00:19:59.8842857Z [36;1m    $versionContent = Get-Content version.inc -Raw[0m
+2026-02-20T00:19:59.8843253Z [36;1m    if ($versionContent -match 'set\(SoftFever_VERSION "(.*?)"\)') {[0m
+2026-02-20T00:19:59.8843603Z [36;1m        $ver = $matches[1][0m
+2026-02-20T00:19:59.8844234Z [36;1m    }[0m
+2026-02-20T00:19:59.8844410Z [36;1m    $ver = "V$ver"[0m
+2026-02-20T00:19:59.8844600Z [36;1m}[0m
+2026-02-20T00:19:59.8844780Z [36;1m[0m
+2026-02-20T00:19:59.8845075Z [36;1mecho "ver=$ver" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8[0m
+2026-02-20T00:19:59.8845586Z [36;1mecho "date=$date" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8[0m
+2026-02-20T00:19:59.8845964Z [36;1mecho "date:  version: "[0m
+2026-02-20T00:19:59.9549824Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-02-20T00:19:59.9550197Z env:
+2026-02-20T00:19:59.9550370Z   date: 
+2026-02-20T00:19:59.9550537Z   ver: 
+2026-02-20T00:19:59.9550702Z   ver_pure: 
+2026-02-20T00:19:59.9550888Z   ORCA_UPDATER_SIG_KEY: 
+2026-02-20T00:19:59.9551099Z ##[endgroup]
+2026-02-20T00:20:05.4837707Z date:  version: 
+2026-02-20T00:20:05.8445735Z ##[group]Run microsoft/setup-msbuild@v2
+2026-02-20T00:20:05.8446055Z with:
+2026-02-20T00:20:05.8446236Z   msbuild-architecture: x86
+2026-02-20T00:20:05.8446446Z env:
+2026-02-20T00:20:05.8446585Z   date: 20260220
+2026-02-20T00:20:05.8446745Z   ver: PR8
+2026-02-20T00:20:05.8446899Z   ver_pure: 
+2026-02-20T00:20:05.8447063Z   ORCA_UPDATER_SIG_KEY: 
+2026-02-20T00:20:05.8447254Z ##[endgroup]
+2026-02-20T00:20:05.9925610Z [command]C:\ProgramData\Chocolatey\bin\vswhere.exe -products * -requires Microsoft.Component.MSBuild -property installationPath -latest
+2026-02-20T00:20:06.3851065Z C:\Program Files\Microsoft Visual Studio\2022\Enterprise
+2026-02-20T00:20:06.4124362Z ##[group]Run dir "C:/Program Files (x86)/Windows Kits/10/Include"
+2026-02-20T00:20:06.4124891Z [36;1mdir "C:/Program Files (x86)/Windows Kits/10/Include"[0m
+2026-02-20T00:20:06.4125637Z [36;1mchoco install nsis[0m
+2026-02-20T00:20:06.4456961Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-02-20T00:20:06.4457286Z env:
+2026-02-20T00:20:06.4457440Z   date: 20260220
+2026-02-20T00:20:06.4457593Z   ver: PR8
+2026-02-20T00:20:06.4457907Z   ver_pure: 
+2026-02-20T00:20:06.4458533Z   ORCA_UPDATER_SIG_KEY: 
+2026-02-20T00:20:06.4458884Z ##[endgroup]
+2026-02-20T00:20:06.8778994Z 
+2026-02-20T00:20:06.8785787Z     Directory: C:\Program Files (x86)\Windows Kits\10\Include
+2026-02-20T00:20:06.8786270Z 
+2026-02-20T00:20:06.8788612Z [32;1mMode   [0m[32;1m              LastWriteTime[0m [32;1;3m        Length[0m[32;1m Name[0m
+2026-02-20T00:20:06.8789611Z [32;1m----   [0m [32;1m             -------------[0m [32;1m        ------[0m [32;1m----[0m
+2026-02-20T00:20:06.9359453Z d----           2/17/2026 10:50 PM                [44;1m10.0.10240.0[0m
+2026-02-20T00:20:06.9366238Z d----           2/17/2026 11:01 PM                [44;1m10.0.26100.0[0m
+2026-02-20T00:20:08.7485513Z Chocolatey v2.6.0
+2026-02-20T00:20:08.9923136Z Installing the following packages:
+2026-02-20T00:20:08.9929453Z nsis
+2026-02-20T00:20:08.9934541Z By installing, you accept licenses for the packages.
+2026-02-20T00:20:12.5676161Z Downloading package from source 'https://community.chocolatey.org/api/v2/'
+2026-02-20T00:20:12.7683725Z 
+2026-02-20T00:20:12.7685156Z Progress: Downloading nsis.install 3.11.0... %
+2026-02-20T00:20:12.7685757Z Progress: Downloading nsis.install 3.11.0... %
+2026-02-20T00:20:12.7687225Z Progress: Downloading nsis.install 3.11.0... %
+2026-02-20T00:20:12.7705245Z Progress: Downloading nsis.install 3.11.0... %
+2026-02-20T00:20:12.7706140Z Progress: Downloading nsis.install 3.11.0... %
+2026-02-20T00:20:12.7706722Z Progress: Downloading nsis.install 3.11.0... %
+2026-02-20T00:20:12.7707340Z Progress: Downloading nsis.install 3.11.0... 1%
+2026-02-20T00:20:12.7708352Z Progress: Downloading nsis.install 3.11.0... 1%
+2026-02-20T00:20:12.7708942Z Progress: Downloading nsis.install 3.11.0... 1%
+2026-02-20T00:20:12.7709501Z Progress: Downloading nsis.install 3.11.0... 1%
+2026-02-20T00:20:12.7710023Z Progress: Downloading nsis.install 3.11.0... 1%
+2026-02-20T00:20:12.7710542Z Progress: Downloading nsis.install 3.11.0... 1%
+2026-02-20T00:20:12.7711071Z Progress: Downloading nsis.install 3.11.0... 1%
+2026-02-20T00:20:12.7711585Z Progress: Downloading nsis.install 3.11.0... 1%
+2026-02-20T00:20:12.7714373Z Progress: Downloading nsis.install 3.11.0... 1%
+2026-02-20T00:20:12.7714879Z Progress: Downloading nsis.install 3.11.0... 1%
+2026-02-20T00:20:12.7715415Z Progress: Downloading nsis.install 3.11.0... 1%
+2026-02-20T00:20:12.7715928Z Progress: Downloading nsis.install 3.11.0... 2%
+2026-02-20T00:20:12.7716439Z Progress: Downloading nsis.install 3.11.0... 2%
+2026-02-20T00:20:12.7716968Z Progress: Downloading nsis.install 3.11.0... 2%
+2026-02-20T00:20:12.7717487Z Progress: Downloading nsis.install 3.11.0... 2%
+2026-02-20T00:20:12.7718001Z Progress: Downloading nsis.install 3.11.0... 2%
+2026-02-20T00:20:12.7718477Z Progress: Downloading nsis.install 3.11.0... 2%
+2026-02-20T00:20:12.7718947Z Progress: Downloading nsis.install 3.11.0... 2%
+2026-02-20T00:20:12.7719405Z Progress: Downloading nsis.install 3.11.0... 2%
+2026-02-20T00:20:12.7719860Z Progress: Downloading nsis.install 3.11.0... 2%
+2026-02-20T00:20:12.7720328Z Progress: Downloading nsis.install 3.11.0... 2%
+2026-02-20T00:20:12.7720793Z Progress: Downloading nsis.install 3.11.0... 2%
+2026-02-20T00:20:12.7721268Z Progress: Downloading nsis.install 3.11.0... 2%
+2026-02-20T00:20:12.7721764Z Progress: Downloading nsis.install 3.11.0... 3%
+2026-02-20T00:20:12.7722233Z Progress: Downloading nsis.install 3.11.0... 3%
+2026-02-20T00:20:12.7722720Z Progress: Downloading nsis.install 3.11.0... 3%
+2026-02-20T00:20:12.7725823Z Progress: Downloading nsis.install 3.11.0... 3%
+2026-02-20T00:20:12.7726546Z Progress: Downloading nsis.install 3.11.0... 3%
+2026-02-20T00:20:12.7727132Z Progress: Downloading nsis.install 3.11.0... 3%
+2026-02-20T00:20:12.7727669Z Progress: Downloading nsis.install 3.11.0... 3%
+2026-02-20T00:20:12.7728179Z Progress: Downloading nsis.install 3.11.0... 3%
+2026-02-20T00:20:12.7728726Z Progress: Downloading nsis.install 3.11.0... 3%
+2026-02-20T00:20:12.7729229Z Progress: Downloading nsis.install 3.11.0... 3%
+2026-02-20T00:20:12.7729746Z Progress: Downloading nsis.install 3.11.0... 3%
+2026-02-20T00:20:12.7730265Z Progress: Downloading nsis.install 3.11.0... 4%
+2026-02-20T00:20:12.7730786Z Progress: Downloading nsis.install 3.11.0... 4%
+2026-02-20T00:20:12.7731318Z Progress: Downloading nsis.install 3.11.0... 4%
+2026-02-20T00:20:12.7731839Z Progress: Downloading nsis.install 3.11.0... 4%
+2026-02-20T00:20:12.7732334Z Progress: Downloading nsis.install 3.11.0... 5%
+2026-02-20T00:20:12.7732808Z Progress: Downloading nsis.install 3.11.0... 5%
+2026-02-20T00:20:12.7733268Z Progress: Downloading nsis.install 3.11.0... 5%
+2026-02-20T00:20:12.7733738Z Progress: Downloading nsis.install 3.11.0... 5%
+2026-02-20T00:20:12.7734442Z Progress: Downloading nsis.install 3.11.0... 6%
+2026-02-20T00:20:12.7734972Z Progress: Downloading nsis.install 3.11.0... 6%
+2026-02-20T00:20:12.7735493Z Progress: Downloading nsis.install 3.11.0... 6%
+2026-02-20T00:20:12.7736014Z Progress: Downloading nsis.install 3.11.0... 7%
+2026-02-20T00:20:12.7736534Z Progress: Downloading nsis.install 3.11.0... 7%
+2026-02-20T00:20:12.7737051Z Progress: Downloading nsis.install 3.11.0... 7%
+2026-02-20T00:20:12.7737572Z Progress: Downloading nsis.install 3.11.0... 7%
+2026-02-20T00:20:12.7738328Z Progress: Downloading nsis.install 3.11.0... 8%
+2026-02-20T00:20:12.7738839Z Progress: Downloading nsis.install 3.11.0... 8%
+2026-02-20T00:20:12.7739347Z Progress: Downloading nsis.install 3.11.0... 8%
+2026-02-20T00:20:12.7739869Z Progress: Downloading nsis.install 3.11.0... 8%
+2026-02-20T00:20:12.7740404Z Progress: Downloading nsis.install 3.11.0... 8%
+2026-02-20T00:20:12.7740914Z Progress: Downloading nsis.install 3.11.0... 9%
+2026-02-20T00:20:12.7741435Z Progress: Downloading nsis.install 3.11.0... 9%
+2026-02-20T00:20:12.7741952Z Progress: Downloading nsis.install 3.11.0... 9%
+2026-02-20T00:20:12.7742479Z Progress: Downloading nsis.install 3.11.0... 10%
+2026-02-20T00:20:12.7743017Z Progress: Downloading nsis.install 3.11.0... 10%
+2026-02-20T00:20:12.7743555Z Progress: Downloading nsis.install 3.11.0... 10%
+2026-02-20T00:20:12.7744082Z Progress: Downloading nsis.install 3.11.0... 10%
+2026-02-20T00:20:12.7744622Z Progress: Downloading nsis.install 3.11.0... 11%
+2026-02-20T00:20:12.7745403Z Progress: Downloading nsis.install 3.11.0... 11%
+2026-02-20T00:20:12.7745875Z Progress: Downloading nsis.install 3.11.0... 11%
+2026-02-20T00:20:12.7746343Z Progress: Downloading nsis.install 3.11.0... 11%
+2026-02-20T00:20:12.7746820Z Progress: Downloading nsis.install 3.11.0... 12%
+2026-02-20T00:20:12.7747288Z Progress: Downloading nsis.install 3.11.0... 12%
+2026-02-20T00:20:12.7747750Z Progress: Downloading nsis.install 3.11.0... 12%
+2026-02-20T00:20:12.7748210Z Progress: Downloading nsis.install 3.11.0... 13%
+2026-02-20T00:20:12.7748674Z Progress: Downloading nsis.install 3.11.0... 13%
+2026-02-20T00:20:12.7749134Z Progress: Downloading nsis.install 3.11.0... 13%
+2026-02-20T00:20:12.7749596Z Progress: Downloading nsis.install 3.11.0... 13%
+2026-02-20T00:20:12.7750077Z Progress: Downloading nsis.install 3.11.0... 13%
+2026-02-20T00:20:12.7750550Z Progress: Downloading nsis.install 3.11.0... 14%
+2026-02-20T00:20:12.7751021Z Progress: Downloading nsis.install 3.11.0... 14%
+2026-02-20T00:20:12.7751434Z Progress: Downloading nsis.install 3.11.0... 15%
+2026-02-20T00:20:12.7751899Z Progress: Downloading nsis.install 3.11.0... 15%
+2026-02-20T00:20:12.7752361Z Progress: Downloading nsis.install 3.11.0... 16%
+2026-02-20T00:20:12.7754602Z Progress: Downloading nsis.install 3.11.0... 16%
+2026-02-20T00:20:12.7755286Z Progress: Downloading nsis.install 3.11.0... 17%
+2026-02-20T00:20:12.7755856Z Progress: Downloading nsis.install 3.11.0... 17%
+2026-02-20T00:20:12.7756429Z Progress: Downloading nsis.install 3.11.0... 18%
+2026-02-20T00:20:12.7756956Z Progress: Downloading nsis.install 3.11.0... 18%
+2026-02-20T00:20:12.7757490Z Progress: Downloading nsis.install 3.11.0... 19%
+2026-02-20T00:20:12.7758025Z Progress: Downloading nsis.install 3.11.0... 19%
+2026-02-20T00:20:12.7758548Z Progress: Downloading nsis.install 3.11.0... 20%
+2026-02-20T00:20:12.7759072Z Progress: Downloading nsis.install 3.11.0... 20%
+2026-02-20T00:20:12.7759602Z Progress: Downloading nsis.install 3.11.0... 21%
+2026-02-20T00:20:12.7760129Z Progress: Downloading nsis.install 3.11.0... 21%
+2026-02-20T00:20:12.7760646Z Progress: Downloading nsis.install 3.11.0... 22%
+2026-02-20T00:20:12.7775294Z Progress: Downloading nsis.install 3.11.0... 22%
+2026-02-20T00:20:12.7775999Z Progress: Downloading nsis.install 3.11.0... 23%
+2026-02-20T00:20:12.7776549Z Progress: Downloading nsis.install 3.11.0... 23%
+2026-02-20T00:20:12.7777065Z Progress: Downloading nsis.install 3.11.0... 24%
+2026-02-20T00:20:12.7777621Z Progress: Downloading nsis.install 3.11.0... 24%
+2026-02-20T00:20:12.7778142Z Progress: Downloading nsis.install 3.11.0... 25%
+2026-02-20T00:20:12.7778648Z Progress: Downloading nsis.install 3.11.0... 25%
+2026-02-20T00:20:12.7779198Z Progress: Downloading nsis.install 3.11.0... 26%
+2026-02-20T00:20:12.7779750Z Progress: Downloading nsis.install 3.11.0... 26%
+2026-02-20T00:20:12.7780283Z Progress: Downloading nsis.install 3.11.0... 27%
+2026-02-20T00:20:12.7780799Z Progress: Downloading nsis.install 3.11.0... 27%
+2026-02-20T00:20:12.7781621Z Progress: Downloading nsis.install 3.11.0... 28%
+2026-02-20T00:20:12.7782160Z Progress: Downloading nsis.install 3.11.0... 29%
+2026-02-20T00:20:12.7782703Z Progress: Downloading nsis.install 3.11.0... 29%
+2026-02-20T00:20:12.7783215Z Progress: Downloading nsis.install 3.11.0... 30%
+2026-02-20T00:20:12.7783758Z Progress: Downloading nsis.install 3.11.0... 30%
+2026-02-20T00:20:12.7784294Z Progress: Downloading nsis.install 3.11.0... 31%
+2026-02-20T00:20:12.7785070Z Progress: Downloading nsis.install 3.11.0... 31%
+2026-02-20T00:20:12.7785505Z Progress: Downloading nsis.install 3.11.0... 32%
+2026-02-20T00:20:12.7785990Z Progress: Downloading nsis.install 3.11.0... 32%
+2026-02-20T00:20:12.7786474Z Progress: Downloading nsis.install 3.11.0... 33%
+2026-02-20T00:20:12.7786948Z Progress: Downloading nsis.install 3.11.0... 33%
+2026-02-20T00:20:12.7787430Z Progress: Downloading nsis.install 3.11.0... 34%
+2026-02-20T00:20:12.7787910Z Progress: Downloading nsis.install 3.11.0... 34%
+2026-02-20T00:20:12.7788386Z Progress: Downloading nsis.install 3.11.0... 35%
+2026-02-20T00:20:12.7788889Z Progress: Downloading nsis.install 3.11.0... 35%
+2026-02-20T00:20:12.7789438Z Progress: Downloading nsis.install 3.11.0... 36%
+2026-02-20T00:20:12.7789981Z Progress: Downloading nsis.install 3.11.0... 36%
+2026-02-20T00:20:12.7790497Z Progress: Downloading nsis.install 3.11.0... 37%
+2026-02-20T00:20:12.7791024Z Progress: Downloading nsis.install 3.11.0... 38%
+2026-02-20T00:20:12.7791500Z Progress: Downloading nsis.install 3.11.0... 38%
+2026-02-20T00:20:12.7791972Z Progress: Downloading nsis.install 3.11.0... 39%
+2026-02-20T00:20:12.7792446Z Progress: Downloading nsis.install 3.11.0... 39%
+2026-02-20T00:20:12.7792912Z Progress: Downloading nsis.install 3.11.0... 40%
+2026-02-20T00:20:12.7793444Z Progress: Downloading nsis.install 3.11.0... 40%
+2026-02-20T00:20:12.7793964Z Progress: Downloading nsis.install 3.11.0... 41%
+2026-02-20T00:20:12.7794477Z Progress: Downloading nsis.install 3.11.0... 41%
+2026-02-20T00:20:12.7795014Z Progress: Downloading nsis.install 3.11.0... 42%
+2026-02-20T00:20:12.7795533Z Progress: Downloading nsis.install 3.11.0... 42%
+2026-02-20T00:20:12.7795999Z Progress: Downloading nsis.install 3.11.0... 43%
+2026-02-20T00:20:12.7796665Z Progress: Downloading nsis.install 3.11.0... 43%
+2026-02-20T00:20:12.7797227Z Progress: Downloading nsis.install 3.11.0... 44%
+2026-02-20T00:20:12.7797743Z Progress: Downloading nsis.install 3.11.0... 44%
+2026-02-20T00:20:12.7798258Z Progress: Downloading nsis.install 3.11.0... 45%
+2026-02-20T00:20:12.7798739Z Progress: Downloading nsis.install 3.11.0... 45%
+2026-02-20T00:20:12.7799223Z Progress: Downloading nsis.install 3.11.0... 46%
+2026-02-20T00:20:12.7799698Z Progress: Downloading nsis.install 3.11.0... 46%
+2026-02-20T00:20:12.7800179Z Progress: Downloading nsis.install 3.11.0... 47%
+2026-02-20T00:20:12.7800661Z Progress: Downloading nsis.install 3.11.0... 48%
+2026-02-20T00:20:12.7801163Z Progress: Downloading nsis.install 3.11.0... 48%
+2026-02-20T00:20:12.7801711Z Progress: Downloading nsis.install 3.11.0... 49%
+2026-02-20T00:20:12.7802210Z Progress: Downloading nsis.install 3.11.0... 49%
+2026-02-20T00:20:12.7802685Z Progress: Downloading nsis.install 3.11.0... 50%
+2026-02-20T00:20:12.7803180Z Progress: Downloading nsis.install 3.11.0... 50%
+2026-02-20T00:20:12.7803683Z Progress: Downloading nsis.install 3.11.0... 51%
+2026-02-20T00:20:12.7804177Z Progress: Downloading nsis.install 3.11.0... 51%
+2026-02-20T00:20:12.7804652Z Progress: Downloading nsis.install 3.11.0... 52%
+2026-02-20T00:20:12.7805421Z Progress: Downloading nsis.install 3.11.0... 52%
+2026-02-20T00:20:12.7805931Z Progress: Downloading nsis.install 3.11.0... 53%
+2026-02-20T00:20:12.7806446Z Progress: Downloading nsis.install 3.11.0... 53%
+2026-02-20T00:20:12.7806961Z Progress: Downloading nsis.install 3.11.0... 54%
+2026-02-20T00:20:12.7807443Z Progress: Downloading nsis.install 3.11.0... 54%
+2026-02-20T00:20:12.7807925Z Progress: Downloading nsis.install 3.11.0... 55%
+2026-02-20T00:20:12.7810052Z Progress: Downloading nsis.install 3.11.0... 55%
+2026-02-20T00:20:12.7810535Z Progress: Downloading nsis.install 3.11.0... 56%
+2026-02-20T00:20:12.7811016Z Progress: Downloading nsis.install 3.11.0... 57%
+2026-02-20T00:20:12.7811480Z Progress: Downloading nsis.install 3.11.0... 57%
+2026-02-20T00:20:12.7811964Z Progress: Downloading nsis.install 3.11.0... 58%
+2026-02-20T00:20:12.7812441Z Progress: Downloading nsis.install 3.11.0... 58%
+2026-02-20T00:20:12.7812923Z Progress: Downloading nsis.install 3.11.0... 59%
+2026-02-20T00:20:12.7813418Z Progress: Downloading nsis.install 3.11.0... 59%
+2026-02-20T00:20:12.7813897Z Progress: Downloading nsis.install 3.11.0... 60%
+2026-02-20T00:20:12.7814365Z Progress: Downloading nsis.install 3.11.0... 60%
+2026-02-20T00:20:12.7814832Z Progress: Downloading nsis.install 3.11.0... 61%
+2026-02-20T00:20:12.7815307Z Progress: Downloading nsis.install 3.11.0... 61%
+2026-02-20T00:20:12.7815802Z Progress: Downloading nsis.install 3.11.0... 62%
+2026-02-20T00:20:12.7816277Z Progress: Downloading nsis.install 3.11.0... 62%
+2026-02-20T00:20:12.7816739Z Progress: Downloading nsis.install 3.11.0... 63%
+2026-02-20T00:20:12.7817208Z Progress: Downloading nsis.install 3.11.0... 63%
+2026-02-20T00:20:12.7817677Z Progress: Downloading nsis.install 3.11.0... 64%
+2026-02-20T00:20:12.7818158Z Progress: Downloading nsis.install 3.11.0... 64%
+2026-02-20T00:20:12.7818642Z Progress: Downloading nsis.install 3.11.0... 65%
+2026-02-20T00:20:12.7819106Z Progress: Downloading nsis.install 3.11.0... 66%
+2026-02-20T00:20:12.7819583Z Progress: Downloading nsis.install 3.11.0... 66%
+2026-02-20T00:20:12.7820060Z Progress: Downloading nsis.install 3.11.0... 67%
+2026-02-20T00:20:12.7820555Z Progress: Downloading nsis.install 3.11.0... 67%
+2026-02-20T00:20:12.7821047Z Progress: Downloading nsis.install 3.11.0... 68%
+2026-02-20T00:20:12.7821870Z Progress: Downloading nsis.install 3.11.0... 68%
+2026-02-20T00:20:12.7822388Z Progress: Downloading nsis.install 3.11.0... 69%
+2026-02-20T00:20:12.7822877Z Progress: Downloading nsis.install 3.11.0... 69%
+2026-02-20T00:20:12.7823340Z Progress: Downloading nsis.install 3.11.0... 70%
+2026-02-20T00:20:12.7823795Z Progress: Downloading nsis.install 3.11.0... 70%
+2026-02-20T00:20:12.7824659Z Progress: Downloading nsis.install 3.11.0... 71%
+2026-02-20T00:20:12.7825192Z Progress: Downloading nsis.install 3.11.0... 71%
+2026-02-20T00:20:12.7825710Z Progress: Downloading nsis.install 3.11.0... 71%
+2026-02-20T00:20:12.7826182Z Progress: Downloading nsis.install 3.11.0... 72%
+2026-02-20T00:20:12.7826673Z Progress: Downloading nsis.install 3.11.0... 72%
+2026-02-20T00:20:12.7827148Z Progress: Downloading nsis.install 3.11.0... 73%
+2026-02-20T00:20:12.7827625Z Progress: Downloading nsis.install 3.11.0... 74%
+2026-02-20T00:20:12.7828084Z Progress: Downloading nsis.install 3.11.0... 74%
+2026-02-20T00:20:12.7828554Z Progress: Downloading nsis.install 3.11.0... 75%
+2026-02-20T00:20:12.7829025Z Progress: Downloading nsis.install 3.11.0... 75%
+2026-02-20T00:20:12.7829501Z Progress: Downloading nsis.install 3.11.0... 76%
+2026-02-20T00:20:12.7829966Z Progress: Downloading nsis.install 3.11.0... 76%
+2026-02-20T00:20:12.7830429Z Progress: Downloading nsis.install 3.11.0... 77%
+2026-02-20T00:20:12.7830908Z Progress: Downloading nsis.install 3.11.0... 77%
+2026-02-20T00:20:12.7831399Z Progress: Downloading nsis.install 3.11.0... 78%
+2026-02-20T00:20:12.7831873Z Progress: Downloading nsis.install 3.11.0... 78%
+2026-02-20T00:20:12.7832346Z Progress: Downloading nsis.install 3.11.0... 79%
+2026-02-20T00:20:12.7832818Z Progress: Downloading nsis.install 3.11.0... 79%
+2026-02-20T00:20:12.7833295Z Progress: Downloading nsis.install 3.11.0... 80%
+2026-02-20T00:20:12.7833757Z Progress: Downloading nsis.install 3.11.0... 80%
+2026-02-20T00:20:12.7834219Z Progress: Downloading nsis.install 3.11.0... 81%
+2026-02-20T00:20:12.7834683Z Progress: Downloading nsis.install 3.11.0... 81%
+2026-02-20T00:20:12.7835142Z Progress: Downloading nsis.install 3.11.0... 82%
+2026-02-20T00:20:12.7835850Z Progress: Downloading nsis.install 3.11.0... 83%
+2026-02-20T00:20:12.7836335Z Progress: Downloading nsis.install 3.11.0... 83%
+2026-02-20T00:20:12.7836816Z Progress: Downloading nsis.install 3.11.0... 84%
+2026-02-20T00:20:12.7837289Z Progress: Downloading nsis.install 3.11.0... 84%
+2026-02-20T00:20:12.7837748Z Progress: Downloading nsis.install 3.11.0... 85%
+2026-02-20T00:20:12.7838213Z Progress: Downloading nsis.install 3.11.0... 85%
+2026-02-20T00:20:12.7838676Z Progress: Downloading nsis.install 3.11.0... 86%
+2026-02-20T00:20:12.7839151Z Progress: Downloading nsis.install 3.11.0... 86%
+2026-02-20T00:20:12.7840224Z Progress: Downloading nsis.install 3.11.0... 87%
+2026-02-20T00:20:12.7840710Z Progress: Downloading nsis.install 3.11.0... 87%
+2026-02-20T00:20:12.7841131Z Progress: Downloading nsis.install 3.11.0... 88%
+2026-02-20T00:20:12.7841596Z Progress: Downloading nsis.install 3.11.0... 88%
+2026-02-20T00:20:12.7842062Z Progress: Downloading nsis.install 3.11.0... 89%
+2026-02-20T00:20:12.7842543Z Progress: Downloading nsis.install 3.11.0... 89%
+2026-02-20T00:20:12.7843022Z Progress: Downloading nsis.install 3.11.0... 90%
+2026-02-20T00:20:12.7843506Z Progress: Downloading nsis.install 3.11.0... 90%
+2026-02-20T00:20:12.7843974Z Progress: Downloading nsis.install 3.11.0... 91%
+2026-02-20T00:20:12.7844452Z Progress: Downloading nsis.install 3.11.0... 92%
+2026-02-20T00:20:12.7844913Z Progress: Downloading nsis.install 3.11.0... 92%
+2026-02-20T00:20:12.7845368Z Progress: Downloading nsis.install 3.11.0... 93%
+2026-02-20T00:20:12.7845827Z Progress: Downloading nsis.install 3.11.0... 93%
+2026-02-20T00:20:12.7846349Z Progress: Downloading nsis.install 3.11.0... 94%
+2026-02-20T00:20:12.7846823Z Progress: Downloading nsis.install 3.11.0... 94%
+2026-02-20T00:20:12.7847288Z Progress: Downloading nsis.install 3.11.0... 95%
+2026-02-20T00:20:12.7847685Z Progress: Downloading nsis.install 3.11.0... 95%
+2026-02-20T00:20:12.7847977Z Progress: Downloading nsis.install 3.11.0... 96%
+2026-02-20T00:20:12.7848265Z Progress: Downloading nsis.install 3.11.0... 96%
+2026-02-20T00:20:12.7848553Z Progress: Downloading nsis.install 3.11.0... 97%
+2026-02-20T00:20:12.7849465Z Progress: Downloading nsis.install 3.11.0... 97%
+2026-02-20T00:20:12.7849789Z Progress: Downloading nsis.install 3.11.0... 98%
+2026-02-20T00:20:12.7850070Z Progress: Downloading nsis.install 3.11.0... 98%
+2026-02-20T00:20:12.7850357Z Progress: Downloading nsis.install 3.11.0... 99%
+2026-02-20T00:20:12.7850646Z Progress: Downloading nsis.install 3.11.0... 99%
+2026-02-20T00:20:12.7850936Z Progress: Downloading nsis.install 3.11.0... 100%
+2026-02-20T00:20:12.7851224Z Progress: Downloading nsis.install 3.11.0... 100%
+2026-02-20T00:20:13.0404052Z 
+2026-02-20T00:20:13.0404500Z nsis.install v3.11.0 [Approved] - Possibly broken
+2026-02-20T00:20:13.0611438Z nsis.install package files install completed. Performing other installation steps.
+2026-02-20T00:20:14.2661849Z Installing nsis.install...
+2026-02-20T00:20:15.8071611Z nsis.install has been installed.
+2026-02-20T00:20:15.9653733Z   nsis.install can be automatically uninstalled.
+2026-02-20T00:20:16.0656414Z  The install of nsis.install was successful.
+2026-02-20T00:20:16.0661091Z   Deployed to 'C:\Program Files (x86)\NSIS'
+2026-02-20T00:20:16.0796637Z Downloading package from source 'https://community.chocolatey.org/api/v2/'
+2026-02-20T00:20:16.2105296Z 
+2026-02-20T00:20:16.2105754Z Progress: Downloading nsis 3.11.0... 100%
+2026-02-20T00:20:16.2541920Z 
+2026-02-20T00:20:16.2542173Z nsis v3.11.0 [Approved] - Possibly broken
+2026-02-20T00:20:16.2557958Z nsis package files install completed. Performing other installation steps.
+2026-02-20T00:20:16.4235782Z  The install of nsis was successful.
+2026-02-20T00:20:16.4240293Z   Deployed to 'C:\ProgramData\chocolatey\lib\nsis'
+2026-02-20T00:20:16.4408111Z 
+2026-02-20T00:20:16.4408369Z Chocolatey installed 2/2 packages. 
+2026-02-20T00:20:16.4408866Z  See the log for details (C:\ProgramData\chocolatey\logs\chocolatey.log).
+2026-02-20T00:20:16.4871691Z 
+2026-02-20T00:20:16.5554627Z ##[group]Run .\build_release_vs2022.bat slicer
+2026-02-20T00:20:16.5555027Z [36;1m.\build_release_vs2022.bat slicer[0m
+2026-02-20T00:20:16.5623886Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-02-20T00:20:16.5624207Z env:
+2026-02-20T00:20:16.5624351Z   date: 20260220
+2026-02-20T00:20:16.5624507Z   ver: PR8
+2026-02-20T00:20:16.5624655Z   ver_pure: 
+2026-02-20T00:20:16.5624811Z   ORCA_UPDATER_SIG_KEY: 
+2026-02-20T00:20:16.5625068Z   WindowsSdkDir: C:\Program Files (x86)\Windows Kits\10\
+2026-02-20T00:20:16.5625366Z   WindowsSDKVersion: 10.0.26100.0\
+2026-02-20T00:20:16.5625585Z ##[endgroup]
+2026-02-20T00:20:16.8463471Z build type set to Release
+2026-02-20T00:20:16.8476641Z A subdirectory or file build already exists.
+2026-02-20T00:20:16.8498551Z "building JusPrin..."
+2026-02-20T00:20:16.8521386Z 
+2026-02-20T00:20:16.8523680Z D:\a\jusPrin\jusPrin\build>cmake .. -G "Visual Studio 17 2022" -A x64 -DBBL_RELEASE_TO_PUBLIC=1 -DORCA_TOOLS=ON  -DCMAKE_PREFIX_PATH="D:\a\jusPrin\jusPrin\deps\build/OrcaSlicer_dep/usr/local" -DCMAKE_INSTALL_PREFIX="./JusPrin" -DCMAKE_BUILD_TYPE=Release -DWIN10SDK_PATH="C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\\" 
+2026-02-20T00:20:24.7825592Z -- The C compiler identification is MSVC 19.44.35222.0
+2026-02-20T00:20:26.1241903Z -- The CXX compiler identification is MSVC 19.44.35222.0
+2026-02-20T00:20:26.1608373Z -- Detecting C compiler ABI info
+2026-02-20T00:20:26.9749842Z -- Detecting C compiler ABI info - done
+2026-02-20T00:20:26.9769311Z -- Check for working C compiler: C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe - skipped
+2026-02-20T00:20:26.9773673Z -- Detecting C compile features
+2026-02-20T00:20:26.9782475Z -- Detecting C compile features - done
+2026-02-20T00:20:26.9866184Z -- Detecting CXX compiler ABI info
+2026-02-20T00:20:27.7133013Z -- Detecting CXX compiler ABI info - done
+2026-02-20T00:20:27.7152215Z -- Check for working CXX compiler: C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe - skipped
+2026-02-20T00:20:27.7156241Z -- Detecting CXX compile features
+2026-02-20T00:20:27.7167111Z -- Detecting CXX compile features - done
+2026-02-20T00:20:27.7221318Z -- BBL_RELEASE_TO_PUBLIC: 1
+2026-02-20T00:20:27.7221713Z -- BBL_INTERNAL_TESTING: 0
+2026-02-20T00:20:27.7738828Z -- Found Git: C:/Program Files/Git/bin/git.exe (found version "2.53.0.windows.1") 
+2026-02-20T00:20:27.8040251Z -- SLIC3R_ASAN: OFF
+2026-02-20T00:20:27.8040599Z -- SLIC3R_BUILD_ID: 
+2026-02-20T00:20:27.8040904Z -- SLIC3R_BUILD_SANDBOXES: OFF
+2026-02-20T00:20:27.8041310Z -- SLIC3R_DESKTOP_INTEGRATION: ON
+2026-02-20T00:20:27.8041701Z -- SLIC3R_FHS: OFF
+2026-02-20T00:20:27.8041971Z -- SLIC3R_GTK: 2
+2026-02-20T00:20:27.8042217Z -- SLIC3R_GUI: ON
+2026-02-20T00:20:27.8042506Z -- SLIC3R_MSVC_COMPILE_PARALLEL: ON
+2026-02-20T00:20:27.8042866Z -- SLIC3R_MSVC_PDB: ON
+2026-02-20T00:20:27.8043199Z -- SLIC3R_PCH: ON
+2026-02-20T00:20:27.8043637Z -- SLIC3R_PERL_XS: OFF
+2026-02-20T00:20:27.8044817Z -- SLIC3R_PROFILE: OFF
+2026-02-20T00:20:27.8045129Z -- SLIC3R_STATIC: ON
+2026-02-20T00:20:27.8045420Z -- SLIC3R_WX_STABLE: OFF
+2026-02-20T00:20:27.8047891Z -- SLIC3R_STATIC: ON
+2026-02-20T00:20:27.8048408Z -- CMAKE_PREFIX_PATH: D:\a\jusPrin\jusPrin\deps\build/OrcaSlicer_dep/usr/local (from cache or command line)
+2026-02-20T00:20:27.8049283Z -- DEP_BUILD_DIR: D:/a/jusPrin/jusPrin/deps/build (generated automatically and saved to cache)
+2026-02-20T00:20:27.8050138Z -- CMAKE_PREFIX_PATH: D:\a\jusPrin\jusPrin\deps\build/OrcaSlicer_dep/usr/local (from cache or command line)
+2026-02-20T00:20:27.8051403Z -- PROJECT_SOURCE_DIR: D:/a/jusPrin/jusPrin
+2026-02-20T00:20:27.8052397Z -- CMAKE_MODULE_PATH: D:/a/jusPrin/jusPrin/cmake/modules/
+2026-02-20T00:20:27.8253736Z Building with Win10 Netfabb STL fixing service support
+2026-02-20T00:20:27.8256165Z -- LIBDIR: D:/a/jusPrin/jusPrin/src
+2026-02-20T00:20:27.8260089Z -- LIBDIR_BIN: D:/a/jusPrin/jusPrin/build/src
+2026-02-20T00:20:30.8161032Z -- Found Boost: D:/a/jusPrin/jusPrin/deps/build/OrcaSlicer_dep/usr/local/lib/cmake/Boost-1.84.0/BoostConfig.cmake (found suitable version "1.84.0", minimum required is "1.83.0") found components: system filesystem thread log log_setup locale regex chrono atomic date_time iostreams program_options nowide 
+2026-02-20T00:20:30.8242401Z -- TBB found in D:/a/jusPrin/jusPrin/deps/build/OrcaSlicer_dep/usr/local/lib/cmake/TBB
+2026-02-20T00:20:30.9607256Z -- Found OpenSSL: D:/a/jusPrin/jusPrin/deps/build/OrcaSlicer_dep/usr/local/lib/libcrypto.lib (found version "1.1.1w")  
+2026-02-20T00:20:30.9821339Z -- Found CURL: D:/a/jusPrin/jusPrin/deps/build/OrcaSlicer_dep/usr/local/lib/libcurl.lib (found version "7.75.0-DEV") 
+2026-02-20T00:20:31.0024107Z -- Found Freetype: D:/a/jusPrin/jusPrin/deps/build/OrcaSlicer_dep/usr/local/lib/freetype.lib (found version "2.12.1") 
+2026-02-20T00:20:31.0096879Z -- Found ZLIB: D:/a/jusPrin/jusPrin/deps/build/OrcaSlicer_dep/usr/local/lib/zlib.lib (found version "1.2.13")  
+2026-02-20T00:20:35.7320988Z -- Could NOT find EXPAT (missing: EXPAT_LIBRARY) (found version "2.6.2")
+2026-02-20T00:20:35.7810715Z -- Found PNG: D:/a/jusPrin/jusPrin/deps/build/OrcaSlicer_dep/usr/local/lib/libpng16_static.lib (found version "1.6.35") 
+2026-02-20T00:20:35.7832977Z -- Found OpenGL: opengl32   
+2026-02-20T00:20:35.7837256Z GLEW_ROOT: D:\a\jusPrin\jusPrin\deps\build/OrcaSlicer_dep/usr/local
+2026-02-20T00:20:35.7841421Z -- Windows: Added GLEW search hints - Include: D:\a\jusPrin\jusPrin\deps\build/OrcaSlicer_dep/usr/local;D:\a\jusPrin\jusPrin\deps\build/OrcaSlicer_dep/usr/local;D:\a\jusPrin\jusPrin\deps\build/OrcaSlicer_dep/usr/local/include;D:\a\jusPrin\jusPrin\deps\build/OrcaSlicer_dep/usr/local/lib/include, Lib: D:\a\jusPrin\jusPrin\deps\build/OrcaSlicer_dep/usr/local;D:\a\jusPrin\jusPrin\deps\build/OrcaSlicer_dep/usr/local;D:\a\jusPrin\jusPrin\deps\build/OrcaSlicer_dep/usr/local/include;D:\a\jusPrin\jusPrin\deps\build/OrcaSlicer_dep/usr/local/lib/lib
+2026-02-20T00:20:35.7845200Z CMake Warning at CMakeLists.txt:804 (message):
+2026-02-20T00:20:35.7845732Z   GLEW header not found at expected location:
+2026-02-20T00:20:35.7847600Z   D:\a\jusPrin\jusPrin\deps\build/OrcaSlicer_dep/usr/local;D:\a\jusPrin\jusPrin\deps\build/OrcaSlicer_dep/usr/local;D:\a\jusPrin\jusPrin\deps\build/OrcaSlicer_dep/usr/local/include;D:\a\jusPrin\jusPrin\deps\build/OrcaSlicer_dep/usr/local/lib/include/GL/glew.h
+2026-02-20T00:20:35.7849332Z 
+2026-02-20T00:20:35.7849338Z 
+2026-02-20T00:20:35.7849512Z CMake Warning at CMakeLists.txt:805 (message):
+2026-02-20T00:20:35.7850166Z   This may indicate the dependencies cache is incomplete.  Try rebuilding
+2026-02-20T00:20:35.7850776Z   dependencies.
+2026-02-20T00:20:35.7850947Z 
+2026-02-20T00:20:35.7850952Z 
+2026-02-20T00:20:35.7856797Z -- FindGLEW: GLEW_USE_STATIC_LIBS: ON.
+2026-02-20T00:20:35.7857705Z -- FindGLEW: GLEW_INCLUDE_DIR: D:/a/jusPrin/jusPrin/deps/build/OrcaSlicer_dep/usr/local/include
+2026-02-20T00:20:35.7859023Z -- FindGLEW: GLEW_INCLUDE_DIRS: D:/a/jusPrin/jusPrin/deps/build/OrcaSlicer_dep/usr/local/include
+2026-02-20T00:20:35.7860436Z -- FindGLEW: CMAKE_FIND_LIBRARY_SUFFIXES for SHARED: .lib
+2026-02-20T00:20:35.8027391Z -- FindGLEW: CMAKE_FIND_LIBRARY_SUFFIXES for STATIC: .lib;.a;.dll.a
+2026-02-20T00:20:35.8227457Z -- FindGLEW: GLEW_SHARED_LIBRARY_RELEASE: D:/a/jusPrin/jusPrin/deps/build/OrcaSlicer_dep/usr/local/lib/GLEW.lib
+2026-02-20T00:20:35.8229149Z -- FindGLEW: GLEW_STATIC_LIBRARY_RELEASE: D:/a/jusPrin/jusPrin/deps/build/OrcaSlicer_dep/usr/local/lib/GLEW.lib
+2026-02-20T00:20:35.8230372Z -- FindGLEW: GLEW_SHARED_LIBRARY_DEBUG: GLEW_SHARED_LIBRARY_DEBUG-NOTFOUND
+2026-02-20T00:20:35.8231280Z -- FindGLEW: GLEW_STATIC_LIBRARY_DEBUG: GLEW_STATIC_LIBRARY_DEBUG-NOTFOUND
+2026-02-20T00:20:35.8232378Z -- FindGLEW: GLEW_SHARED_LIBRARY: D:/a/jusPrin/jusPrin/deps/build/OrcaSlicer_dep/usr/local/lib/GLEW.lib
+2026-02-20T00:20:35.8234682Z -- FindGLEW: GLEW_STATIC_LIBRARY: D:/a/jusPrin/jusPrin/deps/build/OrcaSlicer_dep/usr/local/lib/GLEW.lib
+2026-02-20T00:20:35.8236029Z -- FindGLEW: GLEW_LIBRARIES: D:/a/jusPrin/jusPrin/deps/build/OrcaSlicer_dep/usr/local/lib/GLEW.lib
+2026-02-20T00:20:35.8588490Z -- FindGLEW: GLEW_VERSION_MAJOR: 2
+2026-02-20T00:20:35.8589179Z -- FindGLEW: GLEW_VERSION_MINOR: 2
+2026-02-20T00:20:35.8589755Z -- FindGLEW: GLEW_VERSION_MICRO: 0
+2026-02-20T00:20:35.8590640Z -- FindGLEW: GLEW_VERSION: 2.2.0
+2026-02-20T00:20:35.8598624Z -- Found GLEW: D:/a/jusPrin/jusPrin/deps/build/OrcaSlicer_dep/usr/local/include (found version "2.2.0") 
+2026-02-20T00:20:35.8605383Z -- FindGLEW: Creating GLEW::glew_s imported target.
+2026-02-20T00:20:35.8605996Z -- FindGLEW: Creating GLEW::GLEW imported target.
+2026-02-20T00:20:36.1347965Z -- Could NOT find cereal (missing: cereal_DIR)
+2026-02-20T00:20:36.1356077Z -- Looking for C++ include cereal/cereal.hpp
+2026-02-20T00:20:36.8151481Z -- Looking for C++ include cereal/cereal.hpp - not found
+2026-02-20T00:20:36.8152688Z CMake Error at cmake/modules/Findcereal.cmake:34 (message):
+2026-02-20T00:20:36.8153602Z   Cereal library not found.  Please install the dependency.
+2026-02-20T00:20:36.8154108Z Call Stack (most recent call first):
+2026-02-20T00:20:36.8154501Z   CMakeLists.txt:814 (find_package)
+2026-02-20T00:20:36.8154757Z 
+2026-02-20T00:20:36.8154763Z 
+2026-02-20T00:20:36.8155859Z -- Configuring incomplete, errors occurred!
+2026-02-20T00:20:36.8280901Z 
+2026-02-20T00:20:36.8281582Z D:\a\jusPrin\jusPrin\build>cmake --build . --config Release --target ALL_BUILD -- -m 
+2026-02-20T00:20:36.9344395Z MSBuild version 17.14.40+3e7442088 for .NET Framework
+2026-02-20T00:20:36.9346473Z MSBUILD : error MSB1009: Project file does not exist.
+2026-02-20T00:20:36.9346940Z Switch: ALL_BUILD.vcxproj
+2026-02-20T00:20:36.9477888Z D:\a\jusPrin\jusPrin
+2026-02-20T00:20:38.2618360Z MSBuild version 17.14.40+3e7442088 for .NET Framework
+2026-02-20T00:20:38.2620589Z MSBUILD : error MSB1009: Project file does not exist.
+2026-02-20T00:20:38.2621186Z Switch: install.vcxproj
+2026-02-20T00:20:38.3653115Z ##[error]Process completed with exit code 1.
+2026-02-20T00:20:38.3960999Z Post job cleanup.
+2026-02-20T00:20:38.5938881Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-02-20T00:20:38.6237174Z git version 2.53.0.windows.1
+2026-02-20T00:20:38.6309471Z Temporarily overriding HOME='D:\a\_temp\e3c28c67-1eb4-450b-b896-7d8edeec5fc1' before making global git config changes
+2026-02-20T00:20:38.6310582Z Adding repository directory to the temporary git global config as a safe directory
+2026-02-20T00:20:38.6320398Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\jusPrin\jusPrin
+2026-02-20T00:20:38.6632306Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-02-20T00:20:38.6936422Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-02-20T00:20:39.2221191Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-02-20T00:20:39.2476337Z http.https://github.com/.extraheader
+2026-02-20T00:20:39.2521640Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
+2026-02-20T00:20:39.2825031Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-02-20T00:20:39.8265394Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-02-20T00:20:39.8581168Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-02-20T00:20:40.4214165Z Cleaning up orphan processes
+2026-02-20T00:20:40.4412396Z Terminate orphan process: pid (5952) (vctip)
